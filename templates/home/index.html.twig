@@ -1,0 +1,220 @@
+{# templates/home/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(1deg); }
+        50% { transform: translateY(-8px) rotate(-1deg); }
+    }
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 15px rgba(250, 204, 21, 0.4); }
+        50% { box-shadow: 0 0 30px rgba(250, 204, 21, 0.8); }
+    }
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+    .animate-glow {
+        animation: pulseGlow 3s ease-in-out infinite;
+    }
+</style>
+
+<!-- Hero Section -->
+<header class="relative overflow-hidden py-20 lg:py-32 bg-gradient-to-b from-brandYellow via-yellow-400 to-yellow-500">
+    <!-- Decorative Background Circles -->
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/2 -right-24 w-80 h-80 bg-brandDark/5 rounded-full blur-2xl pointer-events-none"></div>
+
+    <div class="container-xxl px-4 relative z-10">
+        <div class="row align-items-center gy-5">
+            <!-- Left Column: Text Content -->
+            <div class="col-lg-7 space-y-6">
+                <span class="inline-flex items-center gap-2 bg-brandDark text-brandYellow text-xs font-extrabold uppercase tracking-widest px-4 py-2 rounded-full shadow-lg transform hover:scale-105 transition duration-300">
+                    <span class="w-2 h-2 rounded-full bg-brandYellow animate-ping"></span>
+                    📍 Metro Manila District Suites • G. Tolentino (UST)
+                </span>
+                
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight leading-none text-brandDark">
+                    Have A Break <br/>
+                    <span class="text-brandDark underline decoration-white decoration-wavy decoration-3 underline-offset-8">for a Moment.</span>
+                </h1>
+                
+                <p class="text-lg lg:text-xl font-medium text-brandDark/90 max-w-lg leading-relaxed">
+                    Premium Taste • Everyday Price. Serving your favorite cold brews, lattes, and refreshments right around the corner from UST.
+                </p>
+                
+                <div class="d-flex flex-wrap gap-3 pt-3">
+                    <a href="{{ path('app_menu') }}" class="btn bg-brandDark text-brandYellow fw-bold px-6 py-3.5 rounded-2xl hover:bg-black hover:scale-105 transition duration-300 shadow-xl border-0 flex items-center gap-2">
+                        Explore Menu 
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                    <a href="{{ store.maps_url }}" target="_blank" class="btn bg-white text-brandDark fw-bold px-6 py-3.5 rounded-2xl hover:bg-gray-50 hover:scale-105 transition duration-300 shadow-md border border-brandDark/20 flex items-center gap-2">
+                        <span>📍</span> Open Google Maps
+                    </a>
+                </div>
+
+                <!-- Quick Stats / Highlights -->
+                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-brandDark/10 max-w-lg">
+                    <div>
+                        <p class="text-2xl font-black text-brandDark mb-0">100%</p>
+                        <p class="text-xs font-semibold text-brandDark/70 uppercase tracking-wider">Fresh Brews</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-brandDark mb-0">UST / FEU</p>
+                        <p class="text-xs font-semibold text-brandDark/70 uppercase tracking-wider">Minutes Away</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-brandDark mb-0">Daily</p>
+                        <p class="text-xs font-semibold text-brandDark/70 uppercase tracking-wider">Open 11AM+</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Image Collage & Floating Card -->
+            <div class="col-lg-5 d-flex justify-content-center">
+                <!-- Added pb-10 and pt-4 here to give breathing room for the absolute positioned badge -->
+                <div class="relative w-full max-w-md pb-10 pt-4 px-2">
+                    <!-- Main Image Frame with Animation -->
+                    <div class="w-full bg-white rounded-3xl p-4 shadow-2xl border-4 border-brandDark/10 animate-float">
+                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 group">
+                            <img src="{{ asset('images/1 (1).jpg') }}" alt="Every Cup Signature Drink" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition"></div>
+                            <span class="absolute bottom-3 left-3 bg-brandYellow text-brandDark text-xs font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow">
+                                Best Seller ✨
+                            </span>
+                        </div>
+
+                        <!-- Store Hours Box inside Hero -->
+                        <div class="bg-brandYellow/20 rounded-2xl p-5 text-center border border-brandYellow/50">
+                            <div class="bg-brandYellow text-brandDark font-black text-2xl tracking-tighter inline-block px-4 py-1.5 rounded-xl mb-2 shadow-sm border-2 border-brandDark">
+                                every cup
+                            </div>
+                            <h3 class="fw-extrabold text-brandDark fs-5 mb-1">Open Monday – Saturday</h3>
+                            <p class="text-secondary fw-semibold mb-2 text-sm">11:00 AM – 11:00 PM</p>
+                            <span class="badge bg-brandDark text-brandYellow px-3 py-1.5 rounded-pill fw-bold text-xs tracking-wider">UST Sampaloc Branch</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Featured Visual Showcase Section -->
+<section class="py-20 bg-white text-brandDark">
+    <div class="container-xxl px-4">
+        <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span class="text-xs font-black uppercase tracking-widest bg-brandYellow/30 text-brandDark px-3.5 py-1.5 rounded-full border border-brandYellow">
+                The Experience
+            </span>
+            <h2 class="text-4xl lg:text-5xl font-black tracking-tight">
+                Crafted for Your Daily Grind
+            </h2>
+            <p class="text-secondary font-medium">
+                Whether you're looking to pull an all-nighter study session near UST or catch up with friends, every cup. is your cozy sanctuary.
+            </p>
+        </div>
+
+        <!-- 3-Column Aesthetic Image Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="group relative rounded-3xl overflow-hidden shadow-xl bg-brandDark aspect-[4/5] transform hover:-translate-y-2 transition duration-500">
+                <img src="{{ asset('images/1 (1).jpg') }}" alt="Cold Brews & Refreshments" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-brandDark via-brandDark/30 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6 space-y-2 text-white">
+                    <span class="text-brandYellow text-xs font-black uppercase tracking-widest">Refreshing</span>
+                    <h3 class="text-2xl font-black">Signature Cold Brews</h3>
+                    <p class="text-sm text-gray-300 font-medium">Handcrafted daily to give you the ultimate energy boost.</p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="group relative rounded-3xl overflow-hidden shadow-xl bg-brandDark aspect-[4/5] transform hover:-translate-y-2 transition duration-500">
+                <img src="{{ asset('images/1 (2).jpg') }}" alt="Cozy Ambiance" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-brandDark via-brandDark/30 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6 space-y-2 text-white">
+                    <span class="text-brandYellow text-xs font-black uppercase tracking-widest">Ambiance</span>
+                    <h3 class="text-2xl font-black">Cozy Study Spot</h3>
+                    <p class="text-sm text-gray-300 font-medium">Comfortable seating right next to UST for your academic hustle.</p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="group relative rounded-3xl overflow-hidden shadow-xl bg-brandDark aspect-[4/5] transform hover:-translate-y-2 transition duration-500">
+                <img src="{{ asset('images/1 (3).jpg') }}" alt="Quality Ingredients" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-brandDark via-brandDark/30 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6 space-y-2 text-white">
+                    <span class="text-brandYellow text-xs font-black uppercase tracking-widest">Premium Quality</span>
+                    <h3 class="text-2xl font-black">Everyday Affordability</h3>
+                    <p class="text-sm text-gray-300 font-medium">Top-tier ingredients made accessible for every student and professional.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action Banner -->
+        <div class="mt-16 bg-brandYellow rounded-3xl p-8 lg:p-12 shadow-2xl border-4 border-brandDark flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div class="space-y-2 text-center lg:text-left">
+                <h3 class="text-3xl lg:text-4xl font-black text-brandDark tracking-tight">Ready to taste the difference?</h3>
+                <p class="text-brandDark/80 font-semibold text-base">Check out our complete line-up of drinks and refreshments.</p>
+            </div>
+            <a href="{{ path('app_menu') }}" class="btn bg-brandDark text-brandYellow fw-bold px-8 py-4 rounded-2xl hover:bg-black transition duration-300 shadow-xl border-0 text-lg uppercase tracking-wider whitespace-nowrap">
+                Browse Full Menu ➔
+            </a>
+        </div>
+
+        <!-- Location Section Integrated into Home -->
+        <div class="mt-24">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <span class="bg-brandDark text-brandYellow text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow">Visit Our Store</span>
+                <h2 class="text-4xl font-extrabold tracking-tight text-brandDark">Location & Hours</h2>
+                <div class="w-16 h-1.5 bg-brandDark mx-auto rounded-pill"></div>
+            </div>
+
+            <div class="bg-brandYellow rounded-[2.5rem] p-6 lg:p-12 shadow-2xl border-4 border-brandDark/10">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <div class="bg-white p-6 lg:p-8 rounded-3xl border-2 border-brandDark shadow-xl space-y-5">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <h4 class="text-xl lg:text-2xl font-black text-brandDark mb-0">{{ store.name }}</h4>
+                                <span class="badge bg-brandDark text-brandYellow px-3 py-1.5 rounded-pill fw-bold text-xs uppercase tracking-wider">UST Area</span>
+                            </div>
+
+                            <div class="space-y-4 pt-2">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="bg-brandYellow text-brandDark p-2 rounded-xl fw-bold fs-5 shadow-xs border border-brandDark">📍</div>
+                                    <div>
+                                        <strong class="text-brandDark d-block mb-0.5">Address</strong>
+                                        <p class="text-secondary text-sm mb-0">{{ store.address }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="bg-brandYellow text-brandDark p-2 rounded-xl fw-bold fs-5 shadow-xs border border-brandDark">🕒</div>
+                                    <div>
+                                        <strong class="text-brandDark d-block mb-0.5">Operating Hours</strong>
+                                        <p class="text-secondary text-sm mb-0 font-semibold text-brandDark">{{ store.hours }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-top border-dark border-opacity-10">
+                                <a href="{{ store.maps_url }}" target="_blank" class="btn bg-brandDark text-brandYellow fw-bold px-4 py-3 rounded-2xl hover:bg-black transition shadow-md border-0 w-100 d-flex align-items-center justify-content-center gap-2">
+                                    <span>🗺️</span> Open Google Maps Direction
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="h-96 rounded-3xl overflow-hidden border-4 border-brandDark shadow-2xl bg-white">
+                            <iframe title="Store Location Map" class="w-100 h-100 filter contrast-125" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.912!2d120.988!3d14.604!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDM2JzE0LjQiTiAxMjDCsDU5JzE2LjgiRQ!5e0!3m2!1sen!2sph!4v1234567890" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+</section>
+{% endblock %}

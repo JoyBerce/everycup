@@ -1,0 +1,56 @@
+{# templates/home/faq.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<section class="py-24 bg-light text-brandDark">
+    <div class="container-xxl px-4">
+        <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span class="bg-brandDark text-brandYellow text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow">Got Questions?</span>
+            <h2 class="text-4xl font-extrabold tracking-tight text-brandDark">Frequently Asked Questions</h2>
+            <div class="w-16 h-1.5 bg-brandDark mx-auto rounded-pill"></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion shadow-sm rounded-3 overflow-hidden border-2 border-brandDark" id="faqAccordion">
+                    <div class="accordion-item border-0 border-bottom border-dark border-opacity-10">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button fw-bold bg-white text-brandDark shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                What are your operating hours and days?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body bg-white text-secondary">
+                                We are open Monday to Saturday from 11:00 AM to 11:00 PM. We are closed on Sundays.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 border-bottom border-dark border-opacity-10">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed fw-bold bg-white text-brandDark shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                Where exactly is your physical branch located?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body bg-white text-secondary">
+                                Our store is located at Metro Manila District Suites, 466, 1125 Tolentino St, Sampaloc, Manila, 1008 Metro Manila (near UST).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed fw-bold bg-white text-brandDark shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                Do you accept walk-ins and delivery orders?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body bg-white text-secondary">
+                                Yes! We gladly welcome walk-in customers and students, and we also offer delivery through major delivery apps or direct pickup.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
