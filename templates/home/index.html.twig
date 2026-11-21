@@ -1,220 +1,1377 @@
-{# templates/home/index.html.twig #}
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}
+    every cup. | Your Cup, Your Story
+{% endblock %}
 
 {% block body %}
-<style>
-    @keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(1deg); }
-        50% { transform: translateY(-8px) rotate(-1deg); }
-    }
-    @keyframes pulseGlow {
-        0%, 100% { box-shadow: 0 0 15px rgba(250, 204, 21, 0.4); }
-        50% { box-shadow: 0 0 30px rgba(250, 204, 21, 0.8); }
-    }
-    .animate-float {
-        animation: float 4s ease-in-out infinite;
-    }
-    .animate-glow {
-        animation: pulseGlow 3s ease-in-out infinite;
-    }
-</style>
 
-<!-- Hero Section -->
-<header class="relative overflow-hidden py-20 lg:py-32 bg-gradient-to-b from-brandYellow via-yellow-400 to-yellow-500">
-    <!-- Decorative Background Circles -->
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute top-1/2 -right-24 w-80 h-80 bg-brandDark/5 rounded-full blur-2xl pointer-events-none"></div>
 
-    <div class="container-xxl px-4 relative z-10">
-        <div class="row align-items-center gy-5">
-            <!-- Left Column: Text Content -->
-            <div class="col-lg-7 space-y-6">
-                <span class="inline-flex items-center gap-2 bg-brandDark text-brandYellow text-xs font-extrabold uppercase tracking-widest px-4 py-2 rounded-full shadow-lg transform hover:scale-105 transition duration-300">
-                    <span class="w-2 h-2 rounded-full bg-brandYellow animate-ping"></span>
-                    📍 Metro Manila District Suites • G. Tolentino (UST)
-                </span>
-                
-                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight leading-none text-brandDark">
-                    Have A Break <br/>
-                    <span class="text-brandDark underline decoration-white decoration-wavy decoration-3 underline-offset-8">for a Moment.</span>
-                </h1>
-                
-                <p class="text-lg lg:text-xl font-medium text-brandDark/90 max-w-lg leading-relaxed">
-                    Premium Taste • Everyday Price. Serving your favorite cold brews, lattes, and refreshments right around the corner from UST.
-                </p>
-                
-                <div class="d-flex flex-wrap gap-3 pt-3">
-                    <a href="{{ path('app_menu') }}" class="btn bg-brandDark text-brandYellow fw-bold px-6 py-3.5 rounded-2xl hover:bg-black hover:scale-105 transition duration-300 shadow-xl border-0 flex items-center gap-2">
-                        Explore Menu 
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </a>
-                    <a href="{{ store.maps_url }}" target="_blank" class="btn bg-white text-brandDark fw-bold px-6 py-3.5 rounded-2xl hover:bg-gray-50 hover:scale-105 transition duration-300 shadow-md border border-brandDark/20 flex items-center gap-2">
-                        <span>📍</span> Open Google Maps
-                    </a>
-                </div>
 
-                <!-- Quick Stats / Highlights -->
-                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-brandDark/10 max-w-lg">
-                    <div>
-                        <p class="text-2xl font-black text-brandDark mb-0">100%</p>
-                        <p class="text-xs font-semibold text-brandDark/70 uppercase tracking-wider">Fresh Brews</p>
-                    </div>
-                    <div>
-                        <p class="text-2xl font-black text-brandDark mb-0">UST / FEU</p>
-                        <p class="text-xs font-semibold text-brandDark/70 uppercase tracking-wider">Minutes Away</p>
-                    </div>
-                    <div>
-                        <p class="text-2xl font-black text-brandDark mb-0">Daily</p>
-                        <p class="text-xs font-semibold text-brandDark/70 uppercase tracking-wider">Open 11AM+</p>
-                    </div>
-                </div>
+<!-- ===================================================== -->
+<!-- LOADING SCREEN -->
+<!-- ===================================================== -->
+
+<div id="coffeeLoader" role="status" aria-live="polite" aria-label="Loading every cup">
+
+    <div class="loader-background">
+
+        <div class="loader-content">
+
+            <!-- BEANS DRIFTING BEHIND THE CUP (drawn in SVG, no images) -->
+            <div class="loader-bean-rain" aria-hidden="true">
+                {% for i in 1..10 %}
+                    <svg class="rain-bean" viewBox="-13 -18 26 36"
+                         style="left: {{ (i * 37) % 90 + 3 }}%; width: {{ 16 + (i * 7) % 14 }}px; animation-duration: {{ 3.2 + (i % 4) * 0.5 }}s; animation-delay: {{ (0.3 + i * 0.28)|round(2) }}s;">
+                        <use href="#lcBeanShape"/>
+                    </svg>
+                {% endfor %}
             </div>
 
-            <!-- Right Column: Image Collage & Floating Card -->
-            <div class="col-lg-5 d-flex justify-content-center">
-                <!-- Added pb-10 and pt-4 here to give breathing room for the absolute positioned badge -->
-                <div class="relative w-full max-w-md pb-10 pt-4 px-2">
-                    <!-- Main Image Frame with Animation -->
-                    <div class="w-full bg-white rounded-3xl p-4 shadow-2xl border-4 border-brandDark/10 animate-float">
-                        <div class="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 group">
-                            <img src="{{ asset('images/1 (1).jpg') }}" alt="Every Cup Signature Drink" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition"></div>
-                            <span class="absolute bottom-3 left-3 bg-brandYellow text-brandDark text-xs font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow">
-                                Best Seller ✨
-                            </span>
-                        </div>
-
-                        <!-- Store Hours Box inside Hero -->
-                        <div class="bg-brandYellow/20 rounded-2xl p-5 text-center border border-brandYellow/50">
-                            <div class="bg-brandYellow text-brandDark font-black text-2xl tracking-tighter inline-block px-4 py-1.5 rounded-xl mb-2 shadow-sm border-2 border-brandDark">
-                                every cup
-                            </div>
-                            <h3 class="fw-extrabold text-brandDark fs-5 mb-1">Open Monday – Saturday</h3>
-                            <p class="text-secondary fw-semibold mb-2 text-sm">11:00 AM – 11:00 PM</p>
-                            <span class="badge bg-brandDark text-brandYellow px-3 py-1.5 rounded-pill fw-bold text-xs tracking-wider">UST Sampaloc Branch</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- LOGO: pops in, then shrinks into the bean -->
+            <div class="loader-logo-container">
+                <img src="{{ asset('images/logo.png') }}" class="loader-logo" alt="Every Cup Logo">
             </div>
+
+            <!-- COFFEE CUP SCENE: rises, lid pops open, bean drops into the coffee -->
+            <svg class="loader-scene" viewBox="0 -70 300 440" aria-hidden="true">
+                <defs>
+                    <linearGradient id="lcBody" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0" stop-color="#cfc8bb"/><stop offset=".22" stop-color="#fffdf8"/>
+                        <stop offset=".5" stop-color="#f7f2e8"/><stop offset=".82" stop-color="#d8d0c2"/><stop offset="1" stop-color="#b9b0a0"/>
+                    </linearGradient>
+                    <linearGradient id="lcShade" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset=".16" stop-color="#fff" stop-opacity="0"/>
+                        <stop offset=".27" stop-color="#fff" stop-opacity=".42"/><stop offset=".38" stop-color="#fff" stop-opacity="0"/>
+                        <stop offset=".76" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".36"/>
+                    </linearGradient>
+                    <linearGradient id="lcSleeve" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0" stop-color="#7d532d"/><stop offset=".28" stop-color="#b88454"/>
+                        <stop offset=".46" stop-color="#c99666"/><stop offset=".78" stop-color="#9e6c3f"/><stop offset="1" stop-color="#6e4623"/>
+                    </linearGradient>
+                    <linearGradient id="lcWall" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0" stop-color="#a39886"/><stop offset="1" stop-color="#e6dfd0"/>
+                    </linearGradient>
+                    <linearGradient id="lcLid" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0" stop-color="#14100d"/><stop offset=".3" stop-color="#3b342f"/>
+                        <stop offset=".6" stop-color="#25201c"/><stop offset="1" stop-color="#0f0c0a"/>
+                    </linearGradient>
+                    <radialGradient id="lcLidTop" cx=".4" cy=".35" r=".75">
+                        <stop offset="0" stop-color="#4d453e"/><stop offset="1" stop-color="#221d19"/>
+                    </radialGradient>
+                    <radialGradient id="lcCoffee" cx=".42" cy=".4" r=".7">
+                        <stop offset="0" stop-color="#7d4726"/><stop offset=".6" stop-color="#4a2410"/><stop offset="1" stop-color="#25110a"/>
+                    </radialGradient>
+                    <radialGradient id="lcBean" cx=".35" cy=".3" r=".85">
+                        <stop offset="0" stop-color="#8d5834"/><stop offset=".55" stop-color="#4d2810"/><stop offset="1" stop-color="#1f0f08"/>
+                    </radialGradient>
+                    <filter id="lcBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+                    <filter id="lcShadowBlur" x="-30%" y="-100%" width="160%" height="300%"><feGaussianBlur stdDeviation="6"/></filter>
+                    <clipPath id="lcMouth"><ellipse cx="150" cy="150" rx="76" ry="13.5"/></clipPath>
+                    <clipPath id="lcAbove"><rect x="-60" y="-120" width="420" height="278"/></clipPath>
+                    <g id="lcBeanShape">
+                        <ellipse rx="10.5" ry="15.5" fill="url(#lcBean)"/>
+                        <path d="M-1.5,-14 C5,-5 -6,4 1.5,14" fill="none" stroke="#150a05" stroke-width="2" stroke-linecap="round"/>
+                        <ellipse cx="-4" cy="-6" rx="2.5" ry="5" fill="#fff" opacity=".2" transform="rotate(14 -4 -6)"/>
+                    </g>
+                    <path id="lcDrop" d="M0,-4 C2.6,-1 3,1.5 0,3.2 C-3,1.5 -2.6,-1 0,-4 Z"/>
+                </defs>
+
+                <ellipse class="lc-shadow" cx="150" cy="327" rx="86" ry="11" fill="#3a2410" filter="url(#lcShadowBlur)"/>
+
+                <g class="lc-rig">
+                    <!-- cup body, kraft sleeve, brand, cylinder shading -->
+                    <path d="M72,150 A78,15 0 0 0 228,150 L202,316 A52,10 0 0 1 98,316 Z" fill="url(#lcBody)"/>
+                    <path d="M80.5,205 Q150,219 219.5,205 L209.7,268 Q150,282 90.3,268 Z" fill="url(#lcSleeve)"/>
+                    <text class="lc-brand" x="150" y="238" text-anchor="middle">every</text>
+                    <text class="lc-brand lc-brand-b" x="150" y="260" text-anchor="middle">cup.</text>
+                    <path d="M72,150 A78,15 0 0 0 228,150 L202,316 A52,10 0 0 1 98,316 Z" fill="url(#lcShade)"/>
+
+                    <!-- open mouth: inner wall, coffee surface, ripples -->
+                    <ellipse cx="150" cy="150" rx="78" ry="15" fill="url(#lcWall)"/>
+                    <g clip-path="url(#lcMouth)">
+                        <g class="lc-surface">
+                            <ellipse cx="150" cy="163" rx="78" ry="14.5" fill="url(#lcCoffee)"/>
+                            <ellipse class="lc-crema" cx="150" cy="163" rx="58" ry="9.5" fill="none" stroke="#c99a68" stroke-width="3" stroke-dasharray="26 18 8 22"/>
+                            <ellipse cx="122" cy="155" rx="22" ry="2.6" fill="#fff" opacity=".13"/>
+                            <ellipse class="lc-ripple r1" cx="150" cy="157" rx="30" ry="5.3" fill="none" stroke="#e8c99a" stroke-width="1.6"/>
+                            <ellipse class="lc-ripple r2" cx="150" cy="157" rx="30" ry="5.3" fill="none" stroke="#e8c99a" stroke-width="1.3"/>
+                            <ellipse class="lc-ripple r3" cx="150" cy="157" rx="30" ry="5.3" fill="none" stroke="#e8c99a" stroke-width="1"/>
+                        </g>
+                    </g>
+                    <ellipse cx="150" cy="150" rx="78" ry="15" fill="none" stroke="#fff" stroke-width="3.2"/>
+                    <ellipse cx="150" cy="151.6" rx="78" ry="15" fill="none" stroke="#bdb4a4" stroke-width=".8" opacity=".8"/>
+
+                    <!-- splash droplets (leave the surface on impact, fall back with gravity) -->
+                    <g class="lc-splash" transform="translate(150 156)" fill="#7b4524" stroke="#d8a36a" stroke-width=".4">
+                        <g class="dx" style="--dx:-30px;--h:-30px;--dl:0s;--dur:.8s"><g class="dy"><use href="#lcDrop" transform="scale(1.3)"/></g></g>
+                        <g class="dx" style="--dx:-17px;--h:-46px;--dl:.03s;--dur:.95s"><g class="dy"><use href="#lcDrop" transform="scale(1.5)"/></g></g>
+                        <g class="dx" style="--dx:-6px;--h:-54px;--dl:0s;--dur:1s"><g class="dy"><use href="#lcDrop" transform="scale(1.7)"/></g></g>
+                        <g class="dx" style="--dx:8px;--h:-50px;--dl:.05s;--dur:.98s"><g class="dy"><use href="#lcDrop" transform="scale(1.4)"/></g></g>
+                        <g class="dx" style="--dx:20px;--h:-40px;--dl:.02s;--dur:.9s"><g class="dy"><use href="#lcDrop" transform="scale(1.3)"/></g></g>
+                        <g class="dx" style="--dx:33px;--h:-26px;--dl:.06s;--dur:.78s"><g class="dy"><use href="#lcDrop" transform="scale(1.2)"/></g></g>
+                        <g class="dx" style="--dx:-24px;--h:-18px;--dl:.1s;--dur:.6s"><g class="dy"><use href="#lcDrop" transform="scale(1)"/></g></g>
+                    </g>
+
+                    <!-- lid: pops, tilts and slides off -->
+                    <g class="lc-lid">
+                        <path d="M68,140 L68,149 A82,16 0 0 0 232,149 L232,140 Z" fill="url(#lcLid)"/>
+                        <ellipse cx="150" cy="140" rx="82" ry="16" fill="url(#lcLidTop)"/>
+                        <ellipse cx="150" cy="140" rx="74" ry="13.5" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="1.4"/>
+                        <path d="M92,133 L92,140 A58,11 0 0 0 208,140 L208,133 Z" fill="url(#lcLid)"/>
+                        <ellipse cx="150" cy="133" rx="58" ry="11" fill="url(#lcLidTop)"/>
+                        <ellipse cx="186" cy="131.5" rx="12" ry="3.4" fill="#0b0806"/>
+                        <path d="M175,131 Q186,127.6 197,131" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1"/>
+                        <path d="M96,128 Q150,118 204,128" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="2" stroke-linecap="round"/>
+                    </g>
+
+                    <!-- steam leaves the cup once the lid is off -->
+                    <g class="lc-steam" filter="url(#lcBlur)" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round">
+                        <path class="s1" d="M128,136 C118,116 138,100 126,78 C118,62 132,50 126,34"/>
+                        <path class="s2" d="M152,136 C142,113 163,98 150,72 C142,54 158,42 150,24"/>
+                        <path class="s3" d="M176,136 C168,117 186,102 176,80 C170,64 182,54 176,40"/>
+                    </g>
+                </g>
+
+                <!-- the bean: hidden below the coffee surface by the clip -->
+                <g clip-path="url(#lcAbove)">
+                    <g transform="translate(150 -25)"><g class="lc-bean"><use href="#lcBeanShape"/></g></g>
+                </g>
+            </svg>
+
+            <p class="loader-caption">EVERY MOMENT STARTS WITH A CUP.</p>
+
         </div>
+
     </div>
-</header>
 
-<!-- Featured Visual Showcase Section -->
-<section class="py-20 bg-white text-brandDark">
-    <div class="container-xxl px-4">
-        <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <span class="text-xs font-black uppercase tracking-widest bg-brandYellow/30 text-brandDark px-3.5 py-1.5 rounded-full border border-brandYellow">
-                The Experience
+</div>
+
+<!-- ===================================================== -->
+<!-- HERO SECTION -->
+<!-- ===================================================== -->
+
+<section class="hero-section" id="home">
+
+    <div class="hero-background-decoration"></div>
+
+    <!-- FALLING COFFEE BEANS -->
+    <div class="hero-beans" aria-hidden="true">
+        {% for i in 1..16 %}
+            <span class="bean-particle">
+                <img src="{{ asset('images/home/coffee-bean.png') }}" alt="">
             </span>
-            <h2 class="text-4xl lg:text-5xl font-black tracking-tight">
-                Crafted for Your Daily Grind
+        {% endfor %}
+    </div>
+
+    <div class="container-fluid container-xxl">
+
+        <div class="row align-items-center hero-row">
+
+            <!-- LEFT CONTENT (MORPHS ON CUP HOVER) -->
+            <div class="col-lg-6 hero-text-column">
+
+                <div class="hero-copy-wrapper">
+
+                    <!-- STATE 1: DEFAULT COPY -->
+                    <div class="hero-copy-state hero-copy-default">
+                        <div class="hero-eyebrow reveal">
+                            <span class="eyebrow-line"></span>
+                            <span>SAMPALOC, MANILA Â· YOUR DAILY COFFEE SPOT</span>
+                        </div>
+
+                        <h1 class="hero-title reveal">
+                            Every cup.
+                            <br>
+                            has a <span>story.</span>
+                        </h1>
+
+                        <p class="hero-description reveal">
+                            From your first sip to your favorite daily ritual,
+                            every cup is made to bring a little happiness
+                            to your everyday moments.
+                        </p>
+
+                        <div class="hero-buttons reveal">
+                            <a href="#menu" class="btn-primary-custom">
+                                FIND YOUR CUP
+                                <span>â†—</span>
+                            </a>
+
+                            <a href="#experience" class="btn-outline-custom">
+                                EXPLORE OUR STORY
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- STATE 2: HOVERED BREW COPY (MATCHING VIDEO) -->
+                    <div class="hero-copy-state hero-copy-hovered" aria-hidden="true">
+                        <div class="hero-eyebrow">
+                            <span class="eyebrow-line"></span>
+                            <span>THE EVERY CUP WAY</span>
+                        </div>
+
+                        <h2 class="hero-title">
+                            a better kind
+                            <br>
+                            of <span>brew.</span>
+                        </h2>
+
+                        <p class="hero-description">
+                            A simple glass of fresh, creamy milk to make the day a little better.
+                        </p>
+
+                        <div class="hero-buttons">
+                            <a href="#menu" class="btn-primary-custom">
+                                EXPLORE THE MENU
+                                <span>â†’</span>
+                            </a>
+
+                            <a href="#visit" class="btn-outline-custom">
+                                PRE-ORDER A CUP
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="hero-bottom-note reveal">
+                    <span class="hero-note-dot"></span>
+                    FRESHLY MADE. ALWAYS MADE WITH LOVE.
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT HERO VISUAL -->
+            <div class="col-lg-6 hero-visual-column">
+
+                <div class="hero-visual reveal">
+
+                    <!-- YELLOW LOGO BEHIND THE CUPS -->
+                    <div class="hero-logo-background">
+                        <img src="{{ asset('images/logo.png') }}" alt="Every Cup Logo">
+                    </div>
+
+                    <!-- INTERACTIVE HERO CUP: HOVER TO POUR CHOCOLATE -->
+                    <div class="hero-cup-stage" id="heroCupStage" aria-label="A clear glass filled with fresh milk">
+
+                        <!-- Shared filter for the chocolate swirl -->
+                        <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+                            <filter id="chocoSwirl" x="-10%" y="-10%" width="120%" height="120%">
+                                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="2" seed="7" result="noise">
+                                    <animate attributeName="baseFrequency" dur="10s" values="0.012 0.03;0.02 0.02;0.012 0.03" repeatCount="indefinite"/>
+                                </feTurbulence>
+                                <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+                            </filter>
+                        </svg>
+                        <div class="espresso-pour-wrapper" aria-hidden="true">
+                            <svg class="espresso-stream-svg" viewBox="0 0 120 380" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="chocoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#1b0b05"/><stop offset="35%" stop-color="#4a2412"/>
+                                        <stop offset="62%" stop-color="#7a4426"/><stop offset="100%" stop-color="#1f0d06"/>
+                                    </linearGradient>
+                                    <linearGradient id="chocoShine" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="rgba(255,225,190,0.5)"/><stop offset="100%" stop-color="rgba(255,225,190,0.12)"/>
+                                    </linearGradient>
+                                </defs>
+                                <path class="stream-core" d="M46,0 C47,90 46,190 49,290 Q50.5,345 52.5,380 L67.5,380 Q69.5,345 71,290 C74,190 73,90 74,0 Z" fill="url(#chocoGrad)"/>
+                                <path class="stream-shine" d="M52,0 C53,90 52,190 54,290 Q55,340 56,380 L59,380 Q58,340 59,290 C58,190 58.5,90 58,0 Z" fill="url(#chocoShine)"/>
+                            </svg>
+                        </div>
+
+                        <!-- LEFT BACKGROUND BROWN KRAFT CUP -->
+                        <div class="bg-kraft-cup kraft-left" aria-hidden="true">
+                            <div class="kraft-lid">
+                                <div class="kraft-lid-top"></div>
+                                <div class="kraft-lid-rim"></div>
+                            </div>
+                            <div class="kraft-body">
+                                <div class="kraft-sleeve">
+                                    <span class="kraft-brand">every<br><strong>cup</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT BACKGROUND BROWN KRAFT CUP -->
+                        <div class="bg-kraft-cup kraft-right" aria-hidden="true">
+                            <div class="kraft-lid">
+                                <div class="kraft-lid-top"></div>
+                                <div class="kraft-lid-rim"></div>
+                            </div>
+                            <div class="kraft-body">
+                                <div class="kraft-sleeve">
+                                    <span class="kraft-brand">every<br><strong>cup</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MAIN CENTER REALISTIC ICED LATTE CUP -->
+                        <div class="main-iced-cup">
+                            <!-- Top Rim & Opening -->
+                            <div class="cup-top-rim"></div>
+
+                            <!-- Cup Glass/PET Body -->
+                            <div class="cup-plastic-body">
+
+                                <!-- Base Cold Fresh Milk Layer -->
+                                <div class="milk-base-layer"></div>
+
+                                <!-- Chocolate pour and milk-to-chocolate hover effect -->
+                                <div class="choco-mix" aria-hidden="true">
+                                    <div class="choco-flow">
+                                        <div class="choco-tint"></div>
+                                        <div class="choco-plume plume-1"></div><div class="choco-plume plume-2"></div>
+                                        <div class="choco-plume plume-3"></div><div class="choco-plume plume-4"></div>
+                                    </div>
+                                    <div class="choco-pool"></div>
+                                </div>
+                                <div class="ice-cubes-cluster" aria-hidden="true">
+                                    <div class="ice-cube cube-1"></div><div class="ice-cube cube-2"></div>
+                                    <div class="ice-cube cube-3"></div><div class="ice-cube cube-4"></div>
+                                </div>
+                                <div class="choco-mound"></div>
+                                <div class="choco-ripple"></div><div class="choco-ripple r2"></div>
+                                <div class="choco-drop cd-1"></div><div class="choco-drop cd-2"></div>
+                                <div class="choco-drop cd-3"></div><div class="choco-drop cd-4"></div><div class="choco-drop cd-5"></div>
+
+                                <!-- Printed Cup Logo -->
+                                <div class="cup-printed-logo">
+                                    <span>every</span>
+                                    <strong>cup</strong>
+                                </div>
+
+                                <!-- Realistic Plastic Specular Highlights & Condensation -->
+                                <div class="cup-glass-highlight-left"></div>
+                                <div class="cup-glass-highlight-right"></div>
+                            </div>
+
+                            <!-- Thick Clear Cup Base -->
+                            <div class="cup-bottom-base"></div>
+                        </div>
+
+                        <!-- DRINK BADGE CALLOUT -->
+                        <div class="drink-price-badge">
+                            <span class="badge-dot"></span>
+                            <span>Fresh Milk</span>
+                        </div>
+
+                        <!-- SCATTERING 3D COFFEE BEANS (Disperse on Hover) -->
+                        <div class="stage-beans-layer" aria-hidden="true">
+                            <div class="hero-floating-bean bean-one">
+                                <img src="{{ asset('images/home/coffee-bean.png') }}" alt="">
+                            </div>
+                            <div class="hero-floating-bean bean-two">
+                                <img src="{{ asset('images/home/coffee-bean.png') }}" alt="">
+                            </div>
+                            <div class="hero-floating-bean bean-three">
+                                <img src="{{ asset('images/home/coffee-bean.png') }}" alt="">
+                            </div>
+                            <div class="hero-floating-bean bean-four">
+                                <img src="{{ asset('images/home/coffee-bean.png') }}" alt="">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- WOODEN SAUCER / COASTER -->
+                    <div class="hero-saucer"></div>
+
+                    <!-- SCATTERED ROASTED BEANS ON TABLE -->
+                    <div class="table-beans" aria-hidden="true">
+                        <span class="t-bean tb-1"></span>
+                        <span class="t-bean tb-2"></span>
+                        <span class="t-bean tb-3"></span>
+                        <span class="t-bean tb-4"></span>
+                    </div>
+
+                    <div class="hero-stamp">
+                        <span>EVERY</span>
+                        <strong>SIP MATTERS.</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <!-- SCROLL INDICATOR -->
+    <a href="#menu" class="hero-scroll-indicator">
+        <span>SCROLL TO EXPLORE</span>
+        <div class="scroll-line"></div>
+    </a>
+
+</section>
+
+
+<!-- ===================================================== -->
+{% if false %}
+<!-- EXPERIENCE SECTION -->
+<!-- ===================================================== -->
+
+<section class="experience-section section-padding" id="experience">
+
+    <div class="container-xxl px-4">
+
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-6">
+
+                <div class="experience-image-wrapper reveal">
+
+                    <img src="{{ asset('images/home/coffee-experience.jpg') }}"
+                         alt="Enjoying the Every Cup experience"
+                         class="experience-image">
+
+                    <div class="experience-image-label">
+
+                        <span>01 / THE EXPERIENCE</span>
+
+                        <strong>
+                            Make time<br>
+                            for yourself.
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-6">
+
+                <div class="section-eyebrow reveal">
+                    MORE THAN JUST COFFEE
+                </div>
+
+                <h2 class="section-title reveal">
+
+                    A little pause.
+
+                    <br>
+
+                    A lot of <span>happiness.</span>
+
+                </h2>
+
+                <p class="section-description reveal">
+
+                    Life moves fast, but your coffee moment doesn't
+                    have to. Whether you're starting your morning,
+                    taking a break, or catching up with friends,
+                    Every Cup is here to make those little moments
+                    feel special.
+
+                </p>
+
+                <div class="experience-features">
+
+                    <div class="experience-feature reveal">
+
+                        <div class="feature-number">01</div>
+
+                        <div>
+                            <h4>MADE FOR EVERYDAY</h4>
+
+                            <p>
+                                Your daily coffee companion, made
+                                to fit every kind of day.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="experience-feature reveal">
+
+                        <div class="feature-number">02</div>
+
+                        <div>
+                            <h4>YOUR FAVORITE FLAVORS</h4>
+
+                            <p>
+                                Discover drinks that make every
+                                sip worth remembering.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="experience-feature reveal">
+
+                        <div class="feature-number">03</div>
+
+                        <div>
+                            <h4>YOUR OWN LITTLE MOMENT</h4>
+
+                            <p>
+                                A place to relax, recharge,
+                                and enjoy the little things.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- BRAND STORY -->
+<!-- ===================================================== -->
+
+<section class="story-section section-padding" id="story">
+
+    <div class="container-xxl px-4">
+
+        <div class="story-content reveal">
+
+            <img src="{{ asset('images/logo.png') }}"
+                 class="story-logo"
+                 alt="Every Cup Logo">
+
+            <span class="story-eyebrow">
+                THE EVERY CUP STORY
+            </span>
+
+            <h2>
+
+                Every cup has a story.
+
+                <br>
+
+                <span>What's yours?</span>
+
             </h2>
-            <p class="text-secondary font-medium">
-                Whether you're looking to pull an all-nighter study session near UST or catch up with friends, every cup. is your cozy sanctuary.
+
+            <p>
+
+                Coffee is more than a drink. It's the conversations,
+                the quiet mornings, the celebrations, and the
+                everyday memories we make along the way.
+
+                At Every Cup, we believe every moment deserves
+                its own cup.
+
             </p>
-        </div>
 
-        <!-- 3-Column Aesthetic Image Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Card 1 -->
-            <div class="group relative rounded-3xl overflow-hidden shadow-xl bg-brandDark aspect-[4/5] transform hover:-translate-y-2 transition duration-500">
-                <img src="{{ asset('images/1 (1).jpg') }}" alt="Cold Brews & Refreshments" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-brandDark via-brandDark/30 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-6 space-y-2 text-white">
-                    <span class="text-brandYellow text-xs font-black uppercase tracking-widest">Refreshing</span>
-                    <h3 class="text-2xl font-black">Signature Cold Brews</h3>
-                    <p class="text-sm text-gray-300 font-medium">Handcrafted daily to give you the ultimate energy boost.</p>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="group relative rounded-3xl overflow-hidden shadow-xl bg-brandDark aspect-[4/5] transform hover:-translate-y-2 transition duration-500">
-                <img src="{{ asset('images/1 (2).jpg') }}" alt="Cozy Ambiance" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-brandDark via-brandDark/30 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-6 space-y-2 text-white">
-                    <span class="text-brandYellow text-xs font-black uppercase tracking-widest">Ambiance</span>
-                    <h3 class="text-2xl font-black">Cozy Study Spot</h3>
-                    <p class="text-sm text-gray-300 font-medium">Comfortable seating right next to UST for your academic hustle.</p>
-                </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="group relative rounded-3xl overflow-hidden shadow-xl bg-brandDark aspect-[4/5] transform hover:-translate-y-2 transition duration-500">
-                <img src="{{ asset('images/1 (3).jpg') }}" alt="Quality Ingredients" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-brandDark via-brandDark/30 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-6 space-y-2 text-white">
-                    <span class="text-brandYellow text-xs font-black uppercase tracking-widest">Premium Quality</span>
-                    <h3 class="text-2xl font-black">Everyday Affordability</h3>
-                    <p class="text-sm text-gray-300 font-medium">Top-tier ingredients made accessible for every student and professional.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Call to Action Banner -->
-        <div class="mt-16 bg-brandYellow rounded-3xl p-8 lg:p-12 shadow-2xl border-4 border-brandDark flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div class="space-y-2 text-center lg:text-left">
-                <h3 class="text-3xl lg:text-4xl font-black text-brandDark tracking-tight">Ready to taste the difference?</h3>
-                <p class="text-brandDark/80 font-semibold text-base">Check out our complete line-up of drinks and refreshments.</p>
-            </div>
-            <a href="{{ path('app_menu') }}" class="btn bg-brandDark text-brandYellow fw-bold px-8 py-4 rounded-2xl hover:bg-black transition duration-300 shadow-xl border-0 text-lg uppercase tracking-wider whitespace-nowrap">
-                Browse Full Menu ➔
+            <a href="#visit" class="story-button">
+                BE PART OF OUR STORY â†—
             </a>
+
         </div>
 
-        <!-- Location Section Integrated into Home -->
-        <div class="mt-24">
-            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
-                <span class="bg-brandDark text-brandYellow text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow">Visit Our Store</span>
-                <h2 class="text-4xl font-extrabold tracking-tight text-brandDark">Location & Hours</h2>
-                <div class="w-16 h-1.5 bg-brandDark mx-auto rounded-pill"></div>
+    </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+{% endif %}
+<!-- FEATURED MENU -->
+<!-- ===================================================== -->
+
+<section class="menu-section section-padding" id="menu">
+
+    <div class="container-xxl px-4">
+
+        <div class="menu-heading reveal">
+
+            <div>
+
+                <div class="section-eyebrow">
+                    A CUP FOR EVERY MOOD
+                </div>
+
+                <h2 class="section-title">
+                    Find your <span>favorite.</span>
+                </h2>
+
+                <p class="section-description">
+                    Discover drinks that make your everyday
+                    moments a little more special.
+                </p>
+
             </div>
 
-            <div class="bg-brandYellow rounded-[2.5rem] p-6 lg:p-12 shadow-2xl border-4 border-brandDark/10">
-                <div class="row align-items-center g-5">
-                    <div class="col-lg-6">
-                        <div class="bg-white p-6 lg:p-8 rounded-3xl border-2 border-brandDark shadow-xl space-y-5">
-                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                <h4 class="text-xl lg:text-2xl font-black text-brandDark mb-0">{{ store.name }}</h4>
-                                <span class="badge bg-brandDark text-brandYellow px-3 py-1.5 rounded-pill fw-bold text-xs uppercase tracking-wider">UST Area</span>
-                            </div>
+            <div class="menu-heading-stamp">
+                EVERY CUP.
+                <span>EVERY MOMENT.</span>
+            </div>
 
-                            <div class="space-y-4 pt-2">
-                                <div class="d-flex align-items-start gap-3">
-                                    <div class="bg-brandYellow text-brandDark p-2 rounded-xl fw-bold fs-5 shadow-xs border border-brandDark">📍</div>
-                                    <div>
-                                        <strong class="text-brandDark d-block mb-0.5">Address</strong>
-                                        <p class="text-secondary text-sm mb-0">{{ store.address }}</p>
-                                    </div>
-                                </div>
+        </div>
 
-                                <div class="d-flex align-items-start gap-3">
-                                    <div class="bg-brandYellow text-brandDark p-2 rounded-xl fw-bold fs-5 shadow-xs border border-brandDark">🕒</div>
-                                    <div>
-                                        <strong class="text-brandDark d-block mb-0.5">Operating Hours</strong>
-                                        <p class="text-secondary text-sm mb-0 font-semibold text-brandDark">{{ store.hours }}</p>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="pt-4 border-top border-dark border-opacity-10">
-                                <a href="{{ store.maps_url }}" target="_blank" class="btn bg-brandDark text-brandYellow fw-bold px-4 py-3 rounded-2xl hover:bg-black transition shadow-md border-0 w-100 d-flex align-items-center justify-content-center gap-2">
-                                    <span>🗺️</span> Open Google Maps Direction
-                                </a>
-                            </div>
+        <div class="row g-4 menu-card-container">
+
+            {% for product in featuredProducts %}
+
+                <div class="col-md-6 col-lg-4">
+
+                    <div class="menu-card reveal">
+
+                        <div class="menu-card-image">
+
+                            <span class="menu-category">
+                                {{ product.category }}
+                            </span>
+
+                            <img src="{{ asset(product.image) }}"
+                                 alt="{{ product.name }}"
+                                 loading="lazy">
+
                         </div>
+
+                        <div class="menu-card-content">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <h3>{{ product.name }}</h3>
+
+                                <span class="menu-price">
+                                    {{ product.price }}
+                                </span>
+
+                            </div>
+
+                            <p>
+                                {{ product.description }}
+                            </p>
+
+                            <div class="menu-card-footer">
+                                <span>MADE FOR EVERY SIP.</span>
+                                <button class="add-to-order" type="button"
+                                        data-name="{{ product.name }}"
+                                        data-price="{{ product.price|replace({'â‚±':'','Ã¢â€šÂ±':''})|trim }}">
+                                    ADD <span>+</span>
+                                </button>
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <div class="col-lg-6">
-                        <div class="h-96 rounded-3xl overflow-hidden border-4 border-brandDark shadow-2xl bg-white">
-                            <iframe title="Store Location Map" class="w-100 h-100 filter contrast-125" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.912!2d120.988!3d14.604!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDM2JzE0LjQiTiAxMjDCsDU5JzE2LjgiRQ!5e0!3m2!1sen!2sph!4v1234567890" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                        </div>
-                    </div>
+                </div>
+
+            {% else %}
+
+                <div class="col-12">
+                    <p class="text-center">
+                        Our featured drinks are coming soon.
+                    </p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- ORDER TRAY -->
+<!-- ===================================================== -->
+
+<aside class="order-tray" id="orderTray" aria-label="Your order">
+    <div class="order-tray-header">
+        <div>
+            <span class="section-eyebrow">YOUR ORDER</span>
+            <h3>Ready when you are<span>.</span></h3>
+        </div>
+        <button class="tray-close" type="button" aria-label="Close order">Ã—</button>
+    </div>
+    <div class="order-items" id="orderItems">
+        <p class="empty-order">Your tray is waiting for its first cup.</p>
+    </div>
+    <div class="order-total"><span>Total</span><strong id="orderTotal">â‚±0</strong></div>
+    <form class="order-form" id="orderForm">
+        <input type="text" name="customer" placeholder="Your name" required>
+        <select name="pickup" aria-label="Pickup time">
+            <option>Pick up in 15 minutes</option>
+            <option>Pick up in 30 minutes</option>
+            <option>Pick up in 45 minutes</option>
+        </select>
+        <button class="btn-primary-custom" type="submit">SUBMIT ORDER <span>â†’</span></button>
+        <p class="form-status" id="orderStatus" role="status"></p>
+    </form>
+</aside>
+
+<!-- ===================================================== -->
+<!-- BOOK THE BAR -->
+<!-- ===================================================== -->
+
+<section class="book-bar-section section-padding" id="book-bar">
+    <div class="container-xxl px-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="bar-photo-grid reveal">
+                    <img src="{{ asset('images/1 (1).jpg') }}" alt="Every Cup interior">
+                    <img src="{{ asset('images/1 (2).jpg') }}" alt="Coffee and pastries at Every Cup">
+                    <span class="bar-photo-note">GOOD COFFEE<br><em>good company.</em></span>
                 </div>
             </div>
+            <div class="col-lg-6">
+                <div class="section-eyebrow reveal">YOUR TABLE, YOUR MOMENT</div>
+                <h2 class="section-title reveal">Book <span>the bar.</span></h2>
+                <p class="section-description reveal">Bring your favorite people, settle in, and make the bar yours for a while. Reserve a date and weâ€™ll keep a cozy corner ready.</p>
+                <form class="booking-form reveal" id="bookingForm">
+                    <div class="booking-fields">
+                        <label>Date <input type="date" id="bookingDate" required></label>
+                        <label>Guests <select required><option>2 guests</option><option>3 guests</option><option>4 guests</option><option>5+ guests</option></select></label>
+                    </div>
+                    <div class="time-slots" role="group" aria-label="Available time">
+                        <button type="button" class="time-slot active">5:00 PM</button>
+                        <button type="button" class="time-slot">6:30 PM</button>
+                        <button type="button" class="time-slot">8:00 PM</button>
+                    </div>
+                    <button class="btn-primary-custom" type="submit">REQUEST RESERVATION <span>â†’</span></button>
+                    <p class="form-status" id="bookingStatus" role="status"></p>
+                </form>
+            </div>
         </div>
-
-        
     </div>
 </section>
+
+
+<!-- ===================================================== -->
+<!-- VISIT US -->
+<!-- ===================================================== -->
+
+<section class="visit-section section-padding" id="visit">
+
+    <div class="container-xxl px-4">
+
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-5">
+
+                <div class="section-eyebrow reveal">
+                    COME SAY HELLO
+                </div>
+
+                <h2 class="section-title reveal">
+
+                    Your next cup
+
+                    <br>
+
+                    is <span>waiting.</span>
+
+                </h2>
+
+                <p class="section-description reveal">
+
+                    Looking for your next coffee spot?
+                    Visit us and enjoy your favorite drinks
+                    at Every Cup.
+
+                </p>
+
+
+                <div class="visit-details reveal">
+
+                    <div class="visit-detail-icon">
+                        <span>âŒ–</span>
+                    </div>
+
+                    <div>
+
+                        <h4>OUR LOCATION</h4>
+
+                        <p>
+                            {{ location }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <a href="https://www.google.com/maps/search/?api=1&query=G.+Tolentino+Street+Sampaloc+Manila"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn-primary-custom visit-button">
+
+                    GET DIRECTIONS
+
+                    <span>â†—</span>
+
+                </a>
+
+            </div>
+
+
+            <div class="col-lg-7">
+
+                <div class="map-wrapper reveal">
+                    <iframe
+                        src="https://www.google.com/maps?q=G.%20Tolentino%20Street%2C%20Sampaloc%2C%20Manila%2C%20Philippines&output=embed"
+                        width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade" title="Every Cup location map">
+                    </iframe>
+                    <div class="map-caption"><span>FIND YOUR WAY TO EVERY CUP.</span><strong>G. TOLENTINO, MANILA</strong></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- FINAL CALL TO ACTION -->
+<!-- ===================================================== -->
+
+<section class="final-cta-section" id="contact">
+
+    <div class="container-xxl px-4">
+
+        <div class="final-cta-content reveal">
+
+            <span>YOUR CUP. YOUR STORY.</span>
+
+            <h2>
+                Make today<br>
+                a little more <em>special.</em>
+            </h2>
+
+            <a href="#menu" class="final-cta-button">
+                FIND YOUR EVERY CUP
+                <span>â†—</span>
+            </a>
+
+        </div>
+
+        <div class="cta-bean cta-bean-one">
+            <img src="{{ asset('images/home/coffee-bean.png') }}" alt="">
+        </div>
+
+        <div class="cta-bean cta-bean-two">
+            <img src="{{ asset('images/home/coffee-bean.png') }}" alt="">
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- JAVASCRIPT ANIMATIONS -->
+<!-- ===================================================== -->
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* =========================================
+       LOADING SCREEN
+    ========================================= */
+
+    const loader = document.getElementById('coffeeLoader');
+
+    if (loader) {
+
+        document.body.classList.add('loading-active');
+
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const minShow = reducedMotion ? 700 : 5200;
+        const startedAt = performance.now();
+        let loaderDone = false;
+
+        const finishLoader = function () {
+
+            if (loaderDone) return;
+            loaderDone = true;
+
+            loader.classList.add('loader-hidden');
+
+            document.body.classList.remove('loading-active');
+
+            setTimeout(function () {
+                loader.remove();
+            }, 900);
+
+        };
+
+        // Wait for the page AND for the cup animation to finish its story.
+        if (document.readyState === 'complete') {
+            setTimeout(finishLoader, minShow);
+        } else {
+            window.addEventListener('load', function () {
+                setTimeout(finishLoader, Math.max(0, minShow - (performance.now() - startedAt)));
+            }, { once: true });
+        }
+
+        setTimeout(finishLoader, minShow + 3000);
+
+    }
+
+
+    /* =========================================
+       SCROLL REVEAL
+    ========================================= */
+
+    const revealElements = document.querySelectorAll('.reveal');
+
+    if (window.gsap && window.ScrollTrigger) {
+
+        // GSAP scroll reveal: each group eases up with a staggered, weighty settle
+        gsap.set(revealElements, { transition: 'none' });
+
+        ScrollTrigger.batch(revealElements, {
+            start: 'top 92%',
+            once: true,
+            onEnter: function (batch) {
+                gsap.to(batch, {
+                    opacity: 1, y: 0, duration: 1, ease: 'power3.out', stagger: 0.12, overwrite: true,
+                    onComplete: function () {
+                        batch.forEach(function (el) {
+                            el.classList.add('revealed');
+                            gsap.set(el, { clearProps: 'opacity,transform,transition' });
+                        });
+                    }
+                });
+            }
+        });
+
+    } else if ('IntersectionObserver' in window) {
+
+        const revealObserver = new IntersectionObserver(function (entries) {
+
+            entries.forEach(function (entry) {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.classList.add('revealed');
+
+                    revealObserver.unobserve(entry.target);
+
+                }
+
+            });
+
+        }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(function (element) {
+            revealObserver.observe(element);
+        });
+
+    } else {
+
+        revealElements.forEach(function (element) {
+            element.classList.add('revealed');
+        });
+
+    }
+
+
+    /* =========================================
+       NAVBAR SCROLL EFFECT
+    ========================================= */
+
+    const navbar = document.querySelector('.main-navbar');
+
+    function updateNavbar() {
+
+        if (!navbar) return;
+
+        if (window.scrollY > 50) {
+            navbar.classList.add('navbar-scrolled');
+        } else {
+            navbar.classList.remove('navbar-scrolled');
+        }
+
+    }
+
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+
+    updateNavbar();
+
+
+    /* =========================================
+       CLOSE MOBILE MENU AFTER CLICK
+    ========================================= */
+
+    document.querySelectorAll('#mainNavbarContent .nav-link').forEach(function (link) {
+
+        link.addEventListener('click', function () {
+
+            const menu = document.getElementById('mainNavbarContent');
+
+            if (menu && menu.classList.contains('show')) {
+
+                const collapse = bootstrap.Collapse.getOrCreateInstance(menu);
+
+                collapse.hide();
+
+            }
+
+        });
+
+    });
+
+    /* =========================================
+       ORDER TRAY
+    ========================================= */
+    const orderTray = document.getElementById('orderTray');
+    const orderItems = document.getElementById('orderItems');
+    const orderTotal = document.getElementById('orderTotal');
+    const order = {};
+    const peso = value => 'â‚±' + Number(value).toLocaleString('en-PH');
+
+    function renderOrder() {
+        const entries = Object.values(order);
+        if (!entries.length) {
+            orderItems.innerHTML = '<p class="empty-order">Your tray is waiting for its first cup.</p>';
+            orderTotal.textContent = 'â‚±0';
+            return;
+        }
+        let total = 0;
+        orderItems.innerHTML = entries.map(item => {
+            total += item.price * item.qty;
+            return `<div class="order-line"><strong>${item.name}</strong><div class="qty-control"><button type="button" data-change="-1" data-item="${item.name}">âˆ’</button><span>${item.qty}</span><button type="button" data-change="1" data-item="${item.name}">+</button></div><span>${peso(item.price * item.qty)}</span></div>`;
+        }).join('');
+        orderTotal.textContent = peso(total);
+        orderItems.querySelectorAll('[data-change]').forEach(button => button.addEventListener('click', function () {
+            order[this.dataset.item].qty += Number(this.dataset.change);
+            if (order[this.dataset.item].qty <= 0) delete order[this.dataset.item];
+            renderOrder();
+        }));
+    }
+
+    document.querySelectorAll('.add-to-order').forEach(button => button.addEventListener('click', function () {
+        const name = this.dataset.name;
+        const price = Number(this.dataset.price.replace(/[^0-9.]/g, '')) || 0;
+        order[name] = order[name] || { name, price, qty: 0 };
+        order[name].qty += 1;
+        flyBean(this);
+        renderOrder();
+        orderTray.classList.add('is-open');
+    }));
+    document.querySelector('.tray-close')?.addEventListener('click', () => orderTray.classList.remove('is-open'));
+    document.getElementById('orderForm')?.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!Object.keys(order).length) return;
+        document.getElementById('orderStatus').textContent = 'Order received â€” weâ€™ll have it ready for you.';
+        this.reset();
+    });
+
+    /* =========================================
+       BAR BOOKING
+    ========================================= */
+    const dateInput = document.getElementById('bookingDate');
+    if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('.time-slot').forEach(slot => slot.addEventListener('click', function () {
+        document.querySelectorAll('.time-slot').forEach(item => item.classList.remove('active'));
+        this.classList.add('active');
+    }));
+    document.getElementById('bookingForm')?.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const date = new Date(dateInput.value + 'T12:00:00');
+        document.getElementById('bookingStatus').textContent = `Lovely â€” your ${date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} bar request is on its way.`;
+    });
+
+
+    /* =========================================
+       HERO PARALLAX (cups and beans follow the cursor)
+    ========================================= */
+    const parallaxStage = document.getElementById('heroCupStage');
+    const parallaxArea = document.querySelector('.hero-visual');
+
+    if (parallaxStage && parallaxArea &&
+        window.matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+
+        parallaxArea.addEventListener('pointermove', function (event) {
+            const box = parallaxStage.getBoundingClientRect();
+            const mx = Math.max(-1.5, Math.min(1.5, ((event.clientX - box.left) / box.width - 0.5) * 2));
+            const my = Math.max(-1.5, Math.min(1.5, ((event.clientY - box.top) / box.height - 0.5) * 2));
+            parallaxStage.style.setProperty('--mx', mx.toFixed(3));
+            parallaxStage.style.setProperty('--my', my.toFixed(3));
+        });
+
+        parallaxArea.addEventListener('pointerleave', function () {
+            parallaxStage.style.setProperty('--mx', 0);
+            parallaxStage.style.setProperty('--my', 0);
+        });
+
+    }
+
+
+    /* =========================================
+       A COFFEE BEAN FLIES TO THE TRAY ON "ADD"
+    ========================================= */
+    const BEAN_SVG = '<svg viewBox="-13 -18 26 36" width="22" height="30" xmlns="http://www.w3.org/2000/svg"><ellipse rx="10.5" ry="15.5" fill="#4a2410"/><path d="M-1.5,-14C5,-5-6,4 1.5,14" fill="none" stroke="#150a05" stroke-width="2" stroke-linecap="round"/><ellipse cx="-4" cy="-6" rx="2.5" ry="5" fill="#fff" opacity=".2"/></svg>';
+
+    function flyBean(fromElement) {
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const box = fromElement.getBoundingClientRect();
+        const bean = document.createElement('div');
+        bean.innerHTML = BEAN_SVG;
+        bean.style.cssText = 'position:fixed;left:0;top:0;z-index:1100;pointer-events:none;';
+        document.body.appendChild(bean);
+
+        const startX = box.left + box.width / 2 - 11;
+        const startY = box.top + box.height / 2 - 15;
+        const endX = window.innerWidth - 90;
+        const endY = window.innerHeight - 90;
+
+        bean.animate([
+            { transform: 'translate(' + startX + 'px,' + startY + 'px) scale(1) rotate(0deg)', opacity: 1 },
+            { transform: 'translate(' + ((startX + endX) / 2) + 'px,' + (Math.min(startY, endY) - 90) + 'px) scale(1.15) rotate(220deg)', opacity: 1, offset: 0.45 },
+            { transform: 'translate(' + endX + 'px,' + endY + 'px) scale(0.45) rotate(520deg)', opacity: 0.2 }
+        ], { duration: 750, easing: 'cubic-bezier(.4,.1,.3,1)' }).onfinish = function () {
+            bean.remove();
+        };
+
+    }
+
+});
+
+</script>
+
+
+<script>
+/* =========================================
+       MOBILE TAP SUPPORT FOR HERO CUP POUR
+    ========================================= */
+    const heroCupStage = document.getElementById('heroCupStage');
+    if (heroCupStage) {
+        const heroSection = document.querySelector('.hero-section');
+        const togglePour = function () {
+            heroCupStage.classList.toggle('is-pouring');
+            if (heroSection) {
+                heroSection.classList.toggle('cup-pouring', heroCupStage.classList.contains('is-pouring'));
+            }
+        };
+        heroCupStage.addEventListener('click', togglePour);
+        heroCupStage.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                togglePour();
+            }
+        });
+    }
+</script>
+
+<!-- ===================================================== -->
+<!-- GSAP: LOADER PHYSICS, CHOCOLATE POUR, SCROLL + TILT -->
+<!-- ===================================================== -->
+
+<script>
+(function () {
+
+    if (!window.gsap) return;
+
+    const $  = (s, r) => (r || document).querySelector(s);
+    const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        gsap.globalTimeline.timeScale(20);
+    }
+
+    /* =========================================
+       LOADER: gravity, bounce, ballistic droplets
+    ========================================= */
+    if ($('#coffeeLoader')) {
+
+        gsap.set('.lc-rig',    { opacity: 0, y: 90, scale: 0.88, svgOrigin: '150 330' });
+        gsap.set('.lc-shadow', { opacity: 0, scale: 0.5, svgOrigin: '150 327' });
+        gsap.set('.loader-logo', { opacity: 0, y: 120, scale: 0.2, rotation: -20 });
+        gsap.set('.lc-bean',   { opacity: 0, scale: 0.2, rotation: -30, y: 0 });
+        gsap.set('.lc-lid',    { svgOrigin: '150 150' });
+        gsap.set('.lc-ripple', { opacity: 0, svgOrigin: '150 157' });
+        gsap.set('.lc-crema',  { opacity: 0 });
+        gsap.set('.loader-caption', { opacity: 0, xPercent: -50, y: 12 });
+
+        const steam = function () {
+            $$('.lc-steam path').forEach(function (p, i) {
+                gsap.set(p, { transformOrigin: '50% 100%' });
+                gsap.fromTo(p, { y: 14, scaleY: 0.6, x: 0 },
+                    { y: -34, scaleY: 1.2, x: 8, duration: 3.4, ease: 'none', repeat: -1, delay: i * 0.55 });
+                gsap.fromTo(p, { opacity: 0 },
+                    { opacity: 0.6, duration: 1.7, ease: 'sine.out', yoyo: true, repeat: -1, delay: i * 0.55, immediateRender: false });
+            });
+        };
+
+        const splash = function () {
+
+            gsap.timeline().to('.lc-surface', { y: 1.6, duration: 0.1 })
+                           .to('.lc-surface', { y: -2.6, duration: 1.4, ease: 'elastic.out(1,0.35)' });
+
+            $$('.lc-ripple').forEach(function (r, i) {
+                gsap.fromTo(r, { scale: 0.12, opacity: 0.9 },
+                    { scale: 1.55, opacity: 0, duration: 1.3, ease: 'power2.out', delay: i * 0.16, immediateRender: false });
+            });
+
+            $$('.lc-splash .dx').forEach(function (g) {
+                const v = function (n) { return parseFloat(g.style.getPropertyValue(n)); };
+                const dx = v('--dx') * (0.85 + Math.random() * 0.3), h = v('--h'), d = v('--dur'), dy = g.firstElementChild;
+                gsap.timeline({ delay: v('--dl') })
+                    .to(g,  { x: dx, duration: d, ease: 'none' }, 0)
+                    .fromTo(dy, { opacity: 1, y: 0 }, { y: h, duration: d * 0.48, ease: 'power2.out', immediateRender: false }, 0)
+                    .to(dy, { y: 2, duration: d * 0.44, ease: 'power2.in' }, d * 0.48)
+                    .to(dy, { opacity: 0, duration: 0.05 }, d * 0.92);
+            });
+
+            gsap.to('.lc-crema', { opacity: 0.6, duration: 1, delay: 0.5 });
+            gsap.to('.lc-crema', { strokeDashoffset: -148, duration: 6, ease: 'none', repeat: -1, delay: 0.5 });
+        };
+
+        gsap.timeline({ defaults: { ease: 'power2.out' } })
+            .to('.lc-rig',    { opacity: 1, y: 0, scale: 1, duration: 0.95, ease: 'back.out(1.4)' }, 0.1)
+            .to('.lc-shadow', { opacity: 0.38, scale: 1, duration: 0.95 }, 0.1)
+            .to('.loader-logo', { opacity: 1, y: 0, scale: 1.14, rotation: 0, duration: 0.6, ease: 'power3.out' }, 0.35)
+            .to('.loader-logo', { scale: 1, duration: 0.45, ease: 'elastic.out(1,0.5)' }, 0.95)
+            .to('.loader-logo', { scale: 0.16, rotation: 320, opacity: 0, duration: 0.5, ease: 'power2.in' }, 1.55)
+            // lid: seal breaks, tilts up, then falls away under gravity
+            .to('.lc-lid', { y: -9, rotation: -1.5, duration: 0.18 }, 1.55)
+            .to('.lc-lid', { x: 34, y: -50, rotation: 12, duration: 0.42 }, 1.73)
+            .to('.lc-lid', { x: 150, y: -4, rotation: 48, opacity: 0, duration: 0.55, ease: 'power2.in' }, 2.15)
+            .add(steam, 2.2)
+            // bean: pops out of the logo, accelerates, plunges, bobs, sinks
+            .to('.lc-bean', { opacity: 1, scale: 1.1, rotation: 0, duration: 0.18 }, 1.85)
+            .to('.lc-bean', { y: 166, rotation: 520, duration: 1.06, ease: 'power2.in' }, 2.03)
+            .add(splash, 3.09)
+            .to('.lc-bean', { y: 200, rotation: 552, duration: 0.16 }, 3.09)
+            .to('.lc-bean', { y: 176, rotation: 566, duration: 0.22, ease: 'sine.inOut' }, 3.25)
+            .to('.lc-bean', { y: 181, rotation: 572, duration: 0.16, ease: 'sine.in' }, 3.47)
+            .to('.lc-bean', { y: 232, rotation: 600, duration: 0.62, ease: 'power1.in' }, 3.63)
+            .to('.loader-caption', { opacity: 1, y: 0, duration: 0.8 }, 3.9);
+    }
+
+    /* =========================================
+       HERO: chocolate pour timeline
+    ========================================= */
+    const stage = $('#heroCupStage');
+
+    if (stage) {
+
+        const stream = $('.espresso-stream-svg', stage), tint = $('.choco-tint', stage), pool = $('.choco-pool', stage);
+        const mound = $('.choco-mound', stage), plumes = $$('.choco-plume', stage);
+        const ripples = $$('.choco-ripple', stage), drops = $$('.choco-drop', stage);
+
+        gsap.set(stream, { clipPath: 'inset(0% 0% 100% 0%)' });
+        gsap.set(tint,   { '--mix': 0 });
+        gsap.set(pool,   { opacity: 0, width: '12%' });
+        gsap.set(mound,  { opacity: 0, transformOrigin: '50% 100%' });
+        gsap.set(plumes, { opacity: 0, y: -70, scaleY: 0.3, transformOrigin: '50% 0%' });
+        gsap.set([ripples, drops], { opacity: 0 });
+
+        const pour = gsap.timeline({ paused: true });
+
+        pour.to(stream, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.62, ease: 'power2.in' }, 0)      // head falls
+            .to(mound,  { opacity: 1, duration: 0.15 }, 0.62)
+            .fromTo(mound, { scaleX: 0.86, scaleY: 0.8 }, { scaleX: 1.14, scaleY: 1.18, duration: 0.16, repeat: 12, yoyo: true, ease: 'sine.inOut' }, 0.7)
+            .to(pool,   { opacity: 0.85, width: '100%', duration: 2.4, ease: 'power3.out' }, 0.8)
+            .to(tint,   { '--mix': 1, duration: 5.2, ease: 'power2.inOut' }, 0.9)                        // milk turns to chocolate
+            .to(stream, { clipPath: 'inset(100% 0% 0% 0%)', duration: 0.75, ease: 'power2.in' }, 2.25)  // tail leaves
+            .to(mound,  { opacity: 0, duration: 0.4 }, 2.5);
+
+        plumes.forEach(function (p, i) {
+            const at = 0.75 + [0, 0.2, 0.45, 0.3][i];
+            pour.to(p, { opacity: 1, duration: 0.5 }, at)
+                .to(p, { y: 30, scaleY: 1, x: 6, duration: 2.2, ease: 'power1.out' }, at)
+                .to(p, { opacity: 0, y: 95, scaleY: 1.15, x: -5, duration: 1.6, ease: 'power1.in' }, at + 2.2);
+        });
+
+        ripples.forEach(function (r, i) {
+            pour.fromTo(r, { opacity: 0.85, scaleX: 0.25, scaleY: 0.25 },
+                { opacity: 0, scaleX: 2.3, scaleY: 1.9, duration: 1.05, ease: 'power2.out', repeat: 2 }, 0.78 + i * 0.17);
+        });
+
+        drops.forEach(function (d, i) {
+            const dx = parseFloat(getComputedStyle(d).getPropertyValue('--dx')), h = parseFloat(getComputedStyle(d).getPropertyValue('--h'));
+            pour.add(
+                gsap.timeline({ repeat: 3, repeatRefresh: true })
+                    .set(d, { x: 0, y: 0, opacity: 1 })
+                    .to(d, { x: function () { return dx * (0.8 + Math.random() * 0.4); }, duration: 0.64, ease: 'none' }, 0)
+                    .to(d, { y: h, duration: 0.31, ease: 'power2.out' }, 0)
+                    .to(d, { y: 2, duration: 0.33, ease: 'power2.in' }, 0.31)
+                    .to(d, { opacity: 0, duration: 0.05 }, 0.59),
+                0.8 + i * 0.12);
+        });
+
+        let hovering = false, busy = false, back;
+
+        const settle = function () {
+            back = gsap.timeline({ onComplete: function () { busy = false; } })
+                .to(tint, { '--mix': 0, duration: 1.6, ease: 'power2.inOut' }, 0)
+                .to(pool, { opacity: 0, width: '12%', duration: 1, ease: 'power1.in' }, 0);
+        };
+
+        pour.eventCallback('onComplete', function () { if (!hovering) settle(); });
+
+        stage.addEventListener('pointerenter', function () {
+            hovering = true;
+            if (busy && pour.isActive()) return;
+            if (back) back.kill();
+            busy = true;
+            pour.restart();
+        });
+
+        stage.addEventListener('pointerleave', function () {
+            hovering = false;
+            if (busy && !pour.isActive()) settle();
+        });
+    }
+
+    /* =========================================
+       SCROLL: depth parallax on the hero backdrop
+    ========================================= */
+    if (window.ScrollTrigger && $('.hero-section')) {
+        gsap.to('.hero-logo-background', { yPercent: -14, ease: 'none',
+            scrollTrigger: { trigger: '.hero-section', start: 'top top', end: 'bottom top', scrub: 0.6 } });
+        gsap.to('.hero-background-decoration', { y: 120, ease: 'none',
+            scrollTrigger: { trigger: '.hero-section', start: 'top top', end: 'bottom top', scrub: 0.6 } });
+    }
+
+    /* =========================================
+       MENU CARDS: soft 3D tilt toward the cursor
+    ========================================= */
+    if (window.matchMedia('(hover: hover)').matches) {
+        $$('.menu-card').forEach(function (card) {
+            let rx, ry;
+            card.addEventListener('pointerenter', function () {
+                if (rx) return;
+                gsap.set(card, { transformPerspective: 900 });
+                rx = gsap.quickTo(card, 'rotationX', { duration: 0.5, ease: 'power3' });
+                ry = gsap.quickTo(card, 'rotationY', { duration: 0.5, ease: 'power3' });
+            });
+            card.addEventListener('pointermove', function (ev) {
+                if (!rx) return;
+                const b = card.getBoundingClientRect();
+                ry(((ev.clientX - b.left) / b.width - 0.5) * 8);
+                rx(-((ev.clientY - b.top) / b.height - 0.5) * 8);
+            });
+            card.addEventListener('pointerleave', function () { if (rx) { rx(0); ry(0); } });
+        });
+    }
+
+})();
+</script>
+
+
 {% endblock %}

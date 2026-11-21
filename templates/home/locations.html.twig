@@ -1,8 +1,103 @@
-{# templates/home/locations.html.twig #}
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .everycup-3d-section {
+            position: relative;
+        }
+
+        .everycup-3d-stage {
+            position: relative;
+            width: 100%;
+            height: 82vh;
+            min-height: 520px;
+            max-height: 780px;
+            border-radius: 2rem;
+            overflow: hidden;
+            perspective: 1100px;
+            background: #111111;
+            border: 4px solid #111111;
+        }
+
+        .everycup-3d-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            will-change: transform, opacity, filter;
+        }
+
+        .everycup-3d-layer img,
+        .everycup-3d-layer canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .everycup-interior-layer {
+            z-index: 1;
+            transform-origin: 50% 50%;
+        }
+
+        .everycup-exterior-layer {
+            z-index: 2;
+            transform-origin: 55% 58%;
+        }
+
+        .everycup-door-leaf {
+            position: absolute;
+            top: 44.5%;
+            left: 51.2%;
+            width: 15.5%;
+            height: 36.5%;
+            z-index: 3;
+            transform-origin: right center;
+            transform-style: preserve-3d;
+            background: linear-gradient(135deg, rgba(254, 190, 16, 0.16), rgba(17, 17, 17, 0.35));
+            border: 2px solid rgba(254, 190, 16, 0.65);
+            box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+        }
+
+        .everycup-vignette {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            pointer-events: none;
+            background: radial-gradient(circle at 55% 58%, transparent 32%, rgba(0, 0, 0, 0.72) 100%);
+        }
+
+        .everycup-hud {
+            position: absolute;
+            left: 50%;
+            bottom: 1.75rem;
+            transform: translateX(-50%);
+            z-index: 5;
+            width: min(92%, 540px);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .everycup-hud-card {
+            background: rgba(17, 17, 17, 0.86);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            border: 2px solid #febe10;
+            border-radius: 1.25rem;
+            padding: 0.85rem 1.25rem;
+        }
+
+        .everycup-hud-interior {
+            opacity: 0;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<section class="py-24 bg-white text-brandDark">
+<section class="py-24 bg-white text-brandDark everycup-3d-section">
     <div class="container-xxl px-4">
         <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
             <span class="bg-brandDark text-brandYellow text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow">Visit Our Store</span>
@@ -10,7 +105,34 @@
             <div class="w-16 h-1.5 bg-brandDark mx-auto rounded-pill"></div>
         </div>
 
-        <div class="bg-brandYellow rounded-[2.5rem] p-6 lg:p-12 shadow-2xl border-4 border-brandDark/10">
+        <div class="bg-brandYellow rounded-[2.5rem] p-6 lg:p-12 shadow-2xl border-4 border-brandDark/10 space-y-10">
+            <div class="everycup-3d-stage shadow-2xl" id="everycupStage">
+                <div class="everycup-3d-layer everycup-interior-layer" id="everycupInterior">
+                    <img src="{{ asset('images/everycup/3.png') }}" alt="{{ store.name }} Interior Counter" />
+                </div>
+
+                <div class="everycup-3d-layer everycup-exterior-layer" id="everycupExterior">
+                    <canvas id="everycupDoorwayCanvas"></canvas>
+                    <div class="everycup-door-leaf" id="everycupDoorLeaf"></div>
+                </div>
+
+                <div class="everycup-vignette" id="everycupVignette"></div>
+
+                <div class="everycup-hud everycup-hud-exterior" id="everycupExtHud">
+                    <div class="everycup-hud-card">
+                        <div class="text-xs font-black uppercase tracking-widest text-brandYellow">Outside Storefront</div>
+                        <div class="text-lg font-extrabold mt-0.5">Scroll down to open the door &amp; step inside</div>
+                    </div>
+                </div>
+
+                <div class="everycup-hud everycup-hud-interior" id="everycupIntHud">
+                    <div class="everycup-hud-card">
+                        <div class="text-xs font-black uppercase tracking-widest text-brandYellow">Inside {{ store.name }}</div>
+                        <div class="text-lg font-extrabold mt-0.5">Freshly brewed coffee, pastries &amp; baked lasagna</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row align-items-center g-5">
                 <div class="col-lg-6">
                     <div class="bg-white p-6 lg:p-8 rounded-3xl border-2 border-brandDark shadow-xl space-y-5">
@@ -38,7 +160,7 @@
                         </div>
 
                         <div class="pt-4 border-top border-dark border-opacity-10">
-                            <a href="{{ store.maps_url }}" target="_blank" class="btn bg-brandDark text-brandYellow fw-bold px-4 py-3 rounded-2xl hover:bg-black transition shadow-md border-0 w-100 d-flex align-items-center justify-content-center gap-2">
+                            <a href="{{ store.maps_url }}" target="_blank" rel="noopener noreferrer" class="btn bg-brandDark text-brandYellow fw-bold px-4 py-3 rounded-2xl hover:bg-black transition shadow-md border-0 w-100 d-flex align-items-center justify-content-center gap-2">
                                 <span>🗺️</span> Open Google Maps Direction
                             </a>
                         </div>
@@ -54,4 +176,150 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stage = document.getElementById('everycupStage');
+            const canvas = document.getElementById('everycupDoorwayCanvas');
+            const exterior = document.getElementById('everycupExterior');
+            const interior = document.getElementById('everycupInterior');
+            const doorLeaf = document.getElementById('everycupDoorLeaf');
+            const vignette = document.getElementById('everycupVignette');
+            const extHud = document.getElementById('everycupExtHud');
+            const intHud = document.getElementById('everycupIntHud');
+
+            if (!stage || !canvas || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+                return;
+            }
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            const ctx = canvas.getContext('2d');
+            const extImg = new Image();
+            extImg.src = "{{ asset('images/everycup/1.png') }}";
+
+            function renderExteriorWithDoorCutout() {
+                if (!extImg.complete || extImg.naturalWidth === 0) {
+                    return;
+                }
+
+                const rect = stage.getBoundingClientRect();
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                const width = Math.max(1, Math.floor(rect.width));
+                const height = Math.max(1, Math.floor(rect.height));
+
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, width, height);
+
+                const imgRatio = extImg.naturalWidth / extImg.naturalHeight;
+                const stageRatio = width / height;
+
+                let drawWidth = width;
+                let drawHeight = height;
+                let offsetX = 0;
+                let offsetY = 0;
+
+                if (imgRatio > stageRatio) {
+                    drawWidth = height * imgRatio;
+                    offsetX = (width - drawWidth) / 2;
+                } else {
+                    drawHeight = width / imgRatio;
+                    offsetY = (height - drawHeight) / 2;
+                }
+
+                ctx.drawImage(extImg, offsetX, offsetY, drawWidth, drawHeight);
+
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-out';
+                const holeX = width * 0.512;
+                const holeY = height * 0.445;
+                const holeW = width * 0.155;
+                const holeH = height * 0.365;
+                ctx.beginPath();
+                ctx.roundRect(holeX, holeY, holeW, holeH, 6);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            extImg.addEventListener('load', renderExteriorWithDoorCutout);
+            window.addEventListener('resize', renderExteriorWithDoorCutout);
+            renderExteriorWithDoorCutout();
+
+            gsap.set(interior, {
+                scale: 0.86,
+                z: -380,
+                filter: 'brightness(0.45) blur(4px)'
+            });
+
+            gsap.set(doorLeaf, {
+                rotateY: 0
+            });
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: stage,
+                    start: 'top 12%',
+                    end: '+=1800',
+                    pin: true,
+                    scrub: 1.15
+                }
+            });
+
+            tl.to(extHud, {
+                opacity: 0,
+                y: -24,
+                duration: 0.18,
+                ease: 'power1.in'
+            }, 0)
+
+            .to(doorLeaf, {
+                rotateY: -86,
+                duration: 0.45,
+                ease: 'power2.inOut'
+            }, 0.05)
+
+            .to(exterior, {
+                scale: 4.9,
+                z: 460,
+                rotateY: -4,
+                rotateX: 2,
+                duration: 0.75,
+                ease: 'power2.in'
+            }, 0.1)
+
+            .to(exterior, {
+                opacity: 0,
+                filter: 'blur(6px)',
+                duration: 0.25,
+                ease: 'power1.in'
+            }, 0.52)
+
+            .to(interior, {
+                scale: 1,
+                z: 0,
+                filter: 'brightness(1) blur(0px)',
+                duration: 0.82,
+                ease: 'power2.out'
+            }, 0.15)
+
+            .to(vignette, {
+                opacity: 0.3,
+                duration: 0.45
+            }, 0.5)
+
+            .to(intHud, {
+                opacity: 1,
+                y: -10,
+                duration: 0.25,
+                ease: 'power2.out'
+            }, 0.75);
+        });
+    </script>
 {% endblock %}

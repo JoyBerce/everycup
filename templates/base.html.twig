@@ -1,13 +1,20 @@
-{# templates/base.html.twig #}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{% block title %}every cup. | G. Tolentino Manila{% endblock %}</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/favicon.jpg') }}">
+
+    <meta name="description" content="{% block meta_description %}Every Cup - Your cup, your story. Enjoy freshly prepared coffee and refreshing drinks at G. Tolentino Street, Sampaloc, Manila.{% endblock %}">
+
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -20,176 +27,122 @@
                     colors: {
                         brandYellow: '#facc15',
                         brandYellowLight: '#fef08a',
+                        brandCream: '#f8f5ec',
                         brandDark: '#1c1917',
                         brandCardBg: '#ffffff',
                         brandCardText: '#1c1917'
                     }
                 }
             }
+        };
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- GSAP (falls back to the CSS animations if it fails to load) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script>
+        if (window.gsap && window.ScrollTrigger) {
+            gsap.registerPlugin(ScrollTrigger);
+            document.documentElement.classList.add('gsap-ready');
         }
     </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Home CSS -->
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
 
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .main-navbar {
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1050 !important;
-            width: 100%;
-            background-color: #facc15 !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-
-        .main-navbar .container-fluid {
-            display: flex;
-            align-items: center;
-        }
-
-        .main-navbar .navbar-brand {
-            color: #1c1917 !important;
-            display: flex !important;
-            align-items: center;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-
-        .main-navbar .navbar-nav {
-            display: flex;
-        }
-
-        .main-navbar .nav-link {
-            color: #1c1917 !important;
-            font-weight: 700 !important;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.2s ease;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-
-        .main-navbar .nav-link:hover {
-            color: #000000 !important;
-            opacity: 0.7 !important;
-        }
-
-        .main-navbar .nav-link.active {
-            border-bottom: 2px solid #1c1917;
-        }
-
-        .main-navbar .navbar-toggler {
-            border: 2px solid #1c1917 !important;
-            padding: 6px 9px;
-            box-shadow: none !important;
-            background-color: transparent !important;
-        }
-
-        .main-navbar .navbar-toggler:focus {
-            box-shadow: none !important;
-        }
-
-        .main-navbar .navbar-toggler-icon {
-            width: 1.5em;
-            height: 1.5em;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%231c1917' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
-        }
-
-        @media (max-width: 991.98px) {
-            .main-navbar .navbar-collapse {
-                padding-top: 15px;
-                padding-bottom: 10px;
-            }
-
-            .main-navbar .navbar-nav {
-                gap: 4px;
-            }
-
-            .main-navbar .nav-link {
-                padding: 10px 8px !important;
-            }
-        }
-    </style>
+    {% block stylesheets %}{% endblock %}
 </head>
 
-<body class="bg-brandYellow text-brandDark antialiased selection:bg-brandDark selection:text-brandYellow d-flex flex-column min-vh-100">
+<body class="bg-brandCream text-brandDark antialiased d-flex flex-column min-vh-100">
 
-    <!-- Fully Visible & Responsive Bootstrap Navbar -->
-    <nav class="navbar navbar-expand-lg main-navbar border-bottom border-dark border-opacity-10 px-3 py-3 shadow-sm">
+    <!-- COFFEE-LEVEL SCROLL PROGRESS -->
+    <div class="coffee-progress" aria-hidden="true"><span id="coffeeProgressFill"></span></div>
 
-        <div class="container-fluid container-xxl">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg main-navbar shadow-sm">
 
-            <!-- Brand Logo -->
-            <a
-                class="navbar-brand d-flex align-items-center gap-2 text-decoration-none m-0"
-                href="{{ path('app_home') }}"
-            >
-                <div class="bg-brandYellow text-brandDark font-black text-xl sm:text-2xl tracking-tighter px-3 py-1 rounded-xl shadow-lg border-2 border-brandDark transform -rotate-2">
-                    every<span class="text-brandDark">cup</span>
-                </div>
+        <div class="container-fluid container-xxl px-4">
+
+            <!-- BRAND -->
+            <a class="navbar-brand d-flex align-items-center gap-2"
+               href="{{ path('app_home') }}">
+
+                <img src="{{ asset('images/logo.png') }}"
+                     alt="Every Cup Logo"
+                     class="navbar-logo">
+
+                <span class="navbar-brand-text">
+                    every cup<span>.</span>
+                </span>
+
             </a>
 
-            <!-- Mobile Menu Toggle Button -->
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#mainNavbarContent"
-                aria-controls="mainNavbarContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
+            <!-- MOBILE TOGGLE -->
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbarContent"
+                    aria-controls="mainNavbarContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+
                 <span class="navbar-toggler-icon"></span>
+
             </button>
 
-            <!-- Collapsible Links Container -->
-            <div
-                class="collapse navbar-collapse justify-content-end"
-                id="mainNavbarContent"
-            >
+            <!-- NAVIGATION -->
+            <div class="collapse navbar-collapse justify-content-end"
+                 id="mainNavbarContent">
 
-                <ul class="navbar-nav align-items-lg-center gap-lg-3 mt-3 mt-lg-0">
+                <ul class="navbar-nav align-items-lg-center gap-lg-1 mt-3 mt-lg-0">
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link fw-bold text-uppercase tracking-wider text-brandDark px-2 py-1 {% if app.request.attributes.get('_route') == 'app_home' %}active border-bottom border-2 border-brandDark{% endif %}"
-                            href="{{ path('app_home') }}"
-                        >
+                        <a class="nav-link"
+                           href="{{ path('app_home') }}#home">
                             Home
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link fw-bold text-uppercase tracking-wider text-brandDark px-2 py-1 {% if app.request.attributes.get('_route') == 'app_menu' %}active border-bottom border-2 border-brandDark{% endif %}"
-                            href="{{ path('app_menu') }}"
-                        >
+                        <a class="nav-link"
+                           href="{{ path('app_menu') }}">
                             Menu
                         </a>
                     </li>
 
-                    <!-- Locations link removed from here -->
-
                     <li class="nav-item">
-                        <a
-                            class="nav-link fw-bold text-uppercase tracking-wider text-brandDark px-2 py-1 {% if app.request.attributes.get('_route') == 'app_delivery' %}active border-bottom border-2 border-brandDark{% endif %}"
-                            href="{{ path('app_delivery') }}"
-                        >
-                            Delivery
+                        <a class="nav-link"
+                           href="{{ path('app_visit') }}">
+                            Visit Us
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link fw-bold text-uppercase tracking-wider text-brandDark px-2 py-1 {% if app.request.attributes.get('_route') == 'app_faq' %}active border-bottom border-2 border-brandDark{% endif %}"
-                            href="{{ path('app_faq') }}"
-                        >
-                            FAQ
+                        <a class="nav-link" href="{{ path('app_home') }}#contact">
+                            Contact
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_book_bar') }}">
+                            Book the Bar
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_order_online') }}">
+                            Delivery
+                        </a>
+                    </li>
+
+                    <li class="nav-item ms-lg-2">
+                        <a class="navbar-order-btn"
+                           href="{{ path('app_order_online') }}">
+                            FIND YOUR CUP
+                            <span>↗</span>
                         </a>
                     </li>
 
@@ -201,33 +154,118 @@
 
     </nav>
 
+    <!-- MAIN CONTENT -->
     <main class="flex-grow-1">
 
         {% block body %}{% endblock %}
 
     </main>
 
-    <footer class="bg-brandDark text-white py-12 border-top border-white/10 text-center mt-auto">
+    <!-- FOOTER -->
+    <footer class="main-footer">
 
-        <div class="container-xxl px-4 space-y-4">
+        <div class="container-xxl px-4">
 
-            <div class="bg-brandYellow text-brandDark font-black text-xl tracking-tighter d-inline-block px-4 py-1.5 rounded-2xl shadow border-2 border-brandDark">
-                every cup
+            <div class="row gy-5">
+
+                <div class="col-lg-5">
+
+                    <div class="footer-brand">
+
+                        <img src="{{ asset('images/logo.png') }}"
+                             alt="Every Cup Logo">
+
+                        <span>every cup<span>.</span></span>
+
+                    </div>
+
+                    <p class="footer-description">
+                        Your cup, your story. Every moment deserves a
+                        little something special. Discover your favorite
+                        coffee and make every sip count.
+                    </p>
+
+                </div>
+
+                <div class="col-6 col-lg-2">
+
+                    <h5>EXPLORE</h5>
+
+                    <a href="{{ path('app_home') }}#home">Home</a>
+                    <a href="{{ path('app_home') }}#experience">Our Experience</a>
+                    <a href="{{ path('app_home') }}#menu">Our Menu</a>
+                    <a href="{{ path('app_home') }}#visit">Visit Us</a>
+
+                </div>
+
+                <div class="col-6 col-lg-2">
+
+                    <h5>DISCOVER</h5>
+
+                    <a href="{{ path('app_home') }}#story">Our Story</a>
+                    <a href="{{ path('app_home') }}#menu">Best Sellers</a>
+                    <a href="{{ path('app_home') }}#visit">Location</a>
+
+                </div>
+
+                <div class="col-lg-3">
+
+                    <h5>FIND US</h5>
+
+                    <p>
+                        G. Tolentino Street,<br>
+                        Sampaloc, Manila,<br>
+                        Philippines
+                    </p>
+
+                    <a href="https://www.google.com/maps/search/?api=1&query=G.+Tolentino+Street+Sampaloc+Manila"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        GET DIRECTIONS ↗
+                    </a>
+
+                </div>
+
             </div>
 
-            <p class="text-sm mb-1 font-medium">
-                &copy; {{ "now"|date("Y") }} every cup. All rights reserved.
-            </p>
+            <div class="footer-bottom">
 
-            <p class="text-xs text-brandYellow/80 font-semibold mb-0">
-                Metro Manila District Suites • G. Tolentino St, Sampaloc, Manila (UST)
-            </p>
+                <p>
+                    © {{ "now"|date("Y") }} every cup. All rights reserved.
+                </p>
+
+                <p>
+                    MADE FOR EVERY MOMENT. MADE FOR EVERY CUP.
+                </p>
+
+            </div>
 
         </div>
 
     </footer>
 
+    <!-- BOOTSTRAP -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        (function () {
+            var fill = document.getElementById('coffeeProgressFill');
+            if (!fill) return;
+            var ticking = false;
+            function update() {
+                var max = document.documentElement.scrollHeight - window.innerHeight;
+                fill.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
+                ticking = false;
+            }
+            window.addEventListener('scroll', function () {
+                if (!ticking) { ticking = true; requestAnimationFrame(update); }
+            }, { passive: true });
+            window.addEventListener('resize', update);
+            update();
+        })();
+    </script>
+
+    {% block javascripts %}{% endblock %}
 
 </body>
 </html>
