@@ -1,333 +1,889 @@
 {% extends 'base.html.twig' %}
 
+{# ------------------------------------------------------------------
+   Visit us: every cup
+   Optional: pass a `cafe` array from your controller to override any value.
+------------------------------------------------------------------- #}
+{% set cafe = {
+    name: 'every cup',
+    address_line1: '1125 G. Tolentino St.',
+    address_line2: 'Sampaloc, Manila',
+    phone_display: '0961 636-7870',
+    phone_tel: '+639616367870',
+    maps_short: 'https://maps.app.goo.gl/cNd44mXPCEFiQHNa7',
+    hours_open: '11:00',
+    hours_close: '23:00',
+    hours_label: '11:00 AM – 11:00 PM',
+    hours_days: 'Monday to Sunday',
+    timezone: 'Asia/Manila'
+}|merge(cafe|default({})) %}
+{% set mapQuery = (cafe.address_line1 ~ ', ' ~ cafe.address_line2 ~ ', Philippines')|url_encode %}
+
+{% block title %}Visit us | {{ cafe.name }}{% endblock %}
+
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .door-entry-stage {
-            position: relative;
-            width: 100%;
-            height: 80vh;
-            min-height: 500px;
-            max-height: 760px;
-            border-radius: 2rem;
-            overflow: hidden;
-            perspective: 1200px;
-            background: #141210;
-            border: 4px solid #141210;
+        html.ec-lock { overflow: hidden; }
+        body { overflow-x: clip; }
+
+        .ec {
+            --mustard: #F4B81C; --mustard-2: #D99A06; --espresso: #1E1510; --roast: #33241A;
+            --kraft: #D2A26B; --kraft-2: #B98550; --milk: #F7EBD6; --ember: #FF6B4A;
+            position: relative; width: 100vw; left: 50%; margin-left: -50vw;
+            background: var(--espresso); color: var(--milk);
+            font-family: 'Outfit', system-ui, sans-serif; line-height: 1.5; overflow-x: clip;
+        }
+        .ec *, .ec *::before, .ec *::after { box-sizing: border-box; }
+        .ec a { color: inherit; }
+        .ec .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .ec :focus-visible { outline: 3px solid var(--mustard); outline-offset: 3px; }
+
+        /* ---------- Loader ---------- */
+        .loader { display: none; position: fixed; inset: 0; z-index: 1000; background: #120d0a; place-items: center; align-content: center; gap: 18px; text-align: center; }
+        .js .loader { display: grid; }
+        .loader svg { width: 120px; height: 160px; overflow: visible; }
+        .l-wisp { fill: none; stroke: #f7ebd6; stroke-width: 3; stroke-linecap: round; opacity: 0; animation: steam 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+        .l-wisp:nth-of-type(2) { animation-delay: .8s; } .l-wisp:nth-of-type(3) { animation-delay: 1.6s; }
+        .l-name { font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+        .l-sub { font-size: 15px; color: #d9c4a3; }
+
+        /* ---------- Scene ---------- */
+        html:not(.js) .stage { display: none; }
+        .stage { position: relative; height: 100vh; height: 100svh; overflow: hidden; background: #120d0a; isolation: isolate; }
+        .layer { position: absolute; inset: 0; overflow: hidden; }
+        .cam { position: absolute; inset: 0; }
+        .cam svg { display: block; width: 100%; height: 100%; }
+        .int { visibility: hidden; opacity: 0; }
+        #fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; mix-blend-mode: screen; }
+        .shade { position: absolute; inset: 0; pointer-events: none; z-index: 4;
+            background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55) 100%), linear-gradient(to top, rgba(10,6,4,.75), transparent 38%); }
+        .flash { position: absolute; inset: 0; pointer-events: none; z-index: 5; opacity: 0; background: radial-gradient(circle at 50% 58%, #ffe1a8 0%, #ff9a4a 38%, transparent 72%); }
+
+        .cap { position: absolute; left: clamp(20px, 5vw, 80px); bottom: clamp(36px, 9vh, 100px); z-index: 6; max-width: 16ch;
+            font-size: clamp(30px, 5vw, 76px); font-weight: 700; line-height: 1; letter-spacing: -.035em; color: #fff3dc; text-shadow: 0 4px 30px rgba(0,0,0,.55); pointer-events: none; }
+        .cap small { display: block; margin-top: .6em; font-size: clamp(15px, 1.4vw, 20px); font-weight: 500; letter-spacing: 0; line-height: 1.35; max-width: 32ch; color: #f0dcb8; }
+        .cap-2, .cap-3, .cap-4 { visibility: hidden; opacity: 0; }
+        .hint { position: absolute; right: clamp(20px, 5vw, 80px); bottom: clamp(36px, 9vh, 100px); z-index: 6; display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 500; color: #f0dcb8; pointer-events: none; opacity: 0; }
+        .hint i { width: 2px; height: 46px; background: linear-gradient(var(--mustard), transparent); transform-origin: top; animation: drip 1.8s ease-in-out infinite; }
+        @keyframes drip { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+        .skip { position: absolute; top: 16px; right: 16px; z-index: 7; padding: .5em 1em; border-radius: 999px; background: rgba(20,14,10,.6); border: 1px solid rgba(247,235,214,.35); color: var(--milk); font-size: 15px; font-weight: 500; text-decoration: none; backdrop-filter: blur(6px); }
+        .skip:hover { background: var(--mustard); color: #1e1510; }
+        .rail { position: absolute; right: max(14px, 2vw); top: 50%; height: 140px; width: 3px; transform: translateY(-50%); background: rgba(247,235,214,.22); border-radius: 2px; z-index: 6; }
+        .rail i { position: absolute; inset: 0; background: var(--mustard); transform-origin: top; transform: scaleY(0); border-radius: 2px; }
+        .toast { position: absolute; left: 50%; top: 22px; z-index: 8; transform: translate(-50%, -20px); opacity: 0; padding: .65em 1.2em; border-radius: 999px; background: var(--mustard); color: #1e1510; font-weight: 600; font-size: 16px; pointer-events: none; transition: .35s; max-width: 90vw; text-align: center; }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        /* SVG details */
+        .sign-t { font-family: 'Outfit', sans-serif; font-weight: 800; fill: #2a1f17; letter-spacing: -2px; }
+        .sign-halo { opacity: .55; transition: opacity .4s; }
+        .sign:hover .sign-halo { opacity: 1; }
+        .cone { animation: flick 7s infinite; }
+        @keyframes flick { 0%, 100% { opacity: .9; } 46% { opacity: 1; } 48% { opacity: .55; } 50% { opacity: 1; } 78% { opacity: .85; } }
+        .neon-t { font: 700 26px 'Outfit', sans-serif; fill: #ffe3d6; stroke: #ff6b4a; stroke-width: 5; paint-order: stroke; stroke-linejoin: round; }
+        .neon { transition: opacity .6s; }
+        .neon.is-off { opacity: .28; }
+        .chalk { font-family: 'Caveat Brush', cursive; fill: #f4f1e8; }
+        .menu-t { font-family: 'Outfit', sans-serif; font-weight: 700; fill: #2a1f17; }
+        .cup-t { font-family: 'Outfit', sans-serif; font-weight: 800; fill: #2a1a10; letter-spacing: -.5px; }
+        .hot { cursor: pointer; outline: none; }
+        .hot .ring { fill: none; stroke: #F4B81C; stroke-width: 3; stroke-dasharray: 8 6; opacity: 0; transition: opacity .25s; }
+        .hot:hover .ring, .hot:focus-visible .ring { opacity: 1; }
+        .doorhover { fill: #ffd56a; opacity: 0; transition: opacity .3s; }
+        .door:hover .doorhover, .door:focus-visible .doorhover { opacity: .16; }
+        .int .hot { pointer-events: none; }
+        .stage.is-inside .int .hot { pointer-events: auto; }
+        .dot .core { fill: #F4B81C; }
+        .dot .pulse { fill: none; stroke: #F4B81C; stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: pulse 2.2s ease-out infinite; }
+        @keyframes pulse { from { transform: scale(.6); opacity: .9; } to { transform: scale(2.8); opacity: 0; } }
+        .bob { animation: bob 4s ease-in-out infinite; }
+        .marker:nth-of-type(2) .bob { animation-delay: -1.3s; } .marker:nth-of-type(3) .bob { animation-delay: -2.4s; }
+        @keyframes bob { 50% { transform: translateY(-10px); } }
+        .marker { cursor: pointer; outline: none; }
+        .marker .pill { fill: rgba(22,15,10,.8); stroke: #F4B81C; stroke-width: 1.5; transition: fill .25s; }
+        .marker:hover .pill, .marker:focus-visible .pill { fill: #F4B81C; }
+        .marker:hover .m-t, .marker:focus-visible .m-t { fill: #1e1510; }
+        .m-t { font: 600 20px 'Outfit', sans-serif; fill: #f7ebd6; transition: fill .25s; }
+        .steam path { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: 0; animation: steam 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+        .steam path:nth-child(2) { animation-delay: 1s; } .steam path:nth-child(3) { animation-delay: 2s; }
+        @keyframes steam { 0% { opacity: 0; transform: translateY(8px) scaleY(.8); } 30% { opacity: .55; } 100% { opacity: 0; transform: translateY(-34px) scaleY(1.2); } }
+        .chair { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .5s cubic-bezier(.3, 1.6, .5, 1); }
+        .chair:hover { transform: rotate(-3deg); }
+        .pend { transform-box: fill-box; transform-origin: 50% 0; animation: swing 6s ease-in-out infinite alternate; }
+        @keyframes swing { from { transform: rotate(-2.2deg); } to { transform: rotate(2.2deg); } }
+        #blade { transform-box: fill-box; transform-origin: 0 0; animation: sway 5s ease-in-out infinite alternate; }
+        @keyframes sway { from { transform: rotate(-1.6deg); } to { transform: rotate(1.6deg); } }
+        .glow-pulse { animation: glowp 5s ease-in-out infinite; }
+        @keyframes glowp { 50% { opacity: .65; } }
+
+        /* ---------- Visit section ---------- */
+        .visit { position: relative; padding: clamp(64px, 10vw, 140px) clamp(16px, 4vw, 56px) clamp(56px, 8vw, 110px); background: linear-gradient(#120d0a, #1E1510 18%); }
+        .visit-head { max-width: 1280px; margin: 0 auto clamp(24px, 4vw, 48px); }
+        .visit-head h2 { margin: 0 0 .35em; font-size: clamp(36px, 6vw, 88px); font-weight: 700; line-height: .98; letter-spacing: -.04em; max-width: 13ch; }
+        .visit-head p { margin: 0; font-size: clamp(17px, 1.6vw, 21px); max-width: 44ch; color: #e8d6b9; }
+        .mapstage { position: relative; max-width: 1280px; margin: 0 auto; }
+        .map-layers { position: relative; height: clamp(480px, 74vh, 740px); border-radius: 26px; overflow: hidden; background: #2a2019; box-shadow: 0 50px 90px -40px #000, inset 0 0 0 1px rgba(247,235,214,.12); }
+        .map-art, .map-live { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .map-live { opacity: 0; pointer-events: none; filter: saturate(.85) sepia(.12) contrast(1.02); }
+        .map-layers.is-live .map-live { pointer-events: auto; }
+        .pin { position: absolute; left: 50%; top: 50%; width: 54px; height: 70px; margin: -66px 0 0 -27px; z-index: 3; pointer-events: none; }
+        .pin svg { width: 100%; height: 100%; overflow: visible; animation: hop 2.4s cubic-bezier(.3, 0, .3, 1) infinite; }
+        @keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-14px); } 55% { transform: translateY(0); } }
+        .pin::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 40px; height: 12px; margin-left: -20px; border-radius: 50%; border: 2px solid var(--mustard); animation: ripple 2.4s ease-out infinite; }
+        @keyframes ripple { from { transform: scale(.3); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
+        .map-note { position: absolute; right: 16px; bottom: 14px; z-index: 4; margin: 0; padding: .4em .9em; border-radius: 999px; background: rgba(20,14,10,.75); color: var(--milk); font-size: 14px; opacity: 0; transition: opacity .4s; pointer-events: none; }
+        .map-layers.is-live .map-note { opacity: 1; }
+
+        .sleeve { position: absolute; z-index: 5; left: clamp(12px, 2.2vw, 30px); top: 50%; transform: translateY(-50%); width: min(390px, calc(100% - 24px));
+            padding: 38px 24px 22px; color: #2a1a0f; border-radius: 20px 20px 26px 26px;
+            background: linear-gradient(#d9ab73, #c79560); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
+        .sleeve::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 16px; border-radius: 20px 20px 0 0; background: repeating-linear-gradient(90deg, rgba(42,26,15,.16) 0 3px, transparent 3px 8px); }
+        .sleeve h3 { margin: 0 0 6px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1.05; }
+        .row { padding: 14px 0; border-top: 2px dashed rgba(42,26,15,.32); }
+        .row:first-of-type { margin-top: 10px; }
+        .lbl { display: block; font-size: 15px; font-weight: 600; opacity: .78; margin-bottom: 2px; }
+        .val { font-size: 20px; font-weight: 600; line-height: 1.25; }
+        .val-sm { font-size: 17px; font-weight: 500; }
+        .status { display: inline-flex; align-items: center; gap: .55em; font-weight: 700; margin-top: 4px; }
+        .status i { width: 11px; height: 11px; border-radius: 50%; background: #1f8f4e; animation: ping 2s infinite; }
+        .ec[data-open="false"] .status i { background: #b3261e; animation: none; }
+        @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(31,143,78,.6); } 100% { box-shadow: 0 0 0 12px rgba(31,143,78,0); } }
+        .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5em; padding: .62em 1.15em; border-radius: 999px; border: 2px solid #2a1a0f; background: transparent; color: #2a1a0f; font: 600 16px 'Outfit', sans-serif; text-decoration: none; cursor: pointer; transition: transform .2s, background .2s, color .2s; }
+        .btn:hover { transform: translateY(-2px); background: rgba(42,26,15,.1); }
+        .btn.primary { background: #2a1a0f; color: #f7ebd6; }
+        .btn.primary:hover { background: #3d2818; }
+        .modes { display: flex; margin-top: 10px; border: 2px solid #2a1a0f; border-radius: 999px; overflow: hidden; }
+        .modes label { flex: 1; position: relative; cursor: pointer; }
+        .modes input { position: absolute; opacity: 0; }
+        .modes span { display: block; padding: .45em .2em; text-align: center; font-weight: 600; font-size: 15px; transition: background .2s, color .2s; }
+        .modes input:checked + span { background: #2a1a0f; color: #f7ebd6; }
+        .modes input:focus-visible + span { outline: 3px solid var(--mustard); outline-offset: -4px; }
+        .signoff { max-width: 1280px; margin: clamp(48px, 7vw, 96px) auto 0; font-size: clamp(26px, 4vw, 56px); font-weight: 700; letter-spacing: -.035em; line-height: 1.05; }
+        .signoff small { display: block; margin-top: .5em; font-size: 17px; font-weight: 400; letter-spacing: 0; color: #d9c4a3; }
+
+        .scene-sleeve { position: absolute; z-index: 7; left: auto; right: clamp(16px, 5vw, 80px); top: 50%; transform: none; width: min(380px, calc(100% - 24px)); visibility: hidden; opacity: 0; }
+        .cap-4 { bottom: auto; top: clamp(96px, 20vh, 220px); }
+        @media (max-width: 860px) {
+            .scene-sleeve { top: auto; left: 12px; right: 12px; bottom: 12px; width: auto; max-height: 72vh; overflow: auto; margin: 0; }
+            .cap-4 { display: none; }
+            .sleeve { position: relative; left: auto; top: auto; transform: none; width: auto; margin: -64px 12px 0; }
+            .map-layers { height: 62vh; min-height: 420px; }
+            .hint { display: none; }
+            .rail { display: none; }
         }
 
-        .door-camera {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transform-origin: 58% 60%;
-            will-change: transform;
+        /* ---------- Phone layout ---------- */
+        @media (max-width: 575px) {
+            .ec { width: 100%; left: auto; margin-left: 0; }
+            .stage { min-height: 560px; }
+            .skip { top: 10px; right: 10px; padding: .45em .8em; font-size: 13px; }
+            .cap { left: 18px; right: 18px; bottom: 28px; max-width: 12ch; font-size: clamp(28px, 9vw, 48px); }
+            .cap small { max-width: 27ch; font-size: 14px; }
+            .toast { top: 14px; font-size: 14px; }
+            .scene-sleeve { left: 50%; right: auto; top: 50%; bottom: auto; width: min(84vw, 310px); max-height: min(64svh, 430px); overflow: auto; transform: translate(-50%, -50%) !important; }
+            .scene-sleeve .sleeve { width: 100%; margin: 0; padding: 24px 14px 14px; border-radius: 14px 14px 18px 18px; }
+            .scene-sleeve .sleeve::before { height: 12px; border-radius: 16px 16px 0 0; }
+            .scene-sleeve .sleeve h3 { font-size: 20px; }
+            .scene-sleeve .row { padding: 8px 0; }
+            .scene-sleeve .val { font-size: 15px; }
+            .scene-sleeve .val-sm, .scene-sleeve .lbl { font-size: 12px; }
+            .scene-sleeve .btns, .scene-sleeve .btn { width: 100%; }
+            .scene-sleeve .btn { min-height: 40px; padding: .5em .85em; font-size: 14px; }
+            .modes span { min-height: 36px; padding: .45em .15em; font-size: 12px; }
+
+            .visit { padding: 52px 14px 64px; }
+            .visit-head { margin-bottom: 22px; }
+            .visit-head h2 { font-size: clamp(34px, 11vw, 52px); max-width: 11ch; }
+            .visit-head p { font-size: 15px; }
+            .map-layers { height: min(58svh, 420px); min-height: 300px; border-radius: 16px; }
+            .pin { width: 44px; height: 57px; margin: -53px 0 0 -22px; }
+            .map-note { right: 9px; bottom: 9px; max-width: calc(100% - 18px); font-size: 11px; }
+            .sleeve { margin: -46px 10px 0; padding: 28px 18px 18px; border-radius: 16px 16px 20px 20px; }
+            .sleeve h3 { font-size: 23px; }
+            .row { padding: 11px 0; }
+            .val { font-size: 18px; }
+            .btns, .btn { width: 100%; }
+            .btn { min-height: 44px; }
+            .signoff { margin-top: 48px; font-size: clamp(28px, 9vw, 42px); }
+            .signoff small { font-size: 14px; }
         }
 
-        /* Storefront facade & glass grid framing the entrance */
-        .facade-wall {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, #f3e7b3 0%, #e7d48c 42%, #9a9488 43%, #78736a 100%);
-            transform-style: preserve-3d;
+        /* Keep the visit details available when animation scripts are blocked or reduced. */
+        @media (max-width: 575px) {
+            .ec.is-static .scene-sleeve {
+                display: block;
+                position: relative;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                top: auto;
+                width: auto;
+                max-height: none;
+                margin: 16px 10px 0;
+                transform: none;
+                visibility: visible;
+                opacity: 1;
+            }
         }
 
-        .facade-sign {
-            position: absolute;
-            top: 14%;
-            left: 50%;
-            transform: translateX(-50%) translateZ(24px);
-            background: #141210;
-            color: #febe10;
-            padding: 0.75rem 1.75rem;
-            border-radius: 0.85rem;
-            border: 3px solid #febe10;
-            text-align: center;
-            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.45);
+        @media (max-width: 380px) {
+            .stage { min-height: 520px; }
+            .scene-sleeve { max-height: 58svh; }
+            .map-layers { min-height: 280px; }
+            .visit { padding-inline: 12px; }
         }
 
-        .facade-sign .brand-title {
-            font-size: clamp(1.4rem, 3vw, 2.3rem);
-            font-weight: 900;
-            letter-spacing: -0.03em;
-            line-height: 1.05;
-        }
-
-        .facade-sign .brand-sub {
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #ffffff;
-            margin-top: 0.25rem;
-        }
-
-        /* Side window mullions beside the door */
-        .side-window {
-            position: absolute;
-            top: 43%;
-            left: 28%;
-            width: 21%;
-            height: 41%;
-            background: linear-gradient(155deg, rgba(255, 255, 255, 0.22), rgba(20, 24, 28, 0.78));
-            border: 6px solid #181818;
-            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.65);
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-        }
-
-        .side-window span {
-            border: 3px solid #181818;
-        }
-
-        /* Recessed dark doorway opening (no inside room shown) */
-        .doorway-opening {
-            position: absolute;
-            top: 42%;
-            left: 50%;
-            width: 17%;
-            height: 43%;
-            background: radial-gradient(circle at 50% 35%, #26221e 0%, #0b0a09 78%, #050505 100%);
-            border: 6px solid #141210;
-            box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.95);
-            transform-style: preserve-3d;
-        }
-
-        /* 3D Swinging Door Panel */
-        .door-panel {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-origin: right center;
-            transform-style: preserve-3d;
-            background: linear-gradient(160deg, #2b2927 0%, #161514 55%, #0d0c0c 100%);
-            border: 3px solid #3c3834;
-            box-shadow: -12px 14px 28px rgba(0, 0, 0, 0.65);
-            will-change: transform;
-        }
-
-        .door-glass-pane {
-            position: absolute;
-            top: 10%;
-            left: 16%;
-            right: 16%;
-            height: 54%;
-            border-radius: 4px;
-            border: 2px solid rgba(255, 255, 255, 0.16);
-            background: linear-gradient(125deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.03) 48%, rgba(0, 0, 0, 0.45) 100%);
-        }
-
-        .door-handle {
-            position: absolute;
-            top: 54%;
-            left: 14%;
-            width: 10px;
-            height: 42px;
-            border-radius: 999px;
-            background: linear-gradient(180deg, #e5e7eb, #6b7280);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
-        }
-
-        /* Steps leading up to the door */
-        .entry-steps {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 16%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        .entry-step {
-            height: 33.33%;
-            border-top: 2px solid rgba(255, 255, 255, 0.14);
-        }
-
-        .entry-step:nth-child(1) {
-            width: 76%;
-            margin-left: 24%;
-            background: #8c877d;
-        }
-
-        .entry-step:nth-child(2) {
-            width: 86%;
-            margin-left: 14%;
-            background: #7b766c;
-        }
-
-        .entry-step:nth-child(3) {
-            width: 100%;
-            background: #69645b;
-        }
-
-        .door-caption {
-            position: absolute;
-            left: 50%;
-            bottom: 1.5rem;
-            transform: translateX(-50%);
-            z-index: 10;
-            background: rgba(20, 18, 16, 0.88);
-            color: #ffffff;
-            border: 2px solid #febe10;
-            border-radius: 999px;
-            padding: 0.55rem 1.25rem;
-            font-size: 0.85rem;
-            font-weight: 700;
-            white-space: nowrap;
-            pointer-events: none;
+        /* Reduced motion / no GSAP: show the scenes stacked, no pinning */
+        .ec.is-static .stage { height: auto; }
+        .ec.is-static .layer { position: relative; height: 70vh; opacity: 1; visibility: visible; }
+        .ec.is-static .int .hot { pointer-events: auto; }
+        .ec.is-static .scene-sleeve { display: none; }
+        .ec.is-static .cap, .ec.is-static .hint, .ec.is-static .rail { display: none; }
+        .ec.is-static .map-live { opacity: 1; pointer-events: auto; }
+        .ec.is-static .map-art, .ec.is-static .pin { display: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .ec *, .ec *::before, .ec *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
         }
     </style>
 {% endblock %}
 
 {% block body %}
-<section class="py-24 bg-white text-brandDark">
-    <div class="container-xxl px-4">
-        <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <span class="bg-brandDark text-brandYellow text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow">Visit Our Store</span>
-            <h2 class="text-4xl font-extrabold tracking-tight text-brandDark">Location & Hours</h2>
-            <div class="w-16 h-1.5 bg-brandDark mx-auto rounded-pill"></div>
-        </div>
+<script>document.documentElement.classList.add('js', 'ec-lock');</script>
 
-        <div class="bg-brandYellow rounded-[2.5rem] p-6 lg:p-12 shadow-2xl border-4 border-brandDark/10 space-y-10">
-            <div class="door-entry-stage shadow-2xl" id="doorStage">
-                <div class="door-camera" id="doorCamera">
-                    <div class="facade-wall">
-                        <div class="facade-sign">
-                            <div class="brand-title">every cup.</div>
-                            <div class="brand-sub">Coffee &amp; Pastries</div>
-                        </div>
+<main class="ec" id="ec"
+      data-open="true"
+      data-open-at="{{ cafe.hours_open }}"
+      data-close-at="{{ cafe.hours_close }}"
+      data-tz="{{ cafe.timezone }}"
+      data-dest="{{ mapQuery }}">
 
-                        <div class="side-window" aria-hidden="true">
-                            <span></span><span></span>
-                            <span></span><span></span>
-                            <span></span><span></span>
-                        </div>
+    <h1 class="sr-only">Visit {{ cafe.name }} at {{ cafe.address_line1 }}, {{ cafe.address_line2 }}</h1>
 
-                        <div class="doorway-opening">
-                            <div class="door-panel" id="doorPanel">
-                                <div class="door-glass-pane"></div>
-                                <div class="door-handle"></div>
-                            </div>
-                        </div>
-
-                        <div class="entry-steps" aria-hidden="true">
-                            <div class="entry-step"></div>
-                            <div class="entry-step"></div>
-                            <div class="entry-step"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="door-caption" id="doorCaption">Scroll down to approach &amp; open the door</div>
-            </div>
-
-            <div class="row align-items-center g-5">
-                <div class="col-lg-6">
-                    <div class="bg-white p-6 lg:p-8 rounded-3xl border-2 border-brandDark shadow-xl space-y-5">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <h4 class="text-xl lg:text-2xl font-black text-brandDark mb-0">{{ store.name|default('every cup.') }}</h4>
-                            <span class="badge bg-brandDark text-brandYellow px-3 py-1.5 rounded-pill fw-bold text-xs uppercase tracking-wider">UST Area</span>
-                        </div>
-
-                        <div class="space-y-4 pt-2">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="bg-brandYellow text-brandDark p-2 rounded-xl fw-bold fs-5 shadow-xs border border-brandDark">📍</div>
-                                <div>
-                                    <strong class="text-brandDark d-block mb-0.5">Address</strong>
-                                    <p class="text-secondary text-sm mb-0">{{ store.address|default('466, 1125 Tolentino St, Sampaloc, Manila') }}</p>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="bg-brandYellow text-brandDark p-2 rounded-xl fw-bold fs-5 shadow-xs border border-brandDark">🕒</div>
-                                <div>
-                                    <strong class="text-brandDark d-block mb-0.5">Operating Hours</strong>
-                                    <p class="text-secondary text-sm mb-0 font-semibold text-brandDark">{{ store.hours|default('Open daily') }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="pt-4 border-top border-dark border-opacity-10">
-                            <a href="{{ store.maps_url|default('https://maps.google.com/?q=14.604,120.988') }}" target="_blank" rel="noopener noreferrer" class="btn bg-brandDark text-brandYellow fw-bold px-4 py-3 rounded-2xl hover:bg-black transition shadow-md border-0 w-100 d-flex align-items-center justify-content-center gap-2">
-                                <span>🗺️</span> Open Google Maps Direction
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="h-96 rounded-3xl overflow-hidden border-4 border-brandDark shadow-2xl bg-white">
-                        <iframe title="Store Location Map" class="w-100 h-100 filter contrast-125" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.912!2d120.988!3d14.604!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDM2JzE0LjQiTiAxMjDCsDU5JzE2LjgiRQ!5e0!3m2!1sen!2sph!4v1234567890" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
+    {# ======================= LOADER ======================= #}
+    <div class="loader" id="loader" role="status" aria-live="polite">
+        <svg viewBox="0 0 120 160" aria-hidden="true">
+            <defs>
+                <clipPath id="lClip"><path d="M20 34 L100 34 L90 140 Q89 150 79 150 L41 150 Q31 150 30 140Z"/></clipPath>
+            </defs>
+            <path class="l-wisp" d="M46 24 q-8 -10 0 -18 t0 -18"/>
+            <path class="l-wisp" d="M60 24 q-8 -10 0 -18 t0 -18"/>
+            <path class="l-wisp" d="M74 24 q-8 -10 0 -18 t0 -18"/>
+            <path d="M20 34 L100 34 L90 140 Q89 150 79 150 L41 150 Q31 150 30 140Z" fill="#2a1f17"/>
+            <g clip-path="url(#lClip)">
+                <rect id="lFill" x="0" y="150" width="120" height="120" fill="#7a4a26"/>
+                <rect id="lFoam" x="0" y="150" width="120" height="5" fill="#d7a66e"/>
+            </g>
+            <path d="M20 34 L100 34 L90 140 Q89 150 79 150 L41 150 Q31 150 30 140Z" fill="none" stroke="#D2A26B" stroke-width="4" stroke-linejoin="round"/>
+            <rect x="14" y="26" width="92" height="10" rx="5" fill="#f4efe6"/>
+        </svg>
+        <div class="l-name">{{ cafe.name }}</div>
+        <div class="l-sub"><span id="lPct">0</span>% poured</div>
     </div>
-</section>
+
+    {# ======================= SCENE ======================= #}
+    <section class="stage" id="stage" aria-label="Walk up to the café and step inside">
+
+        {# ---------- INTERIOR ---------- #}
+        <div class="layer int" id="int">
+            <div class="cam" id="camInt">
+<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Café interior with wood beams, glowing menu screens, a pastry case and a kraft coffee cup">
+<defs>
+    <linearGradient id="iWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d8084"/><stop offset="1" stop-color="#46494d"/></linearGradient>
+    <linearGradient id="iWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b17a40"/><stop offset="1" stop-color="#744a24"/></linearGradient>
+    <linearGradient id="iWoodD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5e3d1e"/><stop offset="1" stop-color="#2f1d0e"/></linearGradient>
+    <linearGradient id="iCone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2a6" stop-opacity=".6"/><stop offset="1" stop-color="#ffe2a6" stop-opacity="0"/></linearGradient>
+    <linearGradient id="iScrA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset="1" stop-color="#f6c230"/></linearGradient>
+    <linearGradient id="iScrB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0f2"/><stop offset="1" stop-color="#f2a0b4"/></linearGradient>
+    <radialGradient id="iGlowY"><stop offset="0" stop-color="#ffd860" stop-opacity=".7"/><stop offset="1" stop-color="#ffd860" stop-opacity="0"/></radialGradient>
+    <radialGradient id="iGlowP"><stop offset="0" stop-color="#ff9ab4" stop-opacity=".6"/><stop offset="1" stop-color="#ff9ab4" stop-opacity="0"/></radialGradient>
+    <radialGradient id="iBulb"><stop offset="0" stop-color="#fff3cf"/><stop offset=".35" stop-color="#ffd37a" stop-opacity=".8"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+    <linearGradient id="iGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/></linearGradient>
+    <linearGradient id="iKraft" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b98550"/><stop offset=".45" stop-color="#e0b684"/><stop offset="1" stop-color="#a97440"/></linearGradient>
+    <linearGradient id="iFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9743c"/><stop offset="1" stop-color="#5f3b1b"/></linearGradient>
+    <pattern id="iMesh" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 0L14 14M14 0L0 14" stroke="#120b06" stroke-width="1.5" opacity=".65"/></pattern>
+    <g id="iMuffin">
+        <path d="M-17 0 L-14 -16 L14 -16 L17 0Z" fill="#e58a2a"/><path d="M-9 0 L-8 -16 M0 0V-16 M9 0L8 -16" stroke="#c46f18" stroke-width="2"/>
+        <path d="M-20 -14 Q-24 -36 0 -40 Q24 -36 20 -14Z" fill="#e9b24a"/><path d="M-12 -28 Q0 -36 12 -28" stroke="#f6d38a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+</defs>
+
+<g id="pxIntBack">
+    <rect x="-60" y="-40" width="1720" height="960" fill="url(#iWall)"/>
+    <g stroke="#000" stroke-opacity=".12"><path d="M240 0V700M520 0V700M800 0V700M1080 0V700M1360 0V700"/></g>
+
+    {# ceiling #}
+    <rect x="-60" y="-40" width="1720" height="170" fill="url(#iWoodD)"/>
+    <rect x="-60" y="-40" width="1720" height="70" fill="url(#iMesh)"/>
+    <rect x="-60" y="96" width="1720" height="34" fill="url(#iWood)"/>
+    <rect x="-60" y="126" width="1720" height="6" fill="#000" opacity=".35"/>
+    <g fill="url(#iWood)"><rect x="140" y="20" width="40" height="110"/><rect x="760" y="20" width="40" height="110"/><rect x="1380" y="20" width="40" height="110"/></g>
+    {# downlights #}
+    <g fill="url(#iCone)" class="glow-pulse"><polygon points="486,136 514,136 640,470 360,470"/><polygon points="886,136 914,136 1040,470 760,470"/><polygon points="1236,136 1264,136 1390,470 1110,470"/></g>
+    <g fill="#fff6d6"><ellipse cx="500" cy="136" rx="16" ry="5"/><ellipse cx="900" cy="136" rx="16" ry="5"/><ellipse cx="1250" cy="136" rx="16" ry="5"/></g>
+
+    {# left shelf #}
+    <g>
+        <rect x="90" y="250" width="330" height="330" fill="#171009"/>
+        <rect x="90" y="250" width="330" height="330" fill="none" stroke="url(#iWood)" stroke-width="16"/>
+        <rect x="98" y="412" width="314" height="14" fill="url(#iWood)"/>
+        <rect x="140" y="520" width="70" height="52" rx="6" fill="#222"/><circle cx="175" cy="500" r="14" fill="#2c2c2c"/>
+        <rect x="236" y="506" width="44" height="66" rx="8" fill="#9bb7c4" opacity=".6"/><rect x="236" y="498" width="44" height="12" rx="4" fill="#333"/>
+        <rect x="316" y="518" width="66" height="54" rx="6" fill="#2b2b2e"/><rect x="326" y="508" width="46" height="10" fill="#3a3a3e"/>
+        <path d="M150 412 L150 320 Q150 306 164 306 L196 306 Q210 306 210 320 L210 412Z" fill="#efe7d6"/><rect x="158" y="338" width="44" height="30" rx="3" fill="#7a4a26"/>
+        <ellipse cx="270" cy="398" rx="18" ry="14" fill="#d9e6ea" opacity=".5"/><ellipse cx="312" cy="398" rx="18" ry="14" fill="#d9e6ea" opacity=".5"/><ellipse cx="354" cy="398" rx="18" ry="14" fill="#d9e6ea" opacity=".5"/>
+        <rect x="104" y="258" width="302" height="150" fill="url(#iGlass)"/>
+    </g>
+
+    {# right: dark door to the street #}
+    <g>
+        <rect x="1440" y="170" width="200" height="560" fill="#0b0d10"/><rect x="1440" y="170" width="200" height="560" fill="none" stroke="#1a1d21" stroke-width="12"/>
+        <g class="glow-pulse"><circle cx="1500" cy="300" r="26" fill="#ff9a4a" opacity=".55"/><circle cx="1560" cy="420" r="38" fill="#ffd37a" opacity=".4"/><circle cx="1520" cy="560" r="22" fill="#ff6b4a" opacity=".5"/><circle cx="1590" cy="260" r="16" fill="#9ad0ff" opacity=".4"/></g>
+    </g>
+
+    {# menu screens #}
+    <g id="scrA" class="hot" role="button" tabindex="-1" aria-label="Coffee and specials menu screen" data-say="Coffee and specials are on the left screen at the counter.">
+        <ellipse cx="640" cy="316" rx="230" ry="130" fill="url(#iGlowY)"/>
+        <rect x="516" y="246" width="260" height="138" rx="6" fill="#0b0b0b"/>
+        <rect x="524" y="254" width="244" height="122" rx="3" fill="url(#iScrA)"/>
+        <text class="menu-t" x="536" y="280" font-size="19">coffee</text><text class="menu-t" x="640" y="280" font-size="19">specials</text>
+        <g fill="#2a1f17" opacity=".75"><rect x="536" y="296" width="96" height="8" rx="4"/><rect x="650" y="296" width="100" height="8" rx="4"/><rect x="536" y="318" width="80" height="8" rx="4"/><rect x="650" y="318" width="86" height="8" rx="4"/><rect x="536" y="340" width="104" height="8" rx="4"/><rect x="650" y="340" width="70" height="8" rx="4"/></g>
+        <rect class="ring" x="508" y="238" width="276" height="154" rx="10"/>
+        <g class="dot" transform="translate(780 246)"><circle class="pulse" r="8"/><circle class="core" r="6"/></g>
+    </g>
+    <g id="scrB" class="hot" role="button" tabindex="-1" aria-label="Non-coffee creamy series menu screen" data-say="Non-coffee drinks and the creamy series are on the right screen.">
+        <ellipse cx="920" cy="310" rx="230" ry="130" fill="url(#iGlowP)"/>
+        <rect x="806" y="240" width="260" height="138" rx="6" fill="#0b0b0b"/>
+        <rect x="814" y="248" width="244" height="122" rx="3" fill="url(#iScrB)"/>
+        <text class="menu-t" x="826" y="274" font-size="18">non-coffee</text><text class="menu-t" x="940" y="274" font-size="18">creamy series</text>
+        <g fill="#3a1d28" opacity=".7"><rect x="826" y="290" width="92" height="8" rx="4"/><rect x="940" y="290" width="100" height="8" rx="4"/><rect x="826" y="312" width="76" height="8" rx="4"/><rect x="940" y="312" width="84" height="8" rx="4"/><rect x="826" y="334" width="100" height="8" rx="4"/><rect x="940" y="334" width="64" height="8" rx="4"/></g>
+        <rect class="ring" x="798" y="232" width="276" height="154" rx="10"/>
+        <g class="dot" transform="translate(1070 240)"><circle class="pulse" r="8"/><circle class="core" r="6"/></g>
+    </g>
+
+    {# fridge #}
+    <g><rect x="1190" y="380" width="180" height="320" rx="4" fill="#13161a"/><rect x="1196" y="386" width="168" height="308" fill="none" stroke="#262b31" stroke-width="3"/><rect x="1204" y="420" width="6" height="90" rx="3" fill="#9aa0a6"/><circle cx="1330" cy="440" r="14" fill="#f4b81c"/></g>
+
+    {# pastry case #}
+    <g id="caseG" class="hot" role="button" tabindex="-1" aria-label="Pastry case" data-say="Muffins and cookies sit in the case. Baked lasagna is on the menu.">
+        <rect x="470" y="450" width="520" height="200" fill="#1b130d"/>
+        <rect x="478" y="458" width="504" height="186" fill="url(#iGlass)" stroke="#d3dadf" stroke-opacity=".7" stroke-width="4"/>
+        <rect x="478" y="548" width="504" height="6" fill="#d3dadf" opacity=".6"/>
+        <g class="muffins"><use href="#iMuffin" x="540" y="540"/><use href="#iMuffin" x="600" y="540"/><use href="#iMuffin" x="660" y="540"/><use href="#iMuffin" x="720" y="540"/></g>
+        <g><rect x="780" y="500" width="170" height="44" rx="6" fill="#b5391f"/><rect x="788" y="506" width="154" height="14" fill="#f1d48a"/><rect x="788" y="522" width="154" height="14" fill="#e08a3a"/></g>
+        <g><use href="#iMuffin" x="530" y="636"/><use href="#iMuffin" x="590" y="636"/>
+            <ellipse cx="690" cy="626" rx="30" ry="9" fill="#8a5326"/><ellipse cx="750" cy="628" rx="30" ry="9" fill="#9b6330"/><ellipse cx="810" cy="626" rx="30" ry="9" fill="#7c4a20"/><ellipse cx="870" cy="628" rx="30" ry="9" fill="#8a5326"/>
+            <g fill="#3a2010"><circle cx="680" cy="624" r="3"/><circle cx="698" cy="628" r="3"/><circle cx="745" cy="626" r="3"/><circle cx="762" cy="630" r="3"/><circle cx="806" cy="624" r="3"/><circle cx="822" cy="628" r="3"/><circle cx="866" cy="626" r="3"/></g></g>
+        <polygon points="500,458 580,458 520,644 478,644" fill="#fff" opacity=".07"/>
+        <rect x="490" y="468" width="70" height="26" rx="2" fill="#0c0c0c"/><text class="chalk" x="498" y="488" font-size="20">muffin</text>
+        <rect x="840" y="468" width="90" height="26" rx="2" fill="#0c0c0c"/><text class="chalk" x="848" y="488" font-size="20">lasagna</text>
+        <rect class="ring" x="466" y="446" width="528" height="208" rx="6"/>
+        <g class="dot" transform="translate(990 450)"><circle class="pulse" r="8"/><circle class="core" r="6"/></g>
+    </g>
+    {# cans on the case #}
+    <g><rect x="530" y="418" width="26" height="40" rx="5" fill="#c6a064"/><rect x="566" y="414" width="26" height="44" rx="5" fill="#c53a2e"/><rect x="602" y="414" width="26" height="44" rx="5" fill="#2f8a52"/><rect x="640" y="410" width="22" height="48" rx="6" fill="#d2842a"/><rect x="672" y="406" width="24" height="52" rx="6" fill="#a8641c"/></g>
+
+    {# counter #}
+    <rect x="-60" y="650" width="1720" height="26" fill="url(#iWood)"/>
+    <rect x="-60" y="676" width="1720" height="130" fill="url(#iWoodD)"/>
+    <g stroke="#000" stroke-opacity=".3" stroke-width="3"><path d="M200 676V806M520 676V806M840 676V806M1160 676V806M1480 676V806"/></g>
+    {# paper menu stands, tip box #}
+    <g><rect x="1010" y="572" width="62" height="80" rx="3" fill="#f3efe6"/><rect x="1010" y="572" width="62" height="16" fill="#f2a516"/><g stroke="#8a8a8a" stroke-width="2"><path d="M1018 600H1064M1018 610H1064M1018 620H1058M1018 630H1064"/></g></g>
+    <g id="tipG" class="hot" role="button" tabindex="-1" aria-label="Tip box" data-say="The tip box lives on the counter.">
+        <rect x="1100" y="590" width="86" height="62" rx="4" fill="#d8bd94"/><rect x="1108" y="598" width="70" height="46" rx="3" fill="#f7ecd7"/>
+        <circle cx="1143" cy="616" r="11" fill="#2a1a0f"/><circle cx="1139" cy="613" r="2" fill="#f7ecd7"/><circle cx="1147" cy="613" r="2" fill="#f7ecd7"/><path d="M1137 619 Q1143 625 1149 619" stroke="#f7ecd7" stroke-width="2" fill="none"/>
+        <text class="chalk" x="1143" y="638" font-size="14" text-anchor="middle" style="fill:#2a1a0f">tip box</text>
+        <rect class="ring" x="1094" y="584" width="98" height="74" rx="6"/>
+    </g>
+</g>
+
+{# pendant lamp #}
+<g class="pend" id="pend"><path d="M1330 -20 V240" stroke="#1a120b" stroke-width="3"/><circle cx="1330" cy="270" r="70" fill="url(#iBulb)"/><path d="M1300 240 L1360 240 L1372 288 Q1330 306 1288 288Z" fill="#e8d6ae" opacity=".55"/><circle cx="1330" cy="274" r="14" fill="#fffbe8"/></g>
+
+<g id="pxIntFront">
+    {# foreground table #}
+    <rect x="-80" y="800" width="1760" height="130" fill="url(#iFloor)"/>
+    <g stroke="#3a2210" stroke-opacity=".35" stroke-width="2" fill="none"><path d="M-80 830 Q500 822 1000 834 T1680 828"/><path d="M-80 862 Q400 868 900 858 T1680 866"/></g>
+    <rect x="-80" y="796" width="1760" height="8" fill="#e6b87c" opacity=".55"/>
+    <path d="M1180 810 L1680 800 L1680 930 L1250 930Z" fill="#c4222a"/><path d="M1180 810 L1680 800 L1680 812 L1186 822Z" fill="#8f161c"/>
+    {# hero cup #}
+    <g id="cupIn" class="hot" role="button" tabindex="-1" aria-label="Coffee cup" data-say="Fresh pour. Take a seat." transform="translate(300 722) scale(2.1)">
+        <ellipse cx="0" cy="116" rx="40" ry="7" fill="#000" opacity=".35"/>
+        <path d="M-42 0 L-31 108 Q-30 114 -24 114 L24 114 Q30 114 31 108 L42 0Z" fill="url(#iKraft)"/>
+        <path d="M-47 -6 Q-47 -14 -38 -14 L38 -14 Q47 -14 47 -6 L45 2 L-45 2Z" fill="#f6f3ec"/><rect x="-44" y="1" width="88" height="3" fill="#000" opacity=".12"/>
+        <text class="cup-t" x="-27" y="58" font-size="21">every</text><text class="cup-t" x="-27" y="80" font-size="21">cup</text>
+        <g class="steam"><path d="M-12 -22 q-9 -14 0 -26 t0 -26"/><path d="M2 -22 q-9 -14 0 -26 t0 -26"/><path d="M16 -22 q-9 -14 0 -26 t0 -26"/></g>
+        <g class="burst"></g>
+        <ellipse class="ring" cx="0" cy="56" rx="56" ry="80" style="stroke-width:2"/>
+        <g class="dot" transform="translate(48 -6)"><circle class="pulse" r="5"/><circle class="core" r="4"/></g>
+    </g>
+</g>
+</svg>
+            </div>
+        </div>
+
+        {# ---------- EXTERIOR ---------- #}
+        <div class="layer ext" id="ext">
+            <div class="cam" id="camExt">
+<svg class="ext-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated yellow storefront of every cup café at dusk">
+<defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#171230"/><stop offset=".5" stop-color="#4f2f55"/><stop offset=".82" stop-color="#d9784f"/><stop offset="1" stop-color="#f5b765"/></linearGradient>
+    <radialGradient id="sunG"><stop offset="0" stop-color="#ffd58a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd58a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="yel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbd04a"/><stop offset="1" stop-color="#e9a912"/></linearGradient>
+    <linearGradient id="yelSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a1500" stop-opacity=".3"/><stop offset=".12" stop-color="#2a1500" stop-opacity="0"/><stop offset=".88" stop-color="#2a1500" stop-opacity="0"/><stop offset="1" stop-color="#2a1500" stop-opacity=".34"/></linearGradient>
+    <linearGradient id="pave" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3f3c"/><stop offset="1" stop-color="#1b1615"/></linearGradient>
+    <radialGradient id="lampG"><stop offset="0" stop-color="#ffe6a3" stop-opacity=".9"/><stop offset="1" stop-color="#ffe6a3" stop-opacity="0"/></radialGradient>
+    <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0b8" stop-opacity=".85"/><stop offset="1" stop-color="#fff0b8" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gWarm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1d2e"/><stop offset="1" stop-color="#5a3a1e"/></linearGradient>
+    <linearGradient id="dGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b3b58"/><stop offset=".55" stop-color="#3a2a22"/><stop offset="1" stop-color="#6a4220"/></linearGradient>
+    <radialGradient id="inGlow" cx=".5" cy=".55" r=".75"><stop offset="0" stop-color="#ffd593"/><stop offset=".5" stop-color="#c9741f"/><stop offset="1" stop-color="#3a1d0c"/></radialGradient>
+    <linearGradient id="reflFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="reflMask" maskUnits="userSpaceOnUse" x="0" y="700" width="1600" height="200"><rect x="0" y="700" width="1600" height="200" fill="url(#reflFade)"/></mask>
+    <pattern id="slats" width="10" height="12" patternUnits="userSpaceOnUse"><rect width="10" height="12" fill="#2b2f34"/><rect y="9" width="10" height="3" fill="#0f1114"/></pattern>
+    <pattern id="wicker" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#3b281c"/><path d="M0 0L12 12M12 0L0 12" stroke="#6a4630" stroke-width="2"/></pattern>
+    <g id="chairS">
+        <ellipse cx="0" cy="84" rx="62" ry="9" fill="#000" opacity=".35"/>
+        <path d="M-38 -8 L-46 80 M38 -8 L46 80 M-14 -8 L-16 74 M14 -8 L16 74" stroke="#74777b" stroke-width="7" stroke-linecap="round"/>
+        <path d="M-46 -118 Q-52 -42 -44 -34 L44 -34 Q52 -42 46 -118 Q0 -134 -46 -118Z" fill="#9b9da1"/>
+        <g fill="#2c2e31" opacity=".55"><ellipse cx="-22" cy="-92" rx="9" ry="12"/><ellipse cx="0" cy="-94" rx="9" ry="12"/><ellipse cx="22" cy="-92" rx="9" ry="12"/></g>
+        <path d="M-56 -30 L56 -30 L48 -6 L-48 -6Z" fill="#b2b4b8"/>
+    </g>
+</defs>
+
+<g id="pxSky">
+    <rect x="-80" y="-40" width="1760" height="800" fill="url(#sky)"/>
+    <ellipse cx="320" cy="560" rx="520" ry="260" fill="url(#sunG)"/>
+    <g id="stars" fill="#fff"></g>
+</g>
+<g id="pxFar" opacity=".9"><g id="skyFar"></g></g>
+<g id="pxMid">
+    <g id="skyNear"></g>
+    {# neighbours #}
+    <g>
+        <rect x="-40" y="230" width="520" height="480" fill="#575a5f"/>
+        <rect x="40" y="300" width="300" height="12" fill="#33363a"/><rect x="40" y="520" width="300" height="12" fill="#33363a"/>
+        <rect x="60" y="330" width="120" height="170" fill="#1d2024"/><rect x="200" y="330" width="120" height="170" fill="#1d2024"/>
+        <rect x="1120" y="150" width="540" height="560" fill="#6d7075"/>
+        <rect x="1190" y="420" width="400" height="250" fill="#15181c"/><rect x="1190" y="420" width="400" height="250" fill="#ffb54a" opacity=".12"/>
+        <rect x="1190" y="360" width="120" height="40" rx="4" fill="#1b1f24"/><text x="1200" y="388" font-family="Outfit" font-weight="700" font-size="22" fill="#cfd3d8">ETM</text>
+        <ellipse cx="1250" cy="672" rx="70" ry="48" fill="#26402c"/><ellipse cx="1330" cy="684" rx="56" ry="40" fill="#2f5236"/>
+    </g>
+</g>
+
+<rect x="-80" y="700" width="1760" height="220" fill="url(#pave)"/>
+<g stroke="#000" stroke-opacity=".28" stroke-width="2"><path d="M800 700L-200 900M800 700L100 900M800 700L450 900M800 700L800 900M800 700L1150 900M800 700L1500 900M800 700L1800 900"/><path d="M0 752H1600M0 816H1600"/></g>
+<ellipse cx="800" cy="760" rx="520" ry="46" fill="url(#lampG)" opacity=".28"/>
+
+{# wet-street reflection of the whole front #}
+<g mask="url(#reflMask)" opacity=".6"><use href="#fac" transform="translate(0 1424) scale(1 -1)"/></g>
+
+<g id="fac">
+    {# upper wall + louvered window #}
+    <rect x="470" y="-40" width="660" height="240" fill="#85888c"/>
+    <rect x="690" y="26" width="220" height="164" fill="#23272b"/><rect x="698" y="34" width="204" height="148" fill="url(#slats)"/>
+    <rect x="470" y="-40" width="660" height="240" fill="url(#yelSide)"/>
+    {# sign band #}
+    <rect x="470" y="196" width="660" height="150" fill="url(#yel)"/>
+    <rect x="470" y="340" width="660" height="10" fill="#b97f00" opacity=".6"/>
+    <g class="sign" style="cursor:pointer">
+        <ellipse class="sign-halo" cx="800" cy="272" rx="330" ry="96" fill="url(#lampG)"/>
+        <text class="sign-t" x="690" y="268" font-size="76">every</text>
+        <text class="sign-t" x="690" y="334" font-size="76">cup</text>
+    </g>
+    {# gooseneck lamp + light cone #}
+    <polygon class="cone" points="790,198 812,198 900,346 700,346" fill="url(#cone)"/>
+    <path d="M800 196 q0 -22 -20 -24" stroke="#2a1f17" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M770 166 l26 -4 l-4 18z" fill="#2a1f17"/>
+    {# body #}
+    <rect x="470" y="350" width="660" height="372" fill="url(#yel)"/>
+    <rect x="470" y="196" width="660" height="526" fill="url(#yelSide)"/>
+    <rect x="490" y="548" width="44" height="52" rx="3" fill="#8e9195"/><rect x="494" y="552" width="36" height="12" fill="#6d7074"/>
+    {# glass frame #}
+    <rect x="530" y="372" width="540" height="318" fill="#14110f"/>
+    <rect x="548" y="390" width="204" height="290" fill="url(#gWarm)"/>
+    <g stroke="#14110f" stroke-width="5"><path d="M600 390V680M650 390V680M700 390V680M548 450H752M548 520H752M548 600H752"/></g>
+    <polygon points="560,390 610,390 570,680 548,680" fill="#fff" opacity=".07"/>
+    {# posters #}
+    <g transform="rotate(-2 612 450)"><rect x="584" y="408" width="58" height="84" fill="#f3e3b0"/><path d="M600 440 h26 l-4 28 q-1 6 -9 6 q-8 0 -9 -6z" fill="#7a4a26"/><rect x="598" y="436" width="30" height="6" rx="3" fill="#fff"/><text x="613" y="428" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="15" fill="#7b4a1e">latte</text></g>
+    <g><rect x="560" y="506" width="104" height="124" fill="#b3261e"/><text x="612" y="530" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="15" fill="#fff">BAKED</text><text x="612" y="548" text-anchor="middle" font-family="Outfit" font-weight="800" font-size="15" fill="#fff">LASAGNA</text>
+        <rect x="574" y="560" width="76" height="14" rx="4" fill="#e8c36a"/><rect x="574" y="574" width="76" height="12" rx="4" fill="#c2331f"/><rect x="574" y="586" width="76" height="12" rx="4" fill="#f4dc92"/><rect x="574" y="598" width="76" height="14" rx="4" fill="#e8c36a"/></g>
+    <g><rect x="676" y="420" width="62" height="100" fill="#f7dfe2"/><path d="M692 448 h30 l-4 44 q-1 8 -11 8 q-10 0 -11 -8z" fill="#f08aa4" opacity=".9"/><rect x="690" y="440" width="34" height="8" rx="4" fill="#fff"/></g>
+    {# doorway + door #}
+    <rect x="770" y="390" width="170" height="295" fill="url(#inGlow)"/>
+    <path d="M855 390V458" stroke="#2a1a10" stroke-width="2"/><circle cx="855" cy="470" r="22" fill="#ffe9b8" opacity=".9"/><rect x="800" y="610" width="110" height="10" fill="#1a0f08" opacity=".6"/><rect x="812" y="620" width="6" height="64" fill="#1a0f08" opacity=".6"/><rect x="892" y="620" width="6" height="64" fill="#1a0f08" opacity=".6"/>
+    <g id="door" class="hot door" role="button" tabindex="0" aria-label="Pull the door and step inside">
+        <rect x="770" y="390" width="170" height="295" fill="#14100e"/>
+        <rect x="782" y="402" width="146" height="271" fill="url(#dGlass)"/>
+        <polygon points="790,402 840,402 798,673 782,673" fill="#fff" opacity=".08"/><polygon points="870,402 890,402 850,673 830,673" fill="#fff" opacity=".05"/>
+        <rect x="782" y="402" width="146" height="271" class="doorhover"/>
+        <rect x="909" y="520" width="7" height="76" rx="3" fill="#d7d9dc"/><rect x="784" y="640" width="70" height="26" rx="3" fill="#14100e" opacity=".0"/>
+        <rect class="ring" x="764" y="384" width="182" height="307" rx="4"/>
+        <g class="dot" transform="translate(855 540)"><circle class="pulse" r="9"/><circle class="core" r="7"/></g>
+    </g>
+    {# right panel + neon #}
+    <rect x="950" y="390" width="104" height="290" fill="url(#gWarm)"/>
+    <rect x="962" y="404" width="80" height="112" fill="#efe6d2"/><g stroke="#8a7a60" stroke-width="3"><path d="M972 422H1030M972 436H1030M972 450H1020M972 464H1030M972 478H1016"/></g>
+    <g id="neon" class="neon"><rect x="962" y="548" width="84" height="46" rx="12" fill="#1a0e0a" stroke="#ff6b4a" stroke-width="3"/><text id="neonT" class="neon-t" x="1004" y="580" text-anchor="middle">open</text></g>
+    {# steps #}
+    <rect x="740" y="686" width="230" height="12" fill="#93969a"/><rect x="726" y="698" width="258" height="12" fill="#7f8286"/><rect x="712" y="710" width="286" height="12" fill="#6b6e72"/>
+</g>
+
+{# blue pole + meter #}
+<rect x="436" y="-20" width="18" height="800" fill="#1f4fa8"/><rect x="436" y="-20" width="6" height="800" fill="#6f9cf0" opacity=".55"/>
+
+{# blade sign #}
+<g id="blade">
+    <path d="M1130 170 H1190" stroke="#1b1713" stroke-width="6" stroke-linecap="round"/>
+    <path d="M1160 170V196M1340 170V196" stroke="#1b1713" stroke-width="3"/>
+    <ellipse class="glow-pulse" cx="1250" cy="236" rx="190" ry="90" fill="url(#lampG)" opacity=".55"/>
+    <rect x="1140" y="196" width="220" height="82" rx="8" fill="#1b1713"/><rect x="1146" y="202" width="208" height="70" rx="5" fill="none" stroke="#F4B81C" stroke-width="2"/>
+    <g transform="translate(1186 237)"><circle r="16" fill="#F4B81C"/><g stroke="#F4B81C" stroke-width="3" stroke-linecap="round"><path d="M0 -24V-30M0 24V30M-24 0H-30M24 0H30M17 -17L21 -21M17 17L21 21M-17 -17L-21 -21M-17 17L-21 21"/></g></g>
+    <text x="1226" y="236" font-family="Outfit" font-weight="800" font-size="26" fill="#f7ebd6">every cup</text>
+    <text x="1226" y="258" font-family="Outfit" font-weight="500" font-size="15" fill="#F4B81C">coffee and pastries</text>
+</g>
+
+<g id="furn">
+    <ellipse cx="800" cy="868" rx="190" ry="20" fill="#000" opacity=".4"/>
+    <g class="chair"><use href="#chairS" transform="translate(600 790) rotate(-3) scale(1.25)"/></g>
+    <g class="chair"><use href="#chairS" transform="translate(1010 794) rotate(4) scale(1.25)"/></g>
+    {# bistro table #}
+    <path d="M800 806 L720 884 M800 806 L880 884 M800 806 L800 888" stroke="#1a1411" stroke-width="7" stroke-linecap="round"/>
+    <ellipse cx="800" cy="790" rx="112" ry="26" fill="#241710"/><ellipse cx="800" cy="784" rx="104" ry="22" fill="url(#wicker)"/><ellipse cx="800" cy="784" rx="104" ry="22" fill="none" stroke="#1a110c" stroke-width="5"/>
+    <ellipse cx="770" cy="778" rx="60" ry="8" fill="#fff" opacity=".1"/>
+    {# cup on table #}
+    <g id="cupOut" class="hot" role="button" tabindex="0" aria-label="Coffee cup on the table" data-say="Fresh pour. Walk in and grab yours." transform="translate(836 780) scale(.62)">
+        <ellipse cx="0" cy="116" rx="36" ry="7" fill="#000" opacity=".35"/>
+        <path d="M-42 0 L-31 108 Q-30 114 -24 114 L24 114 Q30 114 31 108 L42 0Z" fill="#cf9f68"/>
+        <path d="M-47 -6 Q-47 -14 -38 -14 L38 -14 Q47 -14 47 -6 L45 2 L-45 2Z" fill="#f6f3ec"/>
+        <text class="cup-t" x="-27" y="58" font-size="21">every</text><text class="cup-t" x="-27" y="80" font-size="21">cup</text>
+        <g class="steam"><path d="M-12 -22 q-9 -14 0 -26 t0 -26"/><path d="M2 -22 q-9 -14 0 -26 t0 -26"/><path d="M16 -22 q-9 -14 0 -26 t0 -26"/></g>
+        <g class="burst"></g>
+        <ellipse class="ring" cx="0" cy="56" rx="60" ry="84" style="stroke-width:4"/>
+    </g>
+</g>
+
+{# floating location markers #}
+<g id="mk">
+    <g class="marker" data-go="visit" role="button" tabindex="0" aria-label="Go to the address and map" transform="translate(790 120)"><g class="bob">
+        <path d="M0 -34 C-14 -34 -22 -24 -22 -14 C-22 2 0 24 0 24 C0 24 22 2 22 -14 C22 -24 14 -34 0 -34Z" fill="#F4B81C"/><circle cx="0" cy="-14" r="8" fill="#1e1510"/>
+        <rect class="pill" x="32" y="-34" width="250" height="38" rx="19"/><text class="m-t" x="50" y="-8">1125 G. Tolentino St.</text></g></g>
+    <g class="marker" data-go="visit" role="button" tabindex="0" aria-label="See opening hours" transform="translate(250 440)"><g class="bob">
+        <path d="M0 -34 C-14 -34 -22 -24 -22 -14 C-22 2 0 24 0 24 C0 24 22 2 22 -14 C22 -24 14 -34 0 -34Z" fill="#F4B81C"/><circle cx="0" cy="-14" r="8" fill="#1e1510"/>
+        <rect class="pill" x="32" y="-34" width="288" height="38" rx="19"/><text class="m-t" x="50" y="-8">Open daily, 11 AM – 11 PM</text></g></g>
+    <g class="marker" data-go="visit" role="button" tabindex="0" aria-label="Get directions" transform="translate(1260 560)"><g class="bob">
+        <path d="M0 -34 C-14 -34 -22 -24 -22 -14 C-22 2 0 24 0 24 C0 24 22 2 22 -14 C22 -24 14 -34 0 -34Z" fill="#F4B81C"/><circle cx="0" cy="-14" r="8" fill="#1e1510"/>
+        <rect class="pill" x="32" y="-34" width="170" height="38" rx="19"/><text class="m-t" x="50" y="-8">Get directions</text></g></g>
+</g>
+</svg>
+            </div>
+        </div>
+
+        <canvas id="fx" aria-hidden="true"></canvas>
+        <div class="shade" aria-hidden="true"></div>
+        <div class="flash" aria-hidden="true"></div>
+
+        <a class="skip" href="#visit">Skip to address and map</a>
+        <div class="rail" aria-hidden="true"><i id="railFill"></i></div>
+
+        <p class="cap cap-1">Walk up to the yellow front.<small>{{ cafe.address_line1 }}, {{ cafe.address_line2 }}. Scroll to get closer.</small></p>
+        <p class="cap cap-2">Pull the door.<small>Or tap it.</small></p>
+        <p class="cap cap-3">Pick a seat.<small>Tap the menu screens, the pastry case and the cup.</small></p>
+        <p class="cap cap-4">Now come find us.<small>Address, hours and directions are just below.</small></p>
+        <aside class="sleeve scene-sleeve" aria-label="Visit details">
+            <h3>{{ cafe.name }}</h3>
+            <div class="row">
+                <span class="lbl">Address</span>
+                <div class="val">{{ cafe.address_line1 }}<br>{{ cafe.address_line2 }}</div>
+            </div>
+            <div class="row">
+                <span class="lbl">Hours</span>
+                <div class="val">{{ cafe.hours_label }}</div>
+                <div class="val-sm">{{ cafe.hours_days }}</div>
+                <div class="status"><i></i><span class="js-status">Checking hours…</span></div>
+            </div>
+            <div class="row">
+                <span class="lbl">Call or text</span>
+                <div class="val"><a href="tel:{{ cafe.phone_tel }}">{{ cafe.phone_display }}</a></div>
+            </div>
+            <div class="row">
+                <span class="lbl">How are you getting here?</span>
+                <div class="modes" role="radiogroup" aria-label="Travel mode">
+                    <label><input type="radio" name="mode-scene" value="walking"><span>Walk</span></label>
+                    <label><input type="radio" name="mode-scene" value="transit"><span>Commute</span></label>
+                    <label><input type="radio" name="mode-scene" value="driving" checked><span>Drive</span></label>
+                </div>
+                <div class="btns"><a class="btn primary js-dir" href="https://www.google.com/maps/dir/?api=1&destination={{ mapQuery }}&travelmode=driving" target="_blank" rel="noopener">Get directions</a></div>
+            </div>
+        </aside>
+        <div class="hint" aria-hidden="true"><i></i>Scroll to walk in</div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </section>
+
+    {# ======================= VISIT ======================= #}
+    <section class="visit" id="visit" aria-labelledby="visitTitle">
+        <div class="visit-head">
+            <h2 id="visitTitle">Find us on G. Tolentino St.</h2>
+            <p>Open every day from {{ cafe.hours_label|replace({' – ': ' to '}) }}. Walk in, or follow the pin.</p>
+        </div>
+
+        <div class="mapstage" id="mapstage">
+            <div class="map-layers" id="mapLayers">
+                <svg class="map-art" id="mapArt" viewBox="0 0 1200 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                    <rect width="1200" height="720" fill="#2a2019"/>
+                    <g fill="#33261c"><rect x="30" y="40" width="250" height="150" rx="8"/><rect x="330" y="30" width="200" height="190" rx="8"/><rect x="800" y="40" width="330" height="140" rx="8"/><rect x="60" y="520" width="300" height="160" rx="8"/><rect x="420" y="470" width="220" height="210" rx="8"/><rect x="860" y="500" width="260" height="170" rx="8"/></g>
+                    <rect x="700" y="270" width="170" height="110" rx="14" fill="#2b3a2c"/><rect x="90" y="250" width="140" height="120" rx="14" fill="#2b3a2c"/>
+                    <g fill="none" stroke="#45352a" stroke-linecap="round">
+                        <path d="M-20 215H1220" stroke-width="16"/><path d="M-20 600H1220" stroke-width="16"/>
+                        <path d="M310 -20V740M780 -20V740" stroke-width="20"/><path d="M570 -20V740" stroke-width="12"/><path d="M1000 -20V740" stroke-width="12"/><path d="M110 -20V740" stroke-width="10"/>
+                        <path d="M-20 420H1220" stroke-width="8" stroke="#3b2d22"/><path d="M-20 130H1220" stroke-width="7" stroke="#3b2d22"/><path d="M-20 520H1220" stroke-width="7" stroke="#3b2d22"/>
+                    </g>
+                    <path id="streetPath" d="M-20 470 L1220 230" fill="none" stroke="#F4B81C" stroke-width="14" stroke-linecap="round"/>
+                    <text font-family="Outfit" font-weight="700" font-size="22" fill="#1e1510"><textPath href="#streetPath" startOffset="8%">G. Tolentino St.</textPath></text>
+                    <text x="60" y="700" font-family="Outfit" font-weight="800" font-size="120" fill="#fff" opacity=".05" letter-spacing="-4">Sampaloc</text>
+                    <circle cx="600" cy="350" r="120" fill="#F4B81C" opacity=".12"/>
+                </svg>
+                <iframe class="map-live" id="mapLive" title="Map showing {{ cafe.name }} at {{ cafe.address_line1 }}, {{ cafe.address_line2 }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen
+                        src="https://maps.google.com/maps?q={{ mapQuery }}&z=17&output=embed"></iframe>
+                <div class="pin" id="pin" aria-hidden="true">
+                    <svg viewBox="0 0 54 70"><path d="M27 2C13 2 3 12 3 26c0 16 24 40 24 40s24-24 24-40C51 12 41 2 27 2Z" fill="#F4B81C" stroke="#1e1510" stroke-width="3"/><circle cx="27" cy="26" r="9" fill="#1e1510"/></svg>
+                </div>
+                <p class="map-note" aria-hidden="true">Map is live. Drag, zoom, or tap directions.</p>
+            </div>
+
+        </div>
+
+        <p class="signoff">See you at the counter.<small>{{ cafe.address_line1 }}, {{ cafe.address_line2 }}</small></p>
+    </section>
+</main>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const stage = document.getElementById('doorStage');
-            const camera = document.getElementById('doorCamera');
-            const doorPanel = document.getElementById('doorPanel');
-            const caption = document.getElementById('doorCaption');
+    (function () {
+        'use strict';
+        var root = document.getElementById('ec');
+        if (!root) return;
+        var $ = function (s, c) { return (c || root).querySelector(s); };
+        var $$ = function (s, c) { return Array.prototype.slice.call((c || root).querySelectorAll(s)); };
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var hasGsap = !!(window.gsap && window.ScrollTrigger);
+        var NS = 'http://www.w3.org/2000/svg';
+        var stage = $('#stage'), toastEl = $('#toast');
 
-            if (!stage || !camera || !doorPanel || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-                return;
+        /* ---------- tiny helpers ---------- */
+        function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+        var toastTimer;
+        function say(msg) { toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2800); }
+        function scrollToEl(el) { el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }
+
+        /* ---------- skyline + stars ---------- */
+        function skyline(id, seed, base, hMin, hMax, fill, lit) {
+            var g = document.getElementById(id), r = rng(seed), x = -40, out = '';
+            while (x < 1650) {
+                var w = 60 + r() * 90, h = hMin + r() * (hMax - hMin), y = base - h;
+                out += '<rect x="' + x.toFixed(0) + '" y="' + y.toFixed(0) + '" width="' + w.toFixed(0) + '" height="' + h.toFixed(0) + '" fill="' + fill + '"/>';
+                for (var wy = y + 16; wy < base - 18; wy += 24) for (var wx = x + 10; wx < x + w - 14; wx += 18)
+                    if (r() < lit) out += '<rect x="' + wx.toFixed(0) + '" y="' + wy.toFixed(0) + '" width="7" height="10" fill="#ffd37a" opacity="' + (0.35 + r() * 0.55).toFixed(2) + '"/>';
+                x += w + 4;
             }
+            g.innerHTML = out;
+        }
+        skyline('skyFar', 11, 720, 160, 330, '#3a2748', 0.10);
+        skyline('skyNear', 23, 710, 90, 230, '#2a1c33', 0.16);
+        (function () { var r = rng(5), s = ''; for (var i = 0; i < 46; i++) s += '<circle cx="' + (r() * 1600).toFixed(0) + '" cy="' + (r() * 300).toFixed(0) + '" r="' + (0.6 + r() * 1.4).toFixed(1) + '" opacity="' + (0.3 + r() * 0.6).toFixed(2) + '"/>'; $('#stars').innerHTML = s; })();
 
-            gsap.registerPlugin(ScrollTrigger);
+        /* ---------- open / closed status (Manila time) ---------- */
+        function toMin(s) { var p = s.split(':'); return (+p[0]) * 60 + (+p[1]); }
+        function fmt(s) { var m = toMin(s), h = Math.floor(m / 60) % 24, mm = m % 60, ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + (mm < 10 ? '0' : '') + mm + ' ' + ap; }
+        function updateStatus() {
+            var o = toMin(root.dataset.openAt), c = toMin(root.dataset.closeAt), now;
+            try {
+                var parts = new Intl.DateTimeFormat('en-GB', { timeZone: root.dataset.tz, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date());
+                now = (+parts.filter(function (p) { return p.type === 'hour'; })[0].value % 24) * 60 + (+parts.filter(function (p) { return p.type === 'minute'; })[0].value);
+            } catch (e) { var d = new Date(); now = d.getHours() * 60 + d.getMinutes(); }
+            var open = c > o ? (now >= o && now < c) : (now >= o || now < c);
+            root.dataset.open = open ? 'true' : 'false';
+            var left = (c - now + 1440) % 1440, txt;
+            if (open) txt = left <= 60 ? 'Open now, closing soon at ' + fmt(root.dataset.closeAt) : 'Open now, until ' + fmt(root.dataset.closeAt);
+            else txt = 'Closed right now, opens at ' + fmt(root.dataset.openAt);
+            $$('.js-status').forEach(function (n) { n.textContent = txt; });
+            var neon = $('#neon'), nt = $('#neonT');
+            if (neon) { neon.classList.toggle('is-off', !open); nt.textContent = open ? 'open' : 'closed'; }
+        }
+        updateStatus(); setInterval(updateStatus, 60000);
 
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: stage,
-                    start: 'top 14%',
-                    end: '+=1400',
-                    pin: true,
-                    scrub: 1.1
-                }
+        /* ---------- directions + copy ---------- */
+        var dest = root.dataset.dest;
+        $$('input[type="radio"][name^="mode"]').forEach(function (r) {
+            r.addEventListener('change', function () {
+                $$('.js-dir').forEach(function (a) { a.href = 'https://www.google.com/maps/dir/?api=1&destination=' + dest + '&travelmode=' + r.value; });
+                $$('input[type="radio"][name^="mode"]').forEach(function (o) { o.checked = (o.value === r.value); });
             });
-
-            // 1. Walk up toward the entrance door
-            tl.to(camera, {
-                scale: 2.1,
-                z: 220,
-                rotateY: -5,
-                rotateX: 2,
-                duration: 0.65,
-                ease: 'power1.inOut'
-            }, 0)
-
-            // 2. Swing the door open in 3D space (hinged on the right)
-            .to(doorPanel, {
-                rotateY: -82,
-                duration: 0.65,
-                ease: 'power2.inOut'
-            }, 0.25)
-
-            // 3. Update status label mid-scroll
-            .to(caption, {
-                opacity: 0,
-                y: -8,
-                duration: 0.25,
-                onComplete: function () {
-                    caption.textContent = 'Door opening...';
-                }
-            }, 0.2)
-            .to(caption, {
-                opacity: 1,
-                y: 0,
-                duration: 0.25
-            }, 0.48);
         });
+        var copyAddr = $('#copyAddr');
+        if (copyAddr) copyAddr.addEventListener('click', function () {
+            var t = this.dataset.text, b = this;
+            function done() { var old = b.textContent; b.textContent = 'Copied'; setTimeout(function () { b.textContent = old; }, 1800); }
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, done);
+            else { var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove(); done(); }
+        });
+
+        /* ---------- hotspots (markers, cups, menu, case) ---------- */
+        function burst(g) {
+            if (reduce || !hasGsap) return;
+            var host = $('.burst', g); if (!host) return;
+            for (var i = 0; i < 7; i++) {
+                var c = document.createElementNS(NS, 'circle');
+                c.setAttribute('cx', (Math.random() * 40 - 20).toFixed(1)); c.setAttribute('cy', '-18'); c.setAttribute('r', (5 + Math.random() * 6).toFixed(1)); c.setAttribute('fill', '#fff');
+                host.appendChild(c);
+                gsap.fromTo(c, { opacity: .55, y: 0, scale: .6 }, { opacity: 0, y: -60 - Math.random() * 40, scale: 1.8, duration: 1.6 + Math.random() * .6, delay: i * .07, ease: 'power1.out', onComplete: (function (n) { return function () { n.remove(); }; })(c) });
+            }
+        }
+        var tl = null;
+        function goInside() {
+            if (!tl || !tl.scrollTrigger) { scrollToEl($('#visit')); return; }
+            var st = tl.scrollTrigger;
+            if (st.progress > .5) { say('You are already inside. Pick a seat.'); return; }
+            var y = st.start + (st.end - st.start) * (4.9 / tl.duration());
+            window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+        }
+        $$('.hot, .marker').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                if (el.id === 'door') { goInside(); return; }
+                if (el.dataset.go === 'visit') { scrollToEl($('#visit')); return; }
+                if (el.id === 'cupOut' || el.id === 'cupIn') burst(el);
+                if (el.dataset.say) say(el.dataset.say);
+            });
+            el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
+        });
+        $$('.skip').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); scrollToEl($('#visit')); }); });
+
+        /* ---------- ambient particles (dust motes + bokeh) ---------- */
+        var cv = $('#fx'), ctx = cv.getContext('2d'), W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2), parts = [], visible = true, tick = 0;
+        var sprite = document.createElement('canvas'); sprite.width = sprite.height = 64;
+        (function () { var g = sprite.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,225,160,1)'); gr.addColorStop(.4, 'rgba(255,190,100,.45)'); gr.addColorStop(1, 'rgba(255,170,80,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); })();
+        function sizeFx() { W = stage.clientWidth; H = stage.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+        function seedParts() { var n = W < 700 ? 34 : 70, r = Math.random; parts = []; for (var i = 0; i < n; i++) parts.push({ x: r() * W, y: r() * H, s: 4 + r() * (i % 6 === 0 ? 46 : 14), v: .1 + r() * .35, a: .12 + r() * .5, f: .4 + r() * 1.2, p: r() * 6.28 }); }
+        function frame() {
+            requestAnimationFrame(frame);
+            if (!visible || document.hidden) return;
+            tick += .016; ctx.clearRect(0, 0, W, H);
+            for (var i = 0; i < parts.length; i++) {
+                var p = parts[i]; p.y -= p.v; p.x += Math.sin(tick * p.f + p.p) * .25;
+                if (p.y < -60) { p.y = H + 40; p.x = Math.random() * W; }
+                ctx.globalAlpha = p.a * (p.s > 20 ? .35 : 1) * (.7 + .3 * Math.sin(tick * p.f * 2 + p.p));
+                ctx.drawImage(sprite, p.x - p.s, p.y - p.s, p.s * 2, p.s * 2);
+            }
+        }
+        sizeFx(); seedParts();
+        if (!reduce) { frame(); if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(stage); }
+        window.addEventListener('resize', function () { sizeFx(); seedParts(); });
+
+        /* ---------- static fallback ---------- */
+        function makeStatic() {
+            root.classList.add('is-static');
+            var l = $('#loader'); if (l) l.remove();
+            document.documentElement.classList.remove('ec-lock');
+            gsapSafeShow();
+        }
+        function gsapSafeShow() { $$('.int, .ext').forEach(function (e) { e.style.opacity = 1; e.style.visibility = 'visible'; }); }
+        if (reduce || !hasGsap) { makeStatic(); return; }
+
+        /* ---------- GSAP: loader, intro, scroll journey ---------- */
+        gsap.registerPlugin(ScrollTrigger);
+        var loader = $('#loader'), lFill = $('#lFill'), lFoam = $('#lFoam'), lPct = $('#lPct'), state = { p: 0 };
+        function drawLoader() { var y = 150 - 118 * state.p; lFill.setAttribute('y', y); lFoam.setAttribute('y', y - 2); lPct.textContent = Math.round(state.p * 100); }
+        var assets = Promise.all([
+            document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
+            new Promise(function (res) { if (document.readyState === 'complete') res(); else window.addEventListener('load', res); }),
+            new Promise(function (res) { setTimeout(res, 6000); })
+        ].slice(0, 2));
+        var timeout = new Promise(function (res) { setTimeout(res, 6000); });
+
+        gsap.set('.ext-svg', { opacity: 0 });
+        gsap.to(state, { p: .9, duration: 1.7, ease: 'power2.out', onUpdate: drawLoader, onComplete: function () {
+            Promise.race([assets, timeout]).then(function () {
+                gsap.to(state, { p: 1, duration: .5, onUpdate: drawLoader, onComplete: reveal });
+            });
+        } });
+
+        function reveal() {
+            var intro = gsap.timeline();
+            intro.to(loader, { yPercent: -100, duration: 1.1, ease: 'power4.inOut', onComplete: function () { loader.remove(); document.documentElement.classList.remove('ec-lock'); ScrollTrigger.refresh(); } })
+                 .fromTo('.ext-svg', { opacity: 0, scale: 1.07 }, { opacity: 1, scale: 1, duration: 2.4, ease: 'power3.out' }, .35)
+                 .fromTo('.sign-halo', { opacity: 0 }, { opacity: .55, duration: 1.4, ease: 'power2.inOut' }, 1.2)
+                 .fromTo('.cap-1', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, ease: 'power3.out' }, 1.3)
+                 .to('.hint', { opacity: 1, duration: .8 }, 2.0);
+        }
+
+        /* camera origin = the door, whatever the viewport crop */
+        var camExt = $('#camExt'), camInt = $('#camInt');
+        function setOrigin() {
+            var w = stage.clientWidth, h = stage.clientHeight, s = Math.max(w / 1600, h / 900);
+            gsap.set(camExt, { transformOrigin: ((w - 1600 * s) / 2 + 850 * s) + 'px ' + ((h - 900 * s) / 2 + 540 * s) + 'px' });
+        }
+        setOrigin();
+        ScrollTrigger.addEventListener('refreshInit', setOrigin);
+
+        function narrow() { return window.innerWidth <= 860; }
+        var rail = $('#railFill');
+        tl = gsap.timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: {
+                trigger: stage, start: 'top top', end: '+=520%', pin: true, scrub: .8, anticipatePin: 1, invalidateOnRefresh: true,
+                onUpdate: function (self) {
+                    rail.style.transform = 'scaleY(' + self.progress.toFixed(3) + ')';
+                    stage.classList.toggle('is-inside', self.progress > .6);
+                    $('#ext').style.pointerEvents = self.progress > .42 ? 'none' : '';
+                }
+            }
+        });
+        tl.fromTo(camExt, { scale: 1 }, { scale: 4.2, ease: 'power2.in', duration: 5 }, 0)
+          .to('.cap-1', { autoAlpha: 0, y: -24, duration: .7, ease: 'power1.out' }, .5)
+          .to('.hint', { autoAlpha: 0, duration: .4 }, .3)
+          .fromTo('.cap-2', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .8, ease: 'power1.out' }, 2.2)
+          .to('.cap-2', { autoAlpha: 0, y: -24, duration: .6 }, 4.2)
+          .fromTo('#door', { scaleX: 1, skewY: 0, svgOrigin: '770 540' }, { scaleX: .16, skewY: 7, svgOrigin: '770 540', duration: 1.8, ease: 'power2.inOut' }, 3.2)
+          .fromTo('.flash', { opacity: 0 }, { opacity: .85, duration: .6 }, 4.3)
+          .fromTo('#int', { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.2 }, 4.7)
+          .fromTo(camInt, { scale: 1.5 }, { scale: 1, duration: 2.6, ease: 'power2.out' }, 4.6)
+          .to('#ext', { autoAlpha: 0, duration: 1.2, ease: 'power1.in' }, 5.1)
+          .to('.flash', { opacity: 0, duration: 1.2 }, 4.9)
+          .fromTo('.cap-3', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .8, ease: 'power1.out' }, 6.2)
+          .to('.cap-3', { autoAlpha: 0, y: -24, duration: .6 }, 8.2)
+          .fromTo(camInt, { scale: 1 }, { scale: 1.06, duration: 3, immediateRender: false }, 7.0)
+          .fromTo('.cap-4', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .8, ease: 'power1.out' }, 8.7)
+          .fromTo('.scene-sleeve', { autoAlpha: 0, y: 40, yPercent: narrow() ? 0 : -50 }, { autoAlpha: 1, y: 0, yPercent: narrow() ? 0 : -50, duration: .9, ease: 'power2.out' }, 8.6)
+          .to({}, { duration: .001 }, 10);
+
+        /* ---------- mouse parallax ---------- */
+        if (window.matchMedia('(pointer: fine)').matches) {
+            var layers = [['#pxSky', 6], ['#pxFar', 12], ['#pxMid', 20], ['#furn', -26], ['#mk', -10], ['#pxIntBack', 12], ['#pxIntFront', -24]].map(function (l) {
+                var el = $(l[0]); return el ? { x: gsap.quickTo(el, 'x', { duration: .9, ease: 'power3.out' }), y: gsap.quickTo(el, 'y', { duration: .9, ease: 'power3.out' }), d: l[1] } : null;
+            }).filter(Boolean);
+            stage.addEventListener('pointermove', function (e) {
+                var nx = e.clientX / window.innerWidth - .5, ny = e.clientY / window.innerHeight - .5;
+                layers.forEach(function (l) { l.x(nx * l.d * 2); l.y(ny * l.d); });
+            });
+        }
+
+        /* ---------- map: illustrated map melts into the real one ---------- */
+        var layersEl = $('#mapLayers');
+        gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: {
+            trigger: '#mapstage', start: 'top 80%', end: 'top 10%', scrub: true,
+            onUpdate: function (self) { layersEl.classList.toggle('is-live', self.progress > .75); }
+        } })
+            .fromTo('#mapArt', { scale: 1, opacity: 1 }, { scale: 2.6, opacity: 0, transformOrigin: '50% 50%', duration: 1 }, 0)
+            .fromTo('#mapLive', { opacity: 0, scale: 1.18 }, { opacity: 1, scale: 1, transformOrigin: '50% 50%', duration: 1 }, .2)
+            .fromTo('#pin', { scale: 1.25, y: 0 }, { scale: 1, duration: .8 }, 0)
+            .to('#pin', { opacity: 0, duration: .25 }, .8);
+
+        window.addEventListener('resize', function () { ScrollTrigger.refresh(); });
+    })();
     </script>
 {% endblock %}

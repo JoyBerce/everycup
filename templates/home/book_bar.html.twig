@@ -1,5 +1,245 @@
-{% extends 'base.html.twig' %}{% block title %}Book the Bar | every cup.{% endblock %}{% block body %}
-<section class="page-hero bar-page-hero"><div class="container-xxl px-4"><span class="section-eyebrow">POP-UPS & PRIVATE EVENTS</span><h1>Bring the bar <em>to you.</em></h1><p>A mobile coffee experience for weddings, corporate gatherings, launches, and celebrations.</p></div></section>
-<section class="bar-event-hero section-padding"><div class="container-xxl px-4"><div class="row align-items-center g-5"><div class="col-lg-7"><img class="event-image" src="{{ asset('images/1 (3).jpg') }}" alt="Every Cup mobile coffee bar"></div><div class="col-lg-5"><span class="section-eyebrow">MADE FOR YOUR MOMENT</span><h2 class="section-title">A little café magic, <span>anywhere.</span></h2><p class="section-description">Our baristas bring the beans, bar, and warm welcome. Choose a package, tell us about your guests, and we’ll take care of the pour.</p><div class="package-list"><div><strong>☕ From 50 cups</strong><span>Perfect for intimate gatherings</span></div><div><strong>✦ Barista service</strong><span>Two hours of live coffee craft</span></div></div></div></div></div></section>
-<section class="booking-section section-padding"><div class="container-xxl px-4"><div class="row g-5"><div class="col-lg-6"><span class="section-eyebrow">CHECK AVAILABILITY</span><h2 class="section-title">Choose your <span>date.</span></h2><div class="booking-calendar"><label for="eventDate">Event date</label><input id="eventDate" type="date" min="{{ 'now'|date('Y-m-d') }}"><p>We’ll confirm availability within one business day.</p></div></div><div class="col-lg-6"><form class="inquiry-form" id="eventInquiry"><input required placeholder="Your name"><input required type="email" placeholder="Email address"><input required placeholder="Event type (wedding, corporate…)" ><textarea required rows="4" placeholder="Tell us about your event"></textarea><button class="btn-primary-custom" type="submit">SEND INQUIRY <span>→</span></button><p class="form-status" id="inquiryStatus"></p></form></div></div></div></section>
-{% endblock %}{% block javascripts %}<script>document.getElementById('eventInquiry').addEventListener('submit',e=>{e.preventDefault();document.getElementById('inquiryStatus').textContent='Thanks — we’ll be in touch with a tailored package.'});</script>{% endblock %}
+{% extends 'base.html.twig' %}
+
+{% block title %}Book the Bar | every cup.{% endblock %}
+
+{% block body %}
+<section class="bar-hero-section">
+    <div class="container-xxl px-4 bar-hero-grid">
+        <div class="bar-hero-copy">
+            <span class="bar-eyebrow"><i></i> COFFEE POP-UPS · PRIVATE EVENTS</span>
+            <h1>Good coffee.<br><em>Great gatherings.</em></h1>
+            <p>Bring the every cup coffee bar to your next celebration, team day, workshop, or get-together. We bring the barista, drinks, and a little café magic.</p>
+            <a class="bar-hero-cta" href="#event-booking">PLAN YOUR EVENT <span>↓</span></a>
+            <div class="bar-hero-footnote"><span>01</span> MADE FRESH · SERVED WITH A SMILE</div>
+        </div>
+        <div class="bar-hero-art-wrap">
+            <div class="bar-art-glow"></div>
+            <div class="bar-art-sticker">BREWED<br>FOR YOUR<br><em>BIG DAY</em></div>
+            <img class="bar-hero-art" src="{{ asset('images/bar/book.png') }}" alt="Every Cup mobile coffee bar and coffee package overview" fetchpriority="high">
+            <span class="bar-art-caption">A café moment, wherever you gather.</span>
+        </div>
+    </div>
+</section>
+
+<main>
+    <section class="bar-packages-section section-padding" id="packages">
+        <div class="container-xxl px-4">
+            <header class="bar-section-heading">
+                <span class="bar-eyebrow"><i></i> A BAR FOR EVERY KIND OF DAY</span>
+                <h2>Make room for<br><em>something to celebrate.</em></h2>
+                <p>From study sessions to small celebrations, we’ll help make your gathering feel special.</p>
+            </header>
+
+            <div class="bar-packages-layout">
+                <aside class="bar-perfect-card">
+                    <span class="bar-card-kicker">PERFECT FOR</span>
+                    <h3>Bring everyone<br>to the table.</h3>
+                    <ul>
+                        <li><span>01</span> Study Sessions</li>
+                        <li><span>02</span> Group Meetings</li>
+                        <li><span>03</span> Organization Events</li>
+                        <li><span>04</span> Birthdays</li>
+                        <li><span>05</span> Workshops</li>
+                        <li><span>06</span> Small Celebrations</li>
+                    </ul>
+                    <div class="bar-perfect-bean" aria-hidden="true">✳</div>
+                </aside>
+
+                <div class="bar-package-grid">
+                    <article class="bar-package-card coffee-package">
+                        <div class="bar-package-top"><span class="bar-package-icon" aria-hidden="true">☕</span><span class="bar-card-kicker">THE CLASSICS</span></div>
+                        <h3>Coffee Bar<br>Packages</h3>
+                        <div class="bar-price-list">
+                            <div><strong>₱4,999</strong><span>50 pax</span></div>
+                            <div><strong>₱6,999</strong><span>70 pax</span></div>
+                            <div><strong>₱9,999</strong><span>100 pax</span></div>
+                        </div>
+                        <p class="bar-package-description">Choose from Americano, Spanish, Vietnamese, Mocha, Caramel Macchiato, Caramel Latte, Vanilla Latte, and Cappuccino.</p>
+                        <a href="#event-booking" class="bar-package-link">BOOK COFFEE BAR <span>↗</span></a>
+                    </article>
+
+                    <article class="bar-package-card matcha-package">
+                        <div class="bar-package-top"><span class="bar-package-icon" aria-hidden="true">🍵</span><span class="bar-card-kicker">A LITTLE EXTRA MAGIC</span></div>
+                        <h3>Matcha Bar<br>Packages</h3>
+                        <div class="bar-price-list">
+                            <div><strong>₱6,999</strong><span>50 pax</span></div>
+                            <div><strong>₱9,499</strong><span>70 pax</span></div>
+                            <div><strong>₱12,999</strong><span>100 pax</span></div>
+                        </div>
+                        <p class="bar-package-description">Make it matcha magic with Ichigo Matcha, Mango Matcha, Choco Bliss Matcha, Snowy Matcha, Blueberry Matcha, and Passion Fruit Matcha.</p>
+                        <a href="#event-booking" class="bar-package-link">BOOK MATCHA BAR <span>↗</span></a>
+                    </article>
+
+                    <article class="bar-package-card noncoffee-package">
+                        <div class="bar-package-top"><span class="bar-package-icon" aria-hidden="true">🧋</span><span class="bar-card-kicker">SOMETHING FOR EVERYONE</span></div>
+                        <h3>Non-Coffee<br>Options</h3>
+                        <div class="bar-noncoffee-stamp">16 <small>OZ</small></div>
+                        <p class="bar-package-description">Enjoy refreshing 16 oz drinks, including Choco Bliss, White Choco Dream, Strawberry Bliss, and Mango Glow.</p>
+                        <a href="#event-booking" class="bar-package-link">ADD NON-COFFEE <span>↗</span></a>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bar-booking-section section-padding" id="event-booking">
+        <div class="container-xxl px-4">
+            <header class="bar-section-heading booking-heading">
+                <span class="bar-eyebrow"><i></i> LET’S MAKE IT HAPPEN</span>
+                <h2>Pick your date.<br><em>We’ll bring the coffee.</em></h2>
+                <p>Choose a day on the calendar and tell us a little about your event. We’ll follow up to confirm availability.</p>
+            </header>
+
+            <div class="bar-booking-layout">
+                <section class="bar-calendar-card" aria-labelledby="eventCalendarTitle">
+                    <div class="calendar-card-heading">
+                        <div><span class="bar-card-kicker">EVENT DATE</span><h3 id="eventCalendarTitle">Choose a day</h3></div>
+                        <div class="calendar-month-controls">
+                            <button id="calendarPrev" type="button" aria-label="Previous month">‹</button>
+                            <button id="calendarNext" type="button" aria-label="Next month">›</button>
+                        </div>
+                    </div>
+                    <div class="calendar-month-label" id="calendarMonthLabel" aria-live="polite"></div>
+                    <div class="inline-calendar" id="inlineCalendar" role="group" aria-label="Select event date">
+                        <div class="calendar-weekdays" aria-hidden="true"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+                        <div class="calendar-days" id="calendarDays"></div>
+                    </div>
+                    <div class="calendar-selection"><span class="calendar-selection-dot"></span><span id="selectedDateLabel">Select an available date</span></div>
+                    <input id="eventDate" name="eventDate" type="hidden" value="">
+                    <p class="calendar-note">All dates are shown. Past dates can’t be selected.</p>
+                    <p class="calendar-error" id="calendarError" role="alert" hidden>Please choose an event date to continue.</p>
+                </section>
+
+                <form class="bar-inquiry-form" id="eventInquiry">
+                    <span class="bar-card-kicker">TELL US ABOUT IT</span>
+                    <h3>Let’s plan your<br>coffee moment.</h3>
+                    <label for="eventName">Your name</label>
+                    <input id="eventName" name="name" required autocomplete="name" placeholder="Name">
+                    <label for="eventEmail">Email address</label>
+                    <input id="eventEmail" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+                    <div class="bar-form-two-col">
+                        <div><label for="eventType">Event type</label><select id="eventType" name="eventType" required><option value="" disabled selected>Choose one</option><option>Study session</option><option>Group meeting</option><option>Organization event</option><option>Birthday</option><option>Workshop</option><option>Small celebration</option><option>Other</option></select></div>
+                        <div><label for="guestCount">Guest count</label><select id="guestCount" name="guestCount" required><option value="" disabled selected>Select guests</option><option>Up to 50</option><option>51–70</option><option>71–100</option><option>More than 100</option></select></div>
+                    </div>
+                    <label for="eventDetails">Anything else we should know? <span>(optional)</span></label>
+                    <textarea id="eventDetails" name="details" rows="3" placeholder="Tell us about the venue, drinks, or details you have in mind."></textarea>
+                    <button class="bar-submit-btn" type="submit">SEND EVENT INQUIRY <span>↗</span></button>
+                    <p class="bar-inquiry-status" id="inquiryStatus" role="status" aria-live="polite"></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="bar-gallery-section" aria-label="Every Cup coffee bar gallery">
+        <div class="container-xxl px-4 bar-gallery-heading"><span class="bar-eyebrow"><i></i> GOOD COFFEE, GOOD COMPANY</span><h2>Bring the bar<br><em>to your next gathering.</em></h2></div>
+        <div class="bar-gallery-window">
+            <div class="bar-gallery-track" aria-hidden="true">
+                {% for i in 1..8 %}
+                    <figure><img src="{{ asset('images/bar/book.png') }}" alt="" loading="lazy"></figure>
+                {% endfor %}
+                {% for i in 1..8 %}
+                    <figure><img src="{{ asset('images/bar/book.png') }}" alt="" loading="lazy"><figcaption></figcaption></figure>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="bar-gallery-foot"><span>MADE FOR YOUR MOMENT</span><span>EVERY CUP · MANILA</span></div>
+    </section>
+</main>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const calendarDays = document.getElementById('calendarDays');
+    const monthLabel = document.getElementById('calendarMonthLabel');
+    const dateField = document.getElementById('eventDate');
+    const selectedLabel = document.getElementById('selectedDateLabel');
+    const calendarError = document.getElementById('calendarError');
+    const form = document.getElementById('eventInquiry');
+    const status = document.getElementById('inquiryStatus');
+    const todayParts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Manila', year: 'numeric', month: 'numeric', day: 'numeric'
+    }).formatToParts(new Date());
+    const today = {
+        year: Number(todayParts.find(part => part.type === 'year').value),
+        month: Number(todayParts.find(part => part.type === 'month').value) - 1,
+        day: Number(todayParts.find(part => part.type === 'day').value)
+    };
+    let visibleMonth = new Date(today.year, today.month, 1);
+    let selectedDate = '';
+
+    const dateKey = (year, month, day) => `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const sameMonth = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+
+    function renderCalendar() {
+        const year = visibleMonth.getFullYear();
+        const month = visibleMonth.getMonth();
+        const firstWeekday = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        monthLabel.textContent = new Intl.DateTimeFormat('en-PH', { month: 'long', year: 'numeric' }).format(visibleMonth);
+        document.getElementById('calendarPrev').disabled = sameMonth(visibleMonth, new Date(today.year, today.month, 1));
+        calendarDays.replaceChildren();
+
+        for (let blank = 0; blank < firstWeekday; blank++) {
+            const spacer = document.createElement('span');
+            spacer.className = 'calendar-day-spacer';
+            spacer.setAttribute('aria-hidden', 'true');
+            calendarDays.append(spacer);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const key = dateKey(year, month, day);
+            const past = new Date(year, month, day) < new Date(today.year, today.month, today.day);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'calendar-day';
+            button.textContent = day;
+            button.disabled = past;
+            button.dataset.date = key;
+            button.setAttribute('aria-label', new Intl.DateTimeFormat('en-PH', { dateStyle: 'full' }).format(new Date(year, month, day)));
+            button.setAttribute('aria-pressed', key === selectedDate ? 'true' : 'false');
+            if (key === selectedDate) button.classList.add('is-selected');
+            if (year === today.year && month === today.month && day === today.day) button.classList.add('is-today');
+            button.addEventListener('click', () => {
+                selectedDate = key;
+                dateField.value = key;
+                selectedLabel.textContent = new Intl.DateTimeFormat('en-PH', { dateStyle: 'full' }).format(new Date(year, month, day));
+                calendarError.hidden = true;
+                calendarDays.querySelectorAll('.calendar-day').forEach(dateButton => {
+                    const active = dateButton.dataset.date === selectedDate;
+                    dateButton.classList.toggle('is-selected', active);
+                    dateButton.setAttribute('aria-pressed', active ? 'true' : 'false');
+                });
+            });
+            calendarDays.append(button);
+        }
+    }
+
+    document.getElementById('calendarPrev').addEventListener('click', () => {
+        visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() - 1, 1);
+        renderCalendar();
+    });
+    document.getElementById('calendarNext').addEventListener('click', () => {
+        visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1);
+        renderCalendar();
+    });
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!selectedDate) {
+            calendarError.hidden = false;
+            document.querySelector('.bar-calendar-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        const chosen = new Date(selectedDate + 'T12:00:00');
+        status.textContent = `Thanks — your event inquiry for ${new Intl.DateTimeFormat('en-PH', { dateStyle: 'long' }).format(chosen)} is ready. We’ll be in touch soon.`;
+        form.reset();
+        selectedDate = '';
+        dateField.value = '';
+        selectedLabel.textContent = 'Select an available date';
+        renderCalendar();
+    });
+
+    renderCalendar();
+});
+</script>
+{% endblock %}

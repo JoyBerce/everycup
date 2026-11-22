@@ -6,7 +6,654 @@
 
 {% block body %}
 
+<style>
+/* =====================================================
+   FEATURED MENU — TIRATI-STYLE ORBIT SHOWCASE
+===================================================== */
+.flavor-orbit-section {
+    --orbit-bg: #f6f0e6;
+    --orbit-ink: #1f140d;
+    --orbit-muted: rgba(31, 20, 13, 0.64);
+    --orbit-accent: #b87832;
+    --orbit-ring: rgba(31, 20, 13, 0.14);
+    --orbit-size: min(72vw, 88vh, 860px);
+    position: relative;
+    height: 360vh;
+    background: var(--orbit-bg);
+    color: var(--orbit-ink);
+    transition: background-color 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
 
+.flavor-orbit-section::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 72% 52%, color-mix(in srgb, var(--orbit-accent) 22%, transparent) 0%, transparent 62%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+}
+
+.flavor-ingredient-art {
+    position: absolute;
+    z-index: 0;
+    top: 50%;
+    left: 62%;
+    width: clamp(280px, 38vw, 560px);
+    height: clamp(280px, 38vw, 560px);
+    transform: translate(calc(-50% + var(--art-shift-x, 0px)), calc(-50% + var(--art-shift-y, 0px)));
+    pointer-events: none;
+    opacity: 0.78;
+    transition: transform 0.35s ease-out;
+}
+
+.flavor-ingredient-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.88) rotate(-7deg);
+    filter: drop-shadow(0 22px 30px rgba(42, 26, 15, 0.2));
+    transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: ingredient-float 7s ease-in-out infinite;
+}
+
+.flavor-ingredient-image.is-active {
+    opacity: 0.86;
+    transform: scale(1) rotate(0);
+}
+
+@keyframes ingredient-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -12px; }
+}
+
+.flavor-orbit-section.is-in-view::before {
+    opacity: 1;
+}
+
+.flavor-orbit-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: 640px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(5.5rem, 9vh, 7rem) clamp(1.25rem, 5vw, 4.5rem) clamp(2rem, 4vh, 3rem);
+    z-index: 1;
+}
+
+.flavor-orbit-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1380px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+/* LEFT COLUMN: EDITORIAL TITLE + STACKED FLAVOR COPY */
+.flavor-orbit-left {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.25rem, 2.5vh, 2rem);
+}
+
+.flavor-section-eyebrow {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--orbit-accent);
+    margin: 0;
+    transition: color 0.45s ease;
+}
+
+.flavor-section-heading {
+    font-size: clamp(2.25rem, 4.2vw, 3.85rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: var(--orbit-ink);
+    margin: 0.35rem 0 0;
+}
+
+.flavor-copy-stack {
+    position: relative;
+    min-height: clamp(190px, 24vh, 240px);
+}
+
+.flavor-copy-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(22px);
+    pointer-events: none;
+    transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.flavor-copy-item.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.flavor-meta-row {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 0.65rem;
+}
+
+.flavor-meta-category {
+    margin: 0;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--orbit-muted);
+}
+
+.flavor-meta-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--orbit-accent);
+    display: inline-block;
+}
+
+.flavor-meta-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.24rem 0.72rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: color-mix(in srgb, var(--orbit-accent) 16%, transparent);
+    color: var(--orbit-ink);
+    border: 1px solid color-mix(in srgb, var(--orbit-accent) 36%, transparent);
+}
+
+.flavor-item-title {
+    font-size: clamp(1.55rem, 2.5vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.75rem;
+    color: var(--orbit-ink);
+    width: fit-content;
+    padding: 0.18em 0.38em 0.22em;
+    border-radius: 0.22em;
+    background: color-mix(in srgb, var(--orbit-accent) 28%, transparent);
+    transition: background-color 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flavor-item-desc {
+    font-size: clamp(0.9rem, 1vw, 1rem);
+    line-height: 1.5;
+    color: var(--orbit-ink);
+    max-width: 44ch;
+    margin: 0 0 1.1rem;
+}
+
+.flavor-item-desc strong {
+    font-weight: 800;
+    color: var(--orbit-ink);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--orbit-accent) 55%, transparent);
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.16em;
+}
+
+.flavor-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.flavor-price-pill {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--orbit-ink);
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--orbit-ring);
+}
+
+.flavor-add-btn {
+    appearance: none;
+    border: none;
+    background: var(--orbit-ink);
+    color: #fffaf3;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.78rem 1.35rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.flavor-add-btn:hover {
+    background: var(--orbit-accent);
+    transform: translateY(-2px);
+}
+
+.flavor-orbit-footer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--orbit-ring);
+}
+
+.flavor-hint-text {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--orbit-muted);
+    letter-spacing: 0.02em;
+}
+
+.flavor-nav-cluster {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.flavor-step-counter {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--orbit-ink);
+    margin-right: 0.35rem;
+}
+
+.flavor-arrow-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--orbit-ring);
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--orbit-ink);
+    font-size: 1.2rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+.flavor-arrow-btn:hover {
+    background: var(--orbit-ink);
+    color: #fffaf3;
+    transform: scale(1.06);
+}
+
+.flavor-full-menu-link {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--orbit-ink);
+    text-decoration: none;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid var(--orbit-ring);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.flavor-full-menu-link:hover {
+    background: var(--orbit-ink);
+    color: #fffaf3;
+}
+
+/* RIGHT COLUMN: CIRCULAR ORBIT TRACK + ROTATING CUP STACK */
+.flavor-orbit-stage {
+    position: relative;
+    width: var(--orbit-size);
+    height: var(--orbit-size);
+    margin: 0 auto;
+    display: grid;
+    place-items: center;
+    user-select: none;
+}
+
+.flavor-orbit-glow {
+    position: absolute;
+    width: 68%;
+    height: 68%;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--orbit-accent) 34%, transparent) 0%, transparent 72%);
+    filter: blur(18px);
+    transition: background 0.6s ease;
+    pointer-events: none;
+}
+
+.flavor-orbit-ring {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    border: 1.5px dashed color-mix(in srgb, var(--orbit-ink) 22%, transparent);
+    pointer-events: none;
+}
+
+.flavor-orbit-ring::after {
+    content: "";
+    position: absolute;
+    inset: 14%;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--orbit-ink) 10%, transparent);
+}
+
+.flavor-orbit-wheel {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    transform: rotate(var(--wheel-rotation, 0deg));
+    transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flavor-orbit-node {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    --node-radius: calc(var(--orbit-size) * 0.44);
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--node-angle))
+        translateY(calc(-1 * var(--node-radius)))
+        rotate(calc(-1 * var(--node-angle) - var(--wheel-rotation, 0deg)));
+    transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.3s ease,
+                color 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+    appearance: none;
+    border: 1px solid var(--orbit-ring);
+    background: rgba(255, 252, 247, 0.92);
+    backdrop-filter: blur(8px);
+    color: var(--orbit-ink);
+    padding: 0.52rem 1rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: capitalize;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(31, 20, 13, 0.08);
+    z-index: 4;
+}
+
+.flavor-orbit-node::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--node-color, var(--orbit-accent));
+    margin-right: 0.48rem;
+    vertical-align: middle;
+}
+
+.flavor-orbit-node:hover {
+    border-color: var(--orbit-ink);
+}
+
+.flavor-orbit-node.is-active {
+    background: color-mix(in srgb, var(--orbit-accent) 30%, #fffaf3);
+    color: var(--orbit-ink);
+    border-color: color-mix(in srgb, var(--orbit-accent) 62%, var(--orbit-ink));
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--orbit-accent) 22%, transparent);
+}
+
+/* FOCAL POINTER AT TOP OF THE INNER ORBIT (NEAR THE CUP) */
+/* CENTER CUP VISUAL STACK (TIRATI OVERHEAD/HERO ROTATION) */
+.flavor-cup-stack {
+    position: relative;
+    width: 88%;
+    height: 88%;
+    display: grid;
+    place-items: center;
+    z-index: 2;
+}
+
+.flavor-cup-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.76) rotate(-26deg);
+    filter: drop-shadow(0 24px 34px rgba(31, 20, 13, 0.2));
+    transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.flavor-cup-slide.is-active {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+.flavor-cup-slide.is-prev {
+    opacity: 0;
+    transform: scale(0.8) rotate(24deg);
+}
+
+@media (max-width: 991.98px) {
+    .flavor-orbit-section {
+        height: 320vh;
+        --orbit-size: min(88vw, 480px);
+    }
+
+    .flavor-orbit-sticky {
+        justify-content: flex-start;
+        padding-top: 5.25rem;
+    }
+
+    .flavor-orbit-inner {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .flavor-orbit-stage {
+        order: -1;
+    }
+
+    .flavor-ingredient-art {
+        top: 29%;
+        left: 50%;
+        width: min(62vw, 320px);
+        height: min(62vw, 320px);
+        opacity: 0.38;
+    }
+
+    .flavor-copy-stack {
+        min-height: 185px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .flavor-orbit-section {
+        height: 300svh;
+        min-height: 0;
+        --orbit-size: min(80vw, 30svh, 290px);
+    }
+
+    .flavor-orbit-sticky {
+        height: 100svh;
+        min-height: 0;
+        justify-content: center;
+        padding: calc(68px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .flavor-orbit-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .flavor-orbit-stage {
+        position: relative;
+        inset: auto;
+        left: auto;
+        top: auto;
+        transform: none;
+        flex: 0 0 auto;
+        width: var(--orbit-size);
+        height: var(--orbit-size);
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .flavor-orbit-left {
+        flex: 0 0 auto;
+    }
+
+    .flavor-ingredient-art {
+        top: 16%;
+        left: 50%;
+        width: min(44vw, 180px);
+        height: min(44vw, 180px);
+        opacity: 0.2;
+    }
+
+    .flavor-orbit-left {
+        width: 100%;
+        max-width: 520px;
+        margin: 0 auto;
+        gap: 0.6rem;
+    }
+
+    .flavor-copy-stack {
+        display: block;
+        min-height: clamp(130px, 16svh, 150px);
+    }
+
+    .flavor-copy-item {
+        inset: auto;
+    }
+
+    .flavor-copy-item:not(.is-active) {
+        display: none;
+    }
+
+    .flavor-copy-item.is-active {
+        position: relative;
+    }
+
+    .flavor-meta-row {
+        gap: 0.45rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .flavor-meta-category {
+        font-size: 0.68rem;
+    }
+
+    .flavor-meta-badge {
+        padding: 0.18rem 0.55rem;
+        font-size: 0.61rem;
+    }
+
+    .flavor-item-title {
+        font-size: clamp(1.35rem, 5vw, 1.75rem);
+        margin-bottom: 0.35rem;
+    }
+
+    .flavor-item-desc {
+        font-size: 0.82rem;
+        line-height: 1.4;
+        margin-bottom: 0;
+    }
+
+    .flavor-orbit-footer-bar {
+        display: grid;
+        gap: 0.4rem;
+        padding-top: 0.55rem;
+    }
+
+    .flavor-hint-text {
+        font-size: 0.72rem;
+    }
+
+    .flavor-nav-cluster {
+        width: 100%;
+        gap: 0.35rem;
+    }
+
+    .flavor-step-counter {
+        font-size: 0.75rem;
+        margin-right: 0.1rem;
+    }
+
+    .flavor-arrow-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .flavor-full-menu-link {
+        margin-left: auto;
+        padding: 0.45rem 0.65rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+    }
+
+    .flavor-orbit-node {
+        padding: 0.38rem 0.58rem;
+        font-size: 0.7rem;
+        --node-radius: calc(var(--orbit-size) * 0.37);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flavor-orbit-section {
+        height: auto;
+    }
+
+    .flavor-orbit-sticky {
+        position: relative;
+        height: auto;
+    }
+
+    .flavor-orbit-wheel,
+    .flavor-orbit-node,
+    .flavor-cup-slide,
+    .flavor-copy-item,
+    .flavor-ingredient-art,
+    .flavor-ingredient-image {
+        transition: none;
+    }
+    .flavor-ingredient-image { animation: none; }
+}
+</style>
 
 <!-- ===================================================== -->
 <!-- LOADING SCREEN -->
@@ -177,7 +824,7 @@
                     <div class="hero-copy-state hero-copy-default">
                         <div class="hero-eyebrow reveal">
                             <span class="eyebrow-line"></span>
-                            <span>SAMPALOC, MANILA Â· YOUR DAILY COFFEE SPOT</span>
+                            <span>SAMPALOC, MANILA · YOUR DAILY COFFEE SPOT</span>
                         </div>
 
                         <h1 class="hero-title reveal">
@@ -195,7 +842,7 @@
                         <div class="hero-buttons reveal">
                             <a href="#menu" class="btn-primary-custom">
                                 FIND YOUR CUP
-                                <span>â†—</span>
+                                <span>→</span>
                             </a>
 
                             <a href="#experience" class="btn-outline-custom">
@@ -224,7 +871,7 @@
                         <div class="hero-buttons">
                             <a href="#menu" class="btn-primary-custom">
                                 EXPLORE THE MENU
-                                <span>â†’</span>
+                                <span>→</span>
                             </a>
 
                             <a href="#visit" class="btn-outline-custom">
@@ -256,99 +903,303 @@
                     <!-- INTERACTIVE HERO CUP: HOVER TO POUR CHOCOLATE -->
                     <div class="hero-cup-stage" id="heroCupStage" aria-label="A clear glass filled with fresh milk">
 
-                        <!-- Shared filter for the chocolate swirl -->
-                        <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-                            <filter id="chocoSwirl" x="-10%" y="-10%" width="120%" height="120%">
-                                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="2" seed="7" result="noise">
-                                    <animate attributeName="baseFrequency" dur="10s" values="0.012 0.03;0.02 0.02;0.012 0.03" repeatCount="indefinite"/>
-                                </feTurbulence>
-                                <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/>
-                            </filter>
-                        </svg>
-                        <div class="espresso-pour-wrapper" aria-hidden="true">
-                            <svg class="espresso-stream-svg" viewBox="0 0 120 380" preserveAspectRatio="none">
-                                <defs>
-                                    <linearGradient id="chocoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stop-color="#1b0b05"/><stop offset="35%" stop-color="#4a2412"/>
-                                        <stop offset="62%" stop-color="#7a4426"/><stop offset="100%" stop-color="#1f0d06"/>
-                                    </linearGradient>
-                                    <linearGradient id="chocoShine" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stop-color="rgba(255,225,190,0.5)"/><stop offset="100%" stop-color="rgba(255,225,190,0.12)"/>
-                                    </linearGradient>
-                                </defs>
-                                <path class="stream-core" d="M46,0 C47,90 46,190 49,290 Q50.5,345 52.5,380 L67.5,380 Q69.5,345 71,290 C74,190 73,90 74,0 Z" fill="url(#chocoGrad)"/>
-                                <path class="stream-shine" d="M52,0 C53,90 52,190 54,290 Q55,340 56,380 L59,380 Q58,340 59,290 C58,190 58.5,90 58,0 Z" fill="url(#chocoShine)"/>
-                            </svg>
-                        </div>
+                        <!-- REALISTIC SCENE: kraft cup, clear iced cup, wooden coaster, pour layers -->
+                        <div class="rc-art">
+                            <svg class="rc-scene" viewBox="0 0 460 390" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- blurs -->
+    <filter id="rcBlur10" x="-40%" y="-200%" width="180%" height="500%"><feGaussianBlur stdDeviation="10"/></filter>
+    <filter id="rcBlur5"  x="-40%" y="-200%" width="180%" height="500%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="rcBlur3"  x="-40%" y="-100%" width="180%" height="300%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="rcBlur2"  x="-50%" y="-100%" width="200%" height="300%"><feGaussianBlur stdDeviation="1.6"/></filter>
+    <filter id="rcBlur1"  x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".7"/></filter>
 
-                        <!-- LEFT BACKGROUND BROWN KRAFT CUP -->
-                        <div class="bg-kraft-cup kraft-left" aria-hidden="true">
-                            <div class="kraft-lid">
-                                <div class="kraft-lid-top"></div>
-                                <div class="kraft-lid-rim"></div>
-                            </div>
-                            <div class="kraft-body">
-                                <div class="kraft-sleeve">
-                                    <span class="kraft-brand">every<br><strong>cup</strong></span>
-                                </div>
-                            </div>
-                        </div>
+    <!-- coffee swirl: wavy, wispy lower edge while it blooms into the milk -->
+    <filter id="rcSwirl" filterUnits="userSpaceOnUse" x="150" y="100" width="224" height="260">
+      <feTurbulence type="fractalNoise" baseFrequency="0.014 0.045" numOctaves="2" seed="9" result="n">
+        <animate attributeName="baseFrequency" dur="11s" values="0.014 0.045;0.02 0.03;0.014 0.045" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="15" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
 
-                        <!-- RIGHT BACKGROUND BROWN KRAFT CUP -->
-                        <div class="bg-kraft-cup kraft-right" aria-hidden="true">
-                            <div class="kraft-lid">
-                                <div class="kraft-lid-top"></div>
-                                <div class="kraft-lid-rim"></div>
-                            </div>
-                            <div class="kraft-body">
-                                <div class="kraft-sleeve">
-                                    <span class="kraft-brand">every<br><strong>cup</strong></span>
-                                </div>
-                            </div>
-                        </div>
+    <!-- paper + wood textures -->
+    <filter id="rcPaper" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3"/>
+      <feColorMatrix values="0 0 0 0 .35  0 0 0 0 .2  0 0 0 0 .08  0 0 0 .9 -.3"/>
+    </filter>
+    <filter id="rcGrain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".010 .32" numOctaves="3" seed="4"/>
+      <feColorMatrix values="0 0 0 0 .16  0 0 0 0 .06  0 0 0 0 .04  1.5 0 0 0 -.5"/>
+    </filter>
 
-                        <!-- MAIN CENTER REALISTIC ICED LATTE CUP -->
-                        <div class="main-iced-cup">
-                            <!-- Top Rim & Opening -->
-                            <div class="cup-top-rim"></div>
+    <!-- coaster -->
+    <radialGradient id="rcWood" cx="36%" cy="28%" r="85%">
+      <stop offset="0" stop-color="#b87a5e"/><stop offset=".5" stop-color="#8b4f3d"/><stop offset="1" stop-color="#5b2f26"/>
+    </radialGradient>
+    <linearGradient id="rcWoodEdge" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#3a1e18"/><stop offset=".28" stop-color="#74402f"/><stop offset=".6" stop-color="#4d2920"/><stop offset="1" stop-color="#2a140f"/>
+    </linearGradient>
 
-                            <!-- Cup Glass/PET Body -->
-                            <div class="cup-plastic-body">
+    <!-- table bean -->
+    <radialGradient id="rcBeanG" cx="36%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#85522f"/><stop offset=".5" stop-color="#4a2511"/><stop offset="1" stop-color="#1f0e05"/>
+    </radialGradient>
+    <g id="rcBeanShape">
+      <ellipse rx="8.6" ry="5.4" fill="url(#rcBeanG)"/>
+      <path d="M-6.8 -.8 Q-1 -3.2 6.8 .9" fill="none" stroke="#120803" stroke-width="1.15" stroke-linecap="round"/>
+      <ellipse cx="-2.8" cy="-2.3" rx="3.2" ry="1.15" fill="#fff" opacity=".3" transform="rotate(-12 -2.8 -2.3)"/>
+    </g>
 
-                                <!-- Base Cold Fresh Milk Layer -->
-                                <div class="milk-base-layer"></div>
+    <!-- kraft cup -->
+    <linearGradient id="rcKraft" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#8e6038"/><stop offset=".16" stop-color="#c3935f"/><stop offset=".36" stop-color="#dcae7c"/>
+      <stop offset=".56" stop-color="#d0a06d"/><stop offset=".8" stop-color="#b3814e"/><stop offset="1" stop-color="#7f542f"/>
+    </linearGradient>
+    <linearGradient id="rcKraftV" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#2a1608" stop-opacity=".42"/><stop offset=".14" stop-color="#2a1608" stop-opacity=".1"/>
+      <stop offset=".62" stop-color="#2a1608" stop-opacity="0"/><stop offset="1" stop-color="#2a1608" stop-opacity=".26"/>
+    </linearGradient>
+    <linearGradient id="rcLid" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#050505"/><stop offset=".2" stop-color="#2b2b2b"/><stop offset=".38" stop-color="#454545"/>
+      <stop offset=".6" stop-color="#171717"/><stop offset="1" stop-color="#040404"/>
+    </linearGradient>
+    <radialGradient id="rcLidTop" cx="40%" cy="35%" r="75%">
+      <stop offset="0" stop-color="#4a4a4a"/><stop offset=".55" stop-color="#1b1b1b"/><stop offset="1" stop-color="#070707"/>
+    </radialGradient>
+    <clipPath id="rcKraftClip"><path d="M71 192 L83 338 A39 7 0 0 0 161 338 L173 192 Z"/></clipPath>
 
-                                <!-- Chocolate pour and milk-to-chocolate hover effect -->
-                                <div class="choco-mix" aria-hidden="true">
-                                    <div class="choco-flow">
-                                        <div class="choco-tint"></div>
-                                        <div class="choco-plume plume-1"></div><div class="choco-plume plume-2"></div>
-                                        <div class="choco-plume plume-3"></div><div class="choco-plume plume-4"></div>
-                                    </div>
-                                    <div class="choco-pool"></div>
-                                </div>
-                                <div class="ice-cubes-cluster" aria-hidden="true">
-                                    <div class="ice-cube cube-1"></div><div class="ice-cube cube-2"></div>
-                                    <div class="ice-cube cube-3"></div><div class="ice-cube cube-4"></div>
-                                </div>
-                                <div class="choco-mound"></div>
-                                <div class="choco-ripple"></div><div class="choco-ripple r2"></div>
-                                <div class="choco-drop cd-1"></div><div class="choco-drop cd-2"></div>
-                                <div class="choco-drop cd-3"></div><div class="choco-drop cd-4"></div><div class="choco-drop cd-5"></div>
+    <!-- clear cup -->
+    <clipPath id="rcInner"><path d="M185 122 L211 340 A51 7 0 0 0 313 340 L339 122 A77 8.6 0 0 0 185 122 Z"/></clipPath>
+    <clipPath id="rcBody"><path d="M184 122 L208 340 A54 8 0 0 0 316 340 L340 122 Z"/></clipPath>
+    <linearGradient id="rcMilk" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#d8d1c6"/><stop offset=".12" stop-color="#f1ede6"/><stop offset=".38" stop-color="#fffefb"/>
+      <stop offset=".62" stop-color="#fbf8f2"/><stop offset=".86" stop-color="#e5dfd5"/><stop offset="1" stop-color="#c9c0b2"/>
+    </linearGradient>
+    <linearGradient id="rcMilkV" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".7" stop-color="#8a7a66" stop-opacity=".05"/><stop offset="1" stop-color="#6e5d48" stop-opacity=".22"/>
+    </linearGradient>
+    <linearGradient id="rcCoffeeGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0"   stop-color="#1d0e06"/>
+      <stop offset=".60" stop-color="#2e170a"/>
+      <stop offset=".69" stop-color="#4b2a16" stop-opacity=".98"/>
+      <stop offset=".79" stop-color="#7f5a3e" stop-opacity=".88"/>
+      <stop offset=".90" stop-color="#b9997b" stop-opacity=".52"/>
+      <stop offset="1"   stop-color="#e9dac8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rcCoffeeSide" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset=".2" stop-color="#000" stop-opacity="0"/>
+      <stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/>
+    </linearGradient>
+    <linearGradient id="rcIce" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".82"/><stop offset=".5" stop-color="#eaf5f8" stop-opacity=".34"/><stop offset="1" stop-color="#cfe3ea" stop-opacity=".6"/>
+    </linearGradient>
+    <linearGradient id="rcHiL" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".45" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity=".6"/>
+    </linearGradient>
+    <linearGradient id="rcSheen" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".14"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".8" stop-color="#fff" stop-opacity="0"/><stop offset=".9" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rcEdgeR" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#3f6b66" stop-opacity="0"/><stop offset="1" stop-color="#3f6b66" stop-opacity=".3"/>
+    </linearGradient>
+    <radialGradient id="rcDrop" cx="38%" cy="32%" r="75%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".45" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#6f6458" stop-opacity=".34"/>
+    </radialGradient>
+    <linearGradient id="rcStreamG" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#1a0b05"/><stop offset=".45" stop-color="#4a2814"/><stop offset="1" stop-color="#1a0b05"/>
+    </linearGradient>
+    <linearGradient id="rcFadeTop" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="1"/>
+    </linearGradient>
+    <mask id="rcStreamMask" maskUnits="userSpaceOnUse" x="230" y="-200" width="64" height="360">
+      <rect x="230" y="-200" width="64" height="360" fill="url(#rcFadeTop)"/>
+    </mask>
+  </defs>
 
-                                <!-- Printed Cup Logo -->
-                                <div class="cup-printed-logo">
-                                    <span>every</span>
-                                    <strong>cup</strong>
-                                </div>
+  <!-- ===== ground shadows ===== -->
+  <ellipse cx="300" cy="364" rx="150" ry="19" fill="#2c140a" opacity=".30" filter="url(#rcBlur10)"/>
+  <ellipse cx="126" cy="346" rx="58" ry="8" fill="#241006" opacity=".42" filter="url(#rcBlur5)"/>
+  <path d="M168 342 Q230 352 256 346 L250 358 Q205 360 168 352Z" fill="#2c140a" opacity=".16" filter="url(#rcBlur5)"/>
 
-                                <!-- Realistic Plastic Specular Highlights & Condensation -->
-                                <div class="cup-glass-highlight-left"></div>
-                                <div class="cup-glass-highlight-right"></div>
-                            </div>
+  <ellipse class="rc-contact" cx="262" cy="350" rx="62" ry="11" fill="#1c0d07" opacity=".5" filter="url(#rcBlur3)"/>
 
-                            <!-- Thick Clear Cup Base -->
-                            <div class="cup-bottom-base"></div>
+  <g transform="translate(58 352) rotate(24) scale(1.0)" opacity="1"><ellipse cx="1.5" cy="3.6" rx="8.6" ry="3.2" fill="#1a0b04" opacity=".32" filter="url(#rcBlur2)"/><use href="#rcBeanShape"/></g><g transform="translate(36 336) rotate(-32) scale(0.85)" opacity="1"><ellipse cx="1.5" cy="3.6" rx="8.6" ry="3.2" fill="#1a0b04" opacity=".32" filter="url(#rcBlur2)"/><use href="#rcBeanShape"/></g><g transform="translate(196 366) rotate(-12) scale(0.9)" opacity="1"><ellipse cx="1.5" cy="3.6" rx="8.6" ry="3.2" fill="#1a0b04" opacity=".32" filter="url(#rcBlur2)"/><use href="#rcBeanShape"/></g><g transform="translate(402 350) rotate(38) scale(0.95)" opacity="1"><ellipse cx="1.5" cy="3.6" rx="8.6" ry="3.2" fill="#1a0b04" opacity=".32" filter="url(#rcBlur2)"/><use href="#rcBeanShape"/></g>
+
+  <!-- ===== KRAFT TAKEAWAY CUP ===== -->
+  <g class="rc-kraft">
+    <path d="M71 192 L83 338 A39 7 0 0 0 161 338 L173 192 Z" fill="url(#rcKraft)"/>
+    <g clip-path="url(#rcKraftClip)">
+      <rect x="60" y="186" width="124" height="166" fill="url(#rcKraftV)"/>
+      <rect x="60" y="186" width="124" height="166" filter="url(#rcPaper)" opacity=".55"/>
+      <path d="M150 192 L141 340" stroke="#7b5230" stroke-width="1" opacity=".35"/>
+      <path d="M151.4 192 L142.4 340" stroke="#fff" stroke-width=".8" opacity=".12"/>
+      <path d="M96 196 L102 336" stroke="#fff3df" stroke-width="7" opacity=".16" filter="url(#rcBlur3)"/>
+      <path d="M160 196 L152 336" stroke="#3a1f0c" stroke-width="9" opacity=".18" filter="url(#rcBlur3)"/>
+      <text class="rc-logo" x="122" y="262" text-anchor="middle" font-size="22" fill="#171310" opacity=".92">every</text>
+      <text class="rc-logo" x="122" y="284" text-anchor="middle" font-size="24" fill="#171310" opacity=".92">cup</text>
+    </g>
+    <path d="M83 338 A39 7 0 0 0 161 338" fill="none" stroke="#6b4423" stroke-width="1" opacity=".5"/>
+    <!-- lid -->
+    <path d="M70 176 L174 176 L177 190 Q177 195 172 195 L72 195 Q67 195 67 190 Z" fill="url(#rcLid)"/>
+    <ellipse cx="122" cy="195" rx="50" ry="5" fill="#000" opacity=".5" filter="url(#rcBlur2)"/>
+    <path d="M69.5 189 Q122 198 174.5 189" fill="none" stroke="#000" stroke-width="2" opacity=".55"/>
+    <path d="M70 180 L66 190" stroke="#8a8a8a" stroke-width=".8" opacity=".35"/>
+    <ellipse cx="122" cy="176" rx="52" ry="7" fill="url(#rcLidTop)"/>
+    <ellipse cx="122" cy="176" rx="52" ry="7" fill="none" stroke="#6c6c6c" stroke-width=".9" opacity=".55"/>
+    <ellipse cx="122" cy="175" rx="40" ry="4.6" fill="#0c0c0c"/>
+    <ellipse cx="122" cy="175.6" rx="40" ry="4.6" fill="none" stroke="#4d4d4d" stroke-width=".7" opacity=".7"/>
+    <ellipse cx="146" cy="174.5" rx="7" ry="1.8" fill="#000"/>
+    <path d="M139 173.2 Q146 171.7 153 173.2" fill="none" stroke="#7a7a7a" stroke-width=".7" opacity=".5"/>
+    <path d="M84 178 Q102 183 120 184" fill="none" stroke="#fff" stroke-width="1.4" opacity=".16" filter="url(#rcBlur1)"/>
+  </g>
+
+  <!-- ===== WOODEN COASTER ===== -->
+  <g class="rc-coaster">
+    <path d="M134 345 v9 a128 23 0 0 0 256 0 v-9 z" fill="url(#rcWoodEdge)"/>
+    <path d="M134 354 a128 23 0 0 0 256 0" fill="none" stroke="#000" stroke-width="1.2" opacity=".35"/>
+    <ellipse cx="262" cy="345" rx="128" ry="23" fill="url(#rcWood)"/>
+    <clipPath id="rcCoasterClip"><ellipse cx="262" cy="345" rx="128" ry="23"/></clipPath>
+    <rect x="130" y="320" width="264" height="50" filter="url(#rcGrain)" opacity=".5" clip-path="url(#rcCoasterClip)"/>
+    <ellipse cx="262" cy="345" rx="119" ry="20.4" fill="none" stroke="#2c130d" stroke-width="1" opacity=".3"/>
+    <ellipse cx="262" cy="344.4" rx="127" ry="22.4" fill="none" stroke="#ffd9bd" stroke-width="1.1" opacity=".38"/>
+    <path d="M150 336 Q262 316 374 336" fill="none" stroke="#fff" stroke-width="6" opacity=".07" filter="url(#rcBlur3)"/>
+  </g>
+
+  <!-- ===== CLEAR PLASTIC CUP ===== -->
+  <g class="rc-glass">
+
+    <!-- back inner wall seen through the open top -->
+
+    <g clip-path="url(#rcInner)">
+      <!-- milk -->
+      <rect x="170" y="150" width="184" height="200" fill="url(#rcMilk)"/>
+      <rect x="170" y="150" width="184" height="200" fill="url(#rcMilkV)"/>
+      <ellipse cx="262" cy="150" rx="78" ry="9.2" fill="#fffdf9"/>
+      <ellipse cx="262" cy="150" rx="78" ry="9.2" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"/>
+      <path d="M190 151 Q262 160 334 151" fill="none" stroke="#d9d2c6" stroke-width="1" opacity=".55"/>
+
+      <!-- coffee layer (blooms down from the surface) -->
+      <g filter="url(#rcSwirl)">
+        <g class="rc-coffee-fb">
+          <rect class="rc-coffee" x="170" y="110" width="184" height="240" fill="url(#rcCoffeeGrad)"/>
+        </g>
+      </g>
+      <g class="rc-plumes" filter="url(#rcBlur5)">
+        <ellipse class="rc-plume" cx="256" cy="154" rx="9" ry="36" fill="#25120a" opacity="0"/>
+        <ellipse class="rc-plume" cx="270" cy="154" rx="7" ry="46" fill="#2b160c" opacity="0"/>
+        <ellipse class="rc-plume" cx="244" cy="152" rx="8" ry="28" fill="#33190d" opacity="0"/>
+        <ellipse class="rc-plume" cx="282" cy="152" rx="8" ry="32" fill="#2b160c" opacity="0"/>
+      </g>
+      <rect x="170" y="110" width="184" height="240" fill="url(#rcCoffeeSide)"/>
+
+      <!-- ice cubes -->
+      <g transform="translate(224 142) rotate(-14)"><g class="rc-cube-bob">
+        <rect x="-17" y="-16" width="34" height="32" rx="7" fill="url(#rcIce)" stroke="#fff" stroke-opacity=".85"/>
+        <rect class="rc-cube-tint" x="-17" y="-16" width="34" height="32" rx="7" fill="#8f5527" opacity="0"/>
+        <rect x="-12.2" y="-11.4" width="24.4" height="22.8" rx="5" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/>
+        <path d="M-13 -12 L-3 -13 L-7 -3 L-13 0 Z" fill="#fff" opacity=".68"/>
+        <path d="M6 9 L14 8 L13 13 L5 14 Z" fill="#fff" opacity=".34"/>
+      </g></g>
+      <g transform="translate(293 139) rotate(17)"><g class="rc-cube-bob">
+        <rect x="-18" y="-17" width="36" height="34" rx="7" fill="url(#rcIce)" stroke="#fff" stroke-opacity=".85"/>
+        <rect class="rc-cube-tint" x="-18" y="-17" width="36" height="34" rx="7" fill="#8f5527" opacity="0"/>
+        <rect x="-13" y="-12" width="26" height="24" rx="5" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/>
+        <path d="M-14 -13 L-4 -14 L-8 -3 L-14 0 Z" fill="#fff" opacity=".66"/>
+        <path d="M7 10 L15 9 L14 14 L6 15 Z" fill="#fff" opacity=".32"/>
+      </g></g>
+      <g transform="translate(258 154) rotate(6)"><g class="rc-cube-bob">
+        <rect x="-17" y="-16" width="34" height="32" rx="7" fill="url(#rcIce)" stroke="#fff" stroke-opacity=".85"/>
+        <rect class="rc-cube-tint" x="-17" y="-16" width="34" height="32" rx="7" fill="#8f5527" opacity="0"/>
+        <rect x="-12.2" y="-11.4" width="24.4" height="22.8" rx="5" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/>
+        <path d="M-13 -12 L-3 -13 L-7 -3 L-13 0 Z" fill="#fff" opacity=".6"/>
+      </g></g>
+      <g transform="translate(236 165) rotate(-24)"><g class="rc-cube-bob">
+        <rect x="-15" y="-14" width="30" height="28" rx="6" fill="url(#rcIce)" stroke="#fff" stroke-opacity=".8"/>
+        <rect class="rc-cube-tint" x="-15" y="-14" width="30" height="28" rx="6" fill="#8f5527" opacity="0"/>
+        <path d="M-11 -10 L-3 -11 L-6 -3 L-11 0 Z" fill="#fff" opacity=".55"/>
+      </g></g>
+
+      <!-- printed logo -->
+      <text class="rc-logo" x="262" y="228" text-anchor="middle" font-size="32" fill="#14100d" opacity=".94">every</text>
+      <text class="rc-logo" x="262" y="257" text-anchor="middle" font-size="35" fill="#14100d" opacity=".94">cup</text>
+
+      <!-- impact: mound, ripples and droplets where the stream lands -->
+      <ellipse class="rc-mound" cx="262" cy="147" rx="9" ry="4.4" fill="#2b150a" opacity="0"/>
+      <ellipse class="rc-ripple" cx="262" cy="150" rx="15" ry="3.4" fill="none" stroke="#3a1c0d" stroke-opacity=".6" stroke-width="1.3" opacity="0"/>
+      <ellipse class="rc-ripple" cx="262" cy="150" rx="15" ry="3.4" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.1" opacity="0"/>
+      <circle class="rc-drop" data-dx="-16" data-h="-20" cx="262" cy="148" r="1.7" fill="#3a1c0d" opacity="0"/>
+      <circle class="rc-drop" data-dx="14"  data-h="-24" cx="262" cy="148" r="1.5" fill="#2b150a" opacity="0"/>
+      <circle class="rc-drop" data-dx="-8"  data-h="-30" cx="262" cy="148" r="1.2" fill="#3a1c0d" opacity="0"/>
+      <circle class="rc-drop" data-dx="21"  data-h="-17" cx="262" cy="148" r="1.4" fill="#2b150a" opacity="0"/>
+      <circle class="rc-drop" data-dx="4"   data-h="-34" cx="262" cy="148" r="1.1" fill="#3a1c0d" opacity="0"/>
+    </g>
+
+    <!-- coffee stream (thin, straight, falls in from above) -->
+    <g mask="url(#rcStreamMask)">
+      <path class="rc-stream" d="M262 -200 C262.5 -90 261.6 50 262 152" pathLength="1" fill="none" stroke="url(#rcStreamG)" stroke-width="4.6" stroke-linecap="butt"/>
+      <path class="rc-stream" d="M261 -200 C261.5 -90 260.6 50 261 152" pathLength="1" fill="none" stroke="#a37049" stroke-width="1.1" stroke-linecap="butt" opacity=".75"/>
+    </g>
+
+    <!-- body: glass walls, reflections, condensation -->
+    <g clip-path="url(#rcBody)">
+      <rect x="180" y="118" width="164" height="236" fill="url(#rcSheen)"/>
+      <path d="M190.0 124 L214.0 338 L221.0 338 L200.0 124 Z" fill="url(#rcHiL)" filter="url(#rcBlur1)"/>
+      <path d="M206.0 126 L230.0 330 L233.0 330 L209.0 126 Z" fill="#fff" opacity=".34" filter="url(#rcBlur1)"/>
+      <path d="M326.0 124 L302.0 338 L317.0 338 L341.0 124 Z" fill="url(#rcEdgeR)"/>
+      <path d="M336.0 126 L312.0 336" fill="none" stroke="#fff" stroke-width="1.3" opacity=".55"/>
+      <g class="rc-cond">
+          <circle cx="270.1" cy="230.7" r="2.00" fill="url(#rcDrop)"/>
+          <circle cx="273.0" cy="240.4" r="0.80" fill="url(#rcDrop)"/>
+          <ellipse cx="276.1" cy="234.8" rx="0.50" ry="1.52" fill="url(#rcDrop)"/>
+          <circle cx="215.7" cy="204.8" r="2.00" fill="url(#rcDrop)"/>
+          <circle cx="273.4" cy="262.4" r="1.10" fill="url(#rcDrop)"/>
+          <circle cx="275.4" cy="265.8" r="0.80" fill="url(#rcDrop)"/>
+          <ellipse cx="221.3" cy="296.7" rx="0.43" ry="1.33" fill="url(#rcDrop)"/>
+          <circle cx="207.5" cy="194.1" r="1.10" fill="url(#rcDrop)"/>
+          <circle cx="231.3" cy="254.8" r="0.80" fill="url(#rcDrop)"/>
+          <circle cx="281.2" cy="239.0" r="1.10" fill="url(#rcDrop)"/>
+          <ellipse cx="269.3" cy="222.8" rx="1.24" ry="3.80" fill="url(#rcDrop)"/>
+          <circle cx="294.1" cy="196.2" r="1.30" fill="url(#rcDrop)"/>
+          <ellipse cx="297.0" cy="164.2" rx="0.68" ry="2.09" fill="url(#rcDrop)"/>
+          <circle cx="212.7" cy="202.6" r="0.70" fill="url(#rcDrop)"/>
+          <circle cx="226.2" cy="152.1" r="0.70" fill="url(#rcDrop)"/>
+          <circle cx="254.2" cy="322.6" r="0.70" fill="url(#rcDrop)"/>
+          <ellipse cx="284.6" cy="186.5" rx="0.56" ry="1.71" fill="url(#rcDrop)"/>
+          <circle cx="317.2" cy="209.9" r="2.00" fill="url(#rcDrop)"/>
+          <ellipse cx="289.0" cy="175.4" rx="0.43" ry="1.33" fill="url(#rcDrop)"/>
+          <ellipse cx="232.0" cy="290.7" rx="0.81" ry="2.47" fill="url(#rcDrop)"/>
+          <ellipse cx="316.3" cy="240.5" rx="1.24" ry="3.80" fill="url(#rcDrop)"/>
+          <circle cx="223.7" cy="264.0" r="1.10" fill="url(#rcDrop)"/>
+          <circle cx="310.3" cy="152.1" r="2.00" fill="url(#rcDrop)"/>
+          <circle cx="220.2" cy="325.6" r="0.80" fill="url(#rcDrop)"/>
+          <ellipse cx="277.1" cy="300.7" rx="0.43" ry="1.33" fill="url(#rcDrop)"/>
+          <circle cx="256.3" cy="177.5" r="0.70" fill="url(#rcDrop)"/>
+          <ellipse cx="239.9" cy="209.2" rx="0.43" ry="1.33" fill="url(#rcDrop)"/>
+          <circle cx="279.9" cy="188.3" r="0.70" fill="url(#rcDrop)"/>
+          <circle cx="258.2" cy="216.7" r="1.30" fill="url(#rcDrop)"/>
+          <circle cx="302.5" cy="252.0" r="0.80" fill="url(#rcDrop)"/>
+          <circle cx="229.5" cy="206.6" r="0.41" fill="#fff" opacity="0.60"/><circle cx="279.7" cy="178.8" r="0.40" fill="#fff" opacity="0.59"/><circle cx="260.9" cy="220.7" r="0.30" fill="#fff" opacity="0.37"/><circle cx="264.6" cy="169.8" r="0.34" fill="#fff" opacity="0.61"/><circle cx="253.5" cy="221.3" r="0.48" fill="#fff" opacity="0.52"/><circle cx="312.4" cy="244.7" r="0.49" fill="#fff" opacity="0.39"/><circle cx="280.9" cy="237.2" r="0.42" fill="#fff" opacity="0.38"/><circle cx="315.8" cy="188.7" r="0.44" fill="#fff" opacity="0.37"/><circle cx="233.1" cy="224.9" r="0.29" fill="#fff" opacity="0.45"/><circle cx="317.2" cy="246.6" r="0.30" fill="#fff" opacity="0.40"/><circle cx="243.1" cy="232.0" r="0.44" fill="#fff" opacity="0.53"/><circle cx="271.8" cy="322.3" r="0.48" fill="#fff" opacity="0.52"/><circle cx="240.1" cy="215.1" r="0.29" fill="#fff" opacity="0.56"/><circle cx="205.5" cy="163.6" r="0.35" fill="#fff" opacity="0.40"/><circle cx="256.8" cy="163.2" r="0.36" fill="#fff" opacity="0.37"/><circle cx="286.3" cy="320.4" r="0.31" fill="#fff" opacity="0.69"/><circle cx="212.3" cy="212.2" r="0.38" fill="#fff" opacity="0.38"/><circle cx="308.1" cy="306.0" r="0.29" fill="#fff" opacity="0.52"/><circle cx="284.9" cy="152.6" r="0.36" fill="#fff" opacity="0.35"/><circle cx="208.6" cy="163.1" r="0.31" fill="#fff" opacity="0.44"/><circle cx="242.8" cy="225.8" r="0.49" fill="#fff" opacity="0.59"/><circle cx="258.6" cy="233.3" r="0.40" fill="#fff" opacity="0.53"/><circle cx="241.1" cy="243.6" r="0.30" fill="#fff" opacity="0.36"/><circle cx="225.3" cy="324.2" r="0.45" fill="#fff" opacity="0.58"/><circle cx="309.1" cy="238.5" r="0.36" fill="#fff" opacity="0.40"/><circle cx="265.0" cy="261.3" r="0.45" fill="#fff" opacity="0.47"/><circle cx="262.8" cy="319.3" r="0.33" fill="#fff" opacity="0.49"/><circle cx="279.9" cy="195.6" r="0.46" fill="#fff" opacity="0.61"/><circle cx="226.5" cy="186.5" r="0.33" fill="#fff" opacity="0.67"/><circle cx="216.4" cy="188.2" r="0.36" fill="#fff" opacity="0.66"/><circle cx="204.5" cy="157.4" r="0.50" fill="#fff" opacity="0.64"/><circle cx="259.2" cy="170.5" r="0.48" fill="#fff" opacity="0.64"/><circle cx="265.4" cy="219.6" r="0.43" fill="#fff" opacity="0.60"/><circle cx="275.7" cy="303.2" r="0.35" fill="#fff" opacity="0.64"/><circle cx="276.4" cy="200.6" r="0.43" fill="#fff" opacity="0.45"/><circle cx="281.2" cy="214.5" r="0.40" fill="#fff" opacity="0.57"/><circle cx="225.9" cy="223.7" r="0.45" fill="#fff" opacity="0.44"/><circle cx="294.1" cy="291.8" r="0.50" fill="#fff" opacity="0.39"/><circle cx="267.7" cy="169.8" r="0.42" fill="#fff" opacity="0.48"/><circle cx="222.9" cy="164.2" r="0.46" fill="#fff" opacity="0.44"/><circle cx="290.3" cy="280.0" r="0.40" fill="#fff" opacity="0.36"/><circle cx="298.3" cy="191.2" r="0.40" fill="#fff" opacity="0.68"/><circle cx="320.5" cy="241.1" r="0.32" fill="#fff" opacity="0.65"/><circle cx="233.2" cy="277.4" r="0.37" fill="#fff" opacity="0.66"/><circle cx="257.0" cy="220.6" r="0.32" fill="#fff" opacity="0.66"/><circle cx="269.8" cy="151.2" r="0.42" fill="#fff" opacity="0.53"/>
+      </g>
+    </g>
+    <!-- body outline -->
+    <path d="M184 122 L208 340 A54 8 0 0 0 316 340 L340 122" fill="none" stroke="#fff" stroke-width="1.8" opacity=".78"/>
+    <path d="M183 122 L207 340 M341 122 L317 340" fill="none" stroke="#6c7c7a" stroke-width=".8" opacity=".28"/>
+    <!-- thick clear base -->
+    <ellipse cx="262" cy="340" rx="54" ry="8" fill="#fff" opacity=".14"/>
+    <ellipse cx="262" cy="338.6" rx="44" ry="5.6" fill="none" stroke="#fff" stroke-width="1.2" opacity=".6"/>
+    <path d="M208 340 A54 8 0 0 0 316 340" fill="none" stroke="#fff" stroke-width="2.2" opacity=".85"/>
+    <!-- rolled rim -->
+    <ellipse cx="262" cy="122" rx="78" ry="9" fill="#eef5f4" fill-opacity=".14"/>
+    <ellipse cx="262" cy="122" rx="78" ry="9" fill="none" stroke="#fff" stroke-width="2.6" opacity=".95"/>
+    <ellipse cx="262" cy="122.6" rx="75.4" ry="7.4" fill="none" stroke="#9fb0ae" stroke-width="1" opacity=".55"/>
+    <path d="M190 126 Q262 140 334 126" fill="none" stroke="#fff" stroke-width="1.6" opacity=".5"/>
+    <path d="M205 117 Q232 111.6 262 111.4" fill="none" stroke="#fff" stroke-width="1.4" opacity=".7"/>
+  </g>
+
+  <g transform="translate(88 372) rotate(-20) scale(1.05)" opacity="1"><ellipse cx="1.5" cy="3.6" rx="8.6" ry="3.2" fill="#1a0b04" opacity=".32" filter="url(#rcBlur2)"/><use href="#rcBeanShape"/></g><g transform="translate(334 372) rotate(18) scale(1.0)" opacity="1"><ellipse cx="1.5" cy="3.6" rx="8.6" ry="3.2" fill="#1a0b04" opacity=".32" filter="url(#rcBlur2)"/><use href="#rcBeanShape"/></g><g transform="translate(238 378) rotate(52) scale(0.8)" opacity="1"><ellipse cx="1.5" cy="3.6" rx="8.6" ry="3.2" fill="#1a0b04" opacity=".32" filter="url(#rcBlur2)"/><use href="#rcBeanShape"/></g>
+</svg>
+                            <canvas class="rc-cup3d" id="heroCup3D" width="460" height="590" aria-hidden="true"></canvas>
                         </div>
 
                         <!-- DRINK BADGE CALLOUT -->
@@ -373,17 +1224,6 @@
                             </div>
                         </div>
 
-                    </div>
-
-                    <!-- WOODEN SAUCER / COASTER -->
-                    <div class="hero-saucer"></div>
-
-                    <!-- SCATTERED ROASTED BEANS ON TABLE -->
-                    <div class="table-beans" aria-hidden="true">
-                        <span class="t-bean tb-1"></span>
-                        <span class="t-bean tb-2"></span>
-                        <span class="t-bean tb-3"></span>
-                        <span class="t-bean tb-4"></span>
                     </div>
 
                     <div class="hero-stamp">
@@ -570,7 +1410,7 @@
             </p>
 
             <a href="#visit" class="story-button">
-                BE PART OF OUR STORY â†—
+                BE PART OF OUR STORY ↗
             </a>
 
         </div>
@@ -585,102 +1425,131 @@
 <!-- FEATURED MENU -->
 <!-- ===================================================== -->
 
-<section class="menu-section section-padding" id="menu">
+<section class="menu-section flavor-orbit-section" id="menu" aria-label="Take a closer look at featured flavors">
+    {% set orbitFlavors = [
+        {
+            name: 'Mango Cream',
+            short: 'Mango',
+            category: 'Non-coffee drink',
+            badge: 'Best Seller',
+            lead: 'Real mango, mellow cream.',
+            description: 'Sun-ripened mango brings a bright, tangy first sip, softened by a cool ribbon of cream. It tastes like ripe fruit and dessert meeting in the same cup.',
+            image: 'images/home/1 (1).png',
+            art: 'images/home/mango.png',
+            price: '145',
+            color: '#d2a900',
+            bg: '#fbf4d9'
+        },
+        {
+            name: 'Matcha Cloud',
+            short: 'Matcha',
+            category: 'Non-coffee drink',
+            badge: 'Signature Drink',
+            lead: 'Earthy matcha, cloud-soft cream.',
+            description: 'A gentle grassy note from matcha opens into cold, fresh milk, finished with a soft cap of cream. Smooth, lightly sweet, and made for a slower sip.',
+            image: 'images/home/1 (2).png',
+            art: 'images/home/matcha_leaf.png',
+            price: '145',
+            color: '#536b45',
+            bg: '#eef3ea'
+        },
+        {
+            name: 'Strawberry Milk',
+            short: 'Strawberry',
+            category: 'Non-coffee drink',
+            badge: 'Best Seller',
+            lead: 'Strawberries with a creamy finish.',
+            description: 'Juicy strawberry flavor runs through chilled milk for a sweet, fresh fruit note that stays silky to the last sip.',
+            image: 'images/home/1 (3).png',
+            art: 'images/home/strawberry.png',
+            price: '140',
+            color: '#b84c4b',
+            bg: '#f8ecec'
+        },
+        {
+            name: 'Tiramisu Latte',
+            short: 'Tiramisu',
+            category: 'Espresso drink',
+            badge: 'Best Seller',
+            lead: 'Espresso meets tiramisu.',
+            description: 'Bold espresso and velvety mascarpone-style cream bring the familiar coffee-and-cocoa comfort of tiramisu to an iced latte.',
+            image: 'images/home/1 (4).png',
+            art: 'images/home/chocolate.png',
+            price: '155',
+            color: '#6b4234',
+            bg: '#f4ece6'
+        }
+    ] %}
 
-    <div class="container-xxl px-4">
-
-        <div class="menu-heading reveal">
-
-            <div>
-
-                <div class="section-eyebrow">
-                    A CUP FOR EVERY MOOD
-                </div>
-
-                <h2 class="section-title">
-                    Find your <span>favorite.</span>
-                </h2>
-
-                <p class="section-description">
-                    Discover drinks that make your everyday
-                    moments a little more special.
-                </p>
-
-            </div>
-
-            <div class="menu-heading-stamp">
-                EVERY CUP.
-                <span>EVERY MOMENT.</span>
-            </div>
-
-        </div>
-
-
-        <div class="row g-4 menu-card-container">
-
-            {% for product in featuredProducts %}
-
-                <div class="col-md-6 col-lg-4">
-
-                    <div class="menu-card reveal">
-
-                        <div class="menu-card-image">
-
-                            <span class="menu-category">
-                                {{ product.category }}
-                            </span>
-
-                            <img src="{{ asset(product.image) }}"
-                                 alt="{{ product.name }}"
-                                 loading="lazy">
-
-                        </div>
-
-                        <div class="menu-card-content">
-
-                            <div class="d-flex justify-content-between align-items-center">
-
-                                <h3>{{ product.name }}</h3>
-
-                                <span class="menu-price">
-                                    {{ product.price }}
-                                </span>
-
-                            </div>
-
-                            <p>
-                                {{ product.description }}
-                            </p>
-
-                            <div class="menu-card-footer">
-                                <span>MADE FOR EVERY SIP.</span>
-                                <button class="add-to-order" type="button"
-                                        data-name="{{ product.name }}"
-                                        data-price="{{ product.price|replace({'â‚±':'','Ã¢â€šÂ±':''})|trim }}">
-                                    ADD <span>+</span>
-                                </button>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            {% else %}
-
-                <div class="col-12">
-                    <p class="text-center">
-                        Our featured drinks are coming soon.
-                    </p>
-                </div>
-
+    <div class="flavor-orbit-sticky">
+        <div class="flavor-ingredient-art" aria-hidden="true">
+            {% for flavor in orbitFlavors %}
+                <img class="flavor-ingredient-image{% if loop.first %} is-active{% endif %}"
+                     src="{{ asset(flavor.art) }}" alt="" draggable="false"
+                     data-ingredient-image="{{ loop.index0 }}">
             {% endfor %}
+        </div>
+        <div class="flavor-orbit-inner" role="group" aria-label="Four signature drinks in orbit">
+
+            <!-- LEFT: EDITORIAL HEADING + STACKED FLAVOR DETAILS -->
+            <div class="flavor-orbit-left">
+
+                <div class="flavor-copy-stack">
+                    {% for flavor in orbitFlavors %}
+                        <div class="flavor-copy-item{% if loop.first %} is-active{% endif %}" data-flavor-copy="{{ loop.index0 }}" aria-hidden="{{ loop.first ? 'false' : 'true' }}">
+                            <div class="flavor-meta-row">
+                                <p class="flavor-meta-category">{{ flavor.category }}</p>
+                                <span class="flavor-meta-dot" aria-hidden="true"></span>
+                                <span class="flavor-meta-badge">{{ flavor.badge }}</span>
+                            </div>
+                            <h3 class="flavor-item-title">{{ flavor.name }}</h3>
+                            <p class="flavor-item-desc"><strong>{{ flavor.lead }}</strong> {{ flavor.description }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="flavor-orbit-footer-bar">
+                    <div class="flavor-nav-cluster">
+                        <span class="flavor-step-counter" data-flavor-counter>1 / {{ orbitFlavors|length }}</span>
+                        <button type="button" class="flavor-arrow-btn" data-flavor-prev aria-label="Previous flavor">‹</button>
+                        <button type="button" class="flavor-arrow-btn" data-flavor-next aria-label="Next flavor">›</button>
+                        <a href="{{ path('app_menu') }}" class="flavor-full-menu-link">See every drink ↗</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: ORBITAL RING + ROTATING CUP SHOWCASE -->
+            <div class="flavor-orbit-stage" data-flavor-orbit>
+                <div class="flavor-orbit-glow" aria-hidden="true"></div>
+                <div class="flavor-orbit-ring" aria-hidden="true"></div>
+                <div class="flavor-orbit-wheel" data-orbit-wheel>
+                    {% for flavor in orbitFlavors %}
+                        {% set angle = loop.index0 * (360 / orbitFlavors|length) %}
+                        <button type="button"
+                                class="flavor-orbit-node{% if loop.first %} is-active{% endif %}"
+                                data-flavor-index="{{ loop.index0 }}"
+                                style="--node-angle: {{ angle }}deg; --node-color: {{ flavor.color }};"
+                                aria-pressed="{{ loop.first ? 'true' : 'false' }}">
+                            {{ flavor.short }}
+                        </button>
+                    {% endfor %}
+                </div>
+
+                <div class="flavor-cup-stack">
+                    {% for flavor in orbitFlavors %}
+                        <img class="flavor-cup-slide{% if loop.first %} is-active{% endif %}"
+                             src="{{ asset(flavor.image) }}"
+                             alt="{{ flavor.name }}"
+                             draggable="false"
+                             data-flavor-slide="{{ loop.index0 }}">
+                    {% endfor %}
+                </div>
+            </div>
 
         </div>
-
     </div>
 
+    <script type="application/json" data-orbit-flavors>{{ orbitFlavors|json_encode|raw }}</script>
 </section>
 
 <!-- ===================================================== -->
@@ -693,12 +1562,12 @@
             <span class="section-eyebrow">YOUR ORDER</span>
             <h3>Ready when you are<span>.</span></h3>
         </div>
-        <button class="tray-close" type="button" aria-label="Close order">Ã—</button>
+        <button class="tray-close" type="button" aria-label="Close order">×</button>
     </div>
     <div class="order-items" id="orderItems">
         <p class="empty-order">Your tray is waiting for its first cup.</p>
     </div>
-    <div class="order-total"><span>Total</span><strong id="orderTotal">â‚±0</strong></div>
+    <div class="order-total"><span>Total</span><strong id="orderTotal">₱0</strong></div>
     <form class="order-form" id="orderForm">
         <input type="text" name="customer" placeholder="Your name" required>
         <select name="pickup" aria-label="Pickup time">
@@ -706,7 +1575,7 @@
             <option>Pick up in 30 minutes</option>
             <option>Pick up in 45 minutes</option>
         </select>
-        <button class="btn-primary-custom" type="submit">SUBMIT ORDER <span>â†’</span></button>
+        <button class="btn-primary-custom" type="submit">SUBMIT ORDER <span>→</span></button>
         <p class="form-status" id="orderStatus" role="status"></p>
     </form>
 </aside>
@@ -728,7 +1597,7 @@
             <div class="col-lg-6">
                 <div class="section-eyebrow reveal">YOUR TABLE, YOUR MOMENT</div>
                 <h2 class="section-title reveal">Book <span>the bar.</span></h2>
-                <p class="section-description reveal">Bring your favorite people, settle in, and make the bar yours for a while. Reserve a date and weâ€™ll keep a cozy corner ready.</p>
+                <p class="section-description reveal">Bring your favorite people, settle in, and make the bar yours for a while. Reserve a date and we’ll keep a cozy corner ready.</p>
                 <form class="booking-form reveal" id="bookingForm">
                     <div class="booking-fields">
                         <label>Date <input type="date" id="bookingDate" required></label>
@@ -739,7 +1608,7 @@
                         <button type="button" class="time-slot">6:30 PM</button>
                         <button type="button" class="time-slot">8:00 PM</button>
                     </div>
-                    <button class="btn-primary-custom" type="submit">REQUEST RESERVATION <span>â†’</span></button>
+                    <button class="btn-primary-custom" type="submit">REQUEST RESERVATION <span>→</span></button>
                     <p class="form-status" id="bookingStatus" role="status"></p>
                 </form>
             </div>
@@ -753,87 +1622,72 @@
 <!-- ===================================================== -->
 
 <section class="visit-section section-padding" id="visit">
-
     <div class="container-xxl px-4">
-
-        <div class="row align-items-center g-5">
-
-            <div class="col-lg-5">
-
-                <div class="section-eyebrow reveal">
-                    COME SAY HELLO
-                </div>
-
-                <h2 class="section-title reveal">
-
-                    Your next cup
-
-                    <br>
-
-                    is <span>waiting.</span>
-
-                </h2>
-
-                <p class="section-description reveal">
-
-                    Looking for your next coffee spot?
-                    Visit us and enjoy your favorite drinks
-                    at Every Cup.
-
-                </p>
-
-
-                <div class="visit-details reveal">
-
-                    <div class="visit-detail-icon">
-                        <span>âŒ–</span>
-                    </div>
-
-                    <div>
-
-                        <h4>OUR LOCATION</h4>
-
-                        <p>
-                            {{ location }}
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <a href="https://www.google.com/maps/search/?api=1&query=G.+Tolentino+Street+Sampaloc+Manila"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="btn-primary-custom visit-button">
-
-                    GET DIRECTIONS
-
-                    <span>â†—</span>
-
-                </a>
-
-            </div>
-
-
-            <div class="col-lg-7">
-
-                <div class="map-wrapper reveal">
-                    <iframe
-                        src="https://www.google.com/maps?q=G.%20Tolentino%20Street%2C%20Sampaloc%2C%20Manila%2C%20Philippines&output=embed"
-                        width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade" title="Every Cup location map">
-                    </iframe>
-                    <div class="map-caption"><span>FIND YOUR WAY TO EVERY CUP.</span><strong>G. TOLENTINO, MANILA</strong></div>
-                </div>
-
-            </div>
-
+        <div class="visit-overview-heading">
+            <span class="section-eyebrow">COME SAY HELLO</span>
+            <h2 class="visit-overview-title">Your next cup<br>is <span>waiting.</span></h2>
+            <p>Take a peek inside, then come find us on G. Tolentino Street.</p>
         </div>
 
-    </div>
+        <div class="home-visit-grid">
+            <a class="visit-preview-frame" href="{{ path('app_visit') }}" aria-label="Explore the Every Cup Visit Us page">
+                <div class="visit-browser-bar" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                    <div>everycup.ph / visit-us</div>
+                </div>
+                <div class="visit-preview-screen">
+                    <img src="{{ asset('images/visit/1.png') }}" alt="Every Cup storefront on G. Tolentino Street" loading="lazy">
+                    <div class="visit-screen-shade"></div>
+                    <div class="visit-screen-brand"><span class="visit-sun-mark">☼</span><span>every cup.<small>YOUR NEIGHBORHOOD COFFEE STOP</small></span></div>
+                    <div class="visit-screen-address"><span class="visit-pin-icon">⌖</span><span>1125 G. Tolentino St.</span></div>
+                    <div class="visit-pulse-pin" aria-hidden="true"><i></i><b>⌖</b></div>
+                    <div class="visit-screen-caption"><span>YOUR TABLE IS WAITING</span><strong>Walk in.<br>Stay awhile.</strong></div>
+                    <span class="visit-screen-cta">EXPLORE THE CAFE <b>↗</b></span>
+                </div>
+                <span class="visit-frame-glint" aria-hidden="true"></span>
+            </a>
 
+            <div class="visit-info-stack">
+                <article class="visit-info-card visit-address-card">
+                    <span class="visit-info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.8"/></svg></span>
+                    <div><span class="visit-info-label">ADDRESS</span><h3>1125 G. Tolentino St.</h3><p>Sampaloc, Manila</p></div>
+                </article>
+                <article class="visit-info-card visit-hours-card">
+                    <span class="visit-info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <div><span class="visit-info-label">HOURS</span><h3>11:00 AM – 11:00 PM</h3><p>Monday to Sunday</p><span class="visit-open-status is-closed" id="visitOpenStatus" aria-live="polite"><i></i><span>Closed right now, opens at 11:00 AM</span></span></div>
+                </article>
+                <div class="visit-info-actions">
+                    <a class="visit-directions-link" href="https://www.google.com/maps/search/?api=1&amp;query=1125+G.+Tolentino+St.+Sampaloc+Manila" target="_blank" rel="noopener noreferrer">GET DIRECTIONS <span>↗</span></a>
+                    <a class="visit-page-link" href="{{ path('app_visit') }}">Explore Visit Us <span>→</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const status = document.getElementById('visitOpenStatus');
+    if (!status) return;
+    const updateHours = () => {
+        const parts = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date());
+        const hour = Number(parts.find(part => part.type === 'hour').value);
+        const minute = Number(parts.find(part => part.type === 'minute').value);
+        const now = hour * 60 + minute;
+        const open = 11 * 60;
+        const close = 23 * 60;
+        const message = status.querySelector('span');
+        const isOpen = now >= open && now < close;
+        status.classList.toggle('is-open', isOpen);
+        status.classList.toggle('is-closed', !isOpen);
+        message.textContent = isOpen ? 'Open right now, closes at 11:00 PM' : 'Closed right now, opens at 11:00 AM';
+    };
+    updateHours();
+    window.setInterval(updateHours, 60000);
+});
+</script>
 
 
 <!-- ===================================================== -->
@@ -852,11 +1706,6 @@
                 Make today<br>
                 a little more <em>special.</em>
             </h2>
-
-            <a href="#menu" class="final-cta-button">
-                FIND YOUR EVERY CUP
-                <span>â†—</span>
-            </a>
 
         </div>
 
@@ -1038,19 +1887,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const orderItems = document.getElementById('orderItems');
     const orderTotal = document.getElementById('orderTotal');
     const order = {};
-    const peso = value => 'â‚±' + Number(value).toLocaleString('en-PH');
+    const peso = value => '₱' + Number(value).toLocaleString('en-PH');
 
     function renderOrder() {
         const entries = Object.values(order);
         if (!entries.length) {
             orderItems.innerHTML = '<p class="empty-order">Your tray is waiting for its first cup.</p>';
-            orderTotal.textContent = 'â‚±0';
+            orderTotal.textContent = '₱0';
             return;
         }
         let total = 0;
         orderItems.innerHTML = entries.map(item => {
             total += item.price * item.qty;
-            return `<div class="order-line"><strong>${item.name}</strong><div class="qty-control"><button type="button" data-change="-1" data-item="${item.name}">âˆ’</button><span>${item.qty}</span><button type="button" data-change="1" data-item="${item.name}">+</button></div><span>${peso(item.price * item.qty)}</span></div>`;
+            return `<div class="order-line"><strong>${item.name}</strong><div class="qty-control"><button type="button" data-change="-1" data-item="${item.name}">−</button><span>${item.qty}</span><button type="button" data-change="1" data-item="${item.name}">+</button></div><span>${peso(item.price * item.qty)}</span></div>`;
         }).join('');
         orderTotal.textContent = peso(total);
         orderItems.querySelectorAll('[data-change]').forEach(button => button.addEventListener('click', function () {
@@ -1073,7 +1922,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('orderForm')?.addEventListener('submit', function (event) {
         event.preventDefault();
         if (!Object.keys(order).length) return;
-        document.getElementById('orderStatus').textContent = 'Order received â€” weâ€™ll have it ready for you.';
+        document.getElementById('orderStatus').textContent = 'Order received — we’ll have it ready for you.';
         this.reset();
     });
 
@@ -1089,7 +1938,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('bookingForm')?.addEventListener('submit', function (event) {
         event.preventDefault();
         const date = new Date(dateInput.value + 'T12:00:00');
-        document.getElementById('bookingStatus').textContent = `Lovely â€” your ${date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} bar request is on its way.`;
+        document.getElementById('bookingStatus').textContent = `Lovely — your ${date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} bar request is on its way.`;
     });
 
 
@@ -1269,41 +2118,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (stage) {
 
-        const stream = $('.espresso-stream-svg', stage), tint = $('.choco-tint', stage), pool = $('.choco-pool', stage);
-        const mound = $('.choco-mound', stage), plumes = $$('.choco-plume', stage);
-        const ripples = $$('.choco-ripple', stage), drops = $$('.choco-drop', stage);
+        stage.classList.add('rc-gsap');
 
-        gsap.set(stream, { clipPath: 'inset(0% 0% 100% 0%)' });
-        gsap.set(tint,   { '--mix': 0 });
-        gsap.set(pool,   { opacity: 0, width: '12%' });
-        gsap.set(mound,  { opacity: 0, transformOrigin: '50% 100%' });
-        gsap.set(plumes, { opacity: 0, y: -70, scaleY: 0.3, transformOrigin: '50% 0%' });
+        const HIDE = -245, SHOW = -105;
+        const stream = $$('.rc-stream', stage), coffee = $('.rc-coffee', stage), tints = $$('.rc-cube-tint', stage);
+        const plumes = $$('.rc-plume', stage), ripples = $$('.rc-ripple', stage), drops = $$('.rc-drop', stage);
+        const mound = $('.rc-mound', stage), bobs = $$('.rc-cube-bob', stage);
+
+        gsap.set(stream,  { strokeDasharray: '1 1', strokeDashoffset: 1 });
+        gsap.set(coffee,  { y: HIDE, opacity: 1 });
+        gsap.set(tints,   { opacity: 0 });
+        gsap.set(mound,   { opacity: 0, transformOrigin: '50% 100%' });
+        gsap.set(plumes,  { opacity: 0, transformOrigin: '50% 0%' });
         gsap.set([ripples, drops], { opacity: 0 });
 
         const pour = gsap.timeline({ paused: true });
 
-        pour.to(stream, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.62, ease: 'power2.in' }, 0)      // head falls
-            .to(mound,  { opacity: 1, duration: 0.15 }, 0.62)
-            .fromTo(mound, { scaleX: 0.86, scaleY: 0.8 }, { scaleX: 1.14, scaleY: 1.18, duration: 0.16, repeat: 12, yoyo: true, ease: 'sine.inOut' }, 0.7)
-            .to(pool,   { opacity: 0.85, width: '100%', duration: 2.4, ease: 'power3.out' }, 0.8)
-            .to(tint,   { '--mix': 1, duration: 5.2, ease: 'power2.inOut' }, 0.9)                        // milk turns to chocolate
-            .to(stream, { clipPath: 'inset(100% 0% 0% 0%)', duration: 0.75, ease: 'power2.in' }, 2.25)  // tail leaves
-            .to(mound,  { opacity: 0, duration: 0.4 }, 2.5);
+        pour.fromTo(stream, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.6, ease: 'power2.in' }, 0)      // head falls
+            .to(mound, { opacity: 1, duration: 0.12 }, 0.6)
+            .fromTo(mound, { scaleX: 0.86, scaleY: 0.8 }, { scaleX: 1.14, scaleY: 1.2, duration: 0.16, repeat: 12, yoyo: true, ease: 'sine.inOut' }, 0.62)
+            .fromTo(coffee, { y: HIDE, opacity: 1 }, { y: SHOW, duration: 4.6, ease: 'power2.inOut' }, 0.7)               // coffee layers into the milk
+            .to(tints, { opacity: 0.4, duration: 3.2, ease: 'power1.inOut' }, 1)                                          // ice picks up the colour
+            .to(stream, { strokeDashoffset: -1, duration: 0.75, ease: 'power2.in' }, 2.35)                               // tail leaves
+            .to(mound, { opacity: 0, duration: 0.4 }, 2.6);
+
+        bobs.forEach(function (c, i) {
+            pour.fromTo(c, { y: 0, rotation: 0 }, { y: 2.5 + i, rotation: i % 2 ? 4 : -4, duration: 1.1, repeat: 1, yoyo: true, ease: 'sine.inOut', svgOrigin: '0 0' }, 0.7 + i * 0.1);
+        });
 
         plumes.forEach(function (p, i) {
             const at = 0.75 + [0, 0.2, 0.45, 0.3][i];
-            pour.to(p, { opacity: 1, duration: 0.5 }, at)
-                .to(p, { y: 30, scaleY: 1, x: 6, duration: 2.2, ease: 'power1.out' }, at)
-                .to(p, { opacity: 0, y: 95, scaleY: 1.15, x: -5, duration: 1.6, ease: 'power1.in' }, at + 2.2);
+            pour.fromTo(p, { opacity: 0, y: -20, scaleY: 0.3 }, { opacity: 0.85, y: 16, scaleY: 1, duration: 1.6, ease: 'power1.out' }, at)
+                .to(p, { opacity: 0, y: 70, scaleY: 1.2, duration: 1.8, ease: 'power1.in' }, at + 1.6);
         });
 
         ripples.forEach(function (r, i) {
-            pour.fromTo(r, { opacity: 0.85, scaleX: 0.25, scaleY: 0.25 },
-                { opacity: 0, scaleX: 2.3, scaleY: 1.9, duration: 1.05, ease: 'power2.out', repeat: 2 }, 0.78 + i * 0.17);
+            pour.fromTo(r, { opacity: 0.85, scaleX: 0.3, scaleY: 0.3 },
+                { opacity: 0, scaleX: 2.6, scaleY: 2.1, duration: 1.05, ease: 'power2.out', repeat: 2 }, 0.65 + i * 0.17);
         });
 
         drops.forEach(function (d, i) {
-            const dx = parseFloat(getComputedStyle(d).getPropertyValue('--dx')), h = parseFloat(getComputedStyle(d).getPropertyValue('--h'));
+            const dx = parseFloat(d.getAttribute('data-dx')), h = parseFloat(d.getAttribute('data-h'));
             pour.add(
                 gsap.timeline({ repeat: 3, repeatRefresh: true })
                     .set(d, { x: 0, y: 0, opacity: 1 })
@@ -1311,15 +2166,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     .to(d, { y: h, duration: 0.31, ease: 'power2.out' }, 0)
                     .to(d, { y: 2, duration: 0.33, ease: 'power2.in' }, 0.31)
                     .to(d, { opacity: 0, duration: 0.05 }, 0.59),
-                0.8 + i * 0.12);
+                0.65 + i * 0.12);
         });
 
         let hovering = false, busy = false, back;
 
         const settle = function () {
-            back = gsap.timeline({ onComplete: function () { busy = false; } })
-                .to(tint, { '--mix': 0, duration: 1.6, ease: 'power2.inOut' }, 0)
-                .to(pool, { opacity: 0, width: '12%', duration: 1, ease: 'power1.in' }, 0);
+            back = gsap.timeline({ onComplete: function () { gsap.set(coffee, { y: HIDE, opacity: 1 }); busy = false; } })
+                .to(coffee, { opacity: 0, duration: 1.6, ease: 'power2.inOut' }, 0)
+                .to(tints,  { opacity: 0, duration: 1.6, ease: 'power2.inOut' }, 0);
         };
 
         pour.eventCallback('onComplete', function () { if (!hovering) settle(); });
@@ -1373,5 +2228,491 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 
+
+<!-- ===================================================== -->
+<!-- HERO 3D CUP: THREE.JS + GSAP SCROLLTRIGGER -->
+<!-- ===================================================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =========================================================
+   HERO 3D CUP — Three.js + GSAP ScrollTrigger
+   A real-looking Every Cup plastic cup (mango-cream milk, ice, printed logo).
+   Hover = coffee pour. Scroll = the cup turns. Falls back to the SVG cup if WebGL/Three is missing.
+========================================================= */
+(function () {
+    'use strict';
+
+    const stage  = document.getElementById('heroCupStage');
+    const canvas = document.getElementById('heroCup3D');
+    if (!stage) return;
+
+    /* keep the artwork box scaled to whatever size the stage is */
+    function fit() {
+        const s = Math.min(1, stage.clientWidth / 460, stage.clientHeight / 390);
+        stage.style.setProperty('--rc-s', s.toFixed(3));
+    }
+    fit();
+    window.addEventListener('resize', fit, { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+
+    if (!canvas || !window.THREE) return;
+    const THREE = window.THREE;
+    const hasGSAP = !!window.gsap;
+    const reduce  = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    try { init(); }
+    catch (err) { console.warn('3D cup unavailable, keeping the SVG cup.', err); stage.classList.remove('rc-3d'); }
+
+    function init() {
+
+        /* ---------- renderer / camera: 100 css px = 1 unit at the cup ---------- */
+        const W = 460, H = 590;
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(W, H, false);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.setClearColor(0x000000, 0);
+
+        const scene  = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(14, W / H, 1, 100);
+        camera.position.set(0, 0, 24.03);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+        const key = new THREE.DirectionalLight(0xffffff, 1.5);  key.position.set(-3, 5, 6);  scene.add(key);
+        const rim = new THREE.DirectionalLight(0xfff3dc, 0.5);  rim.position.set(4, 1, 4);   scene.add(rim);
+
+        const srgb = function (hex) { return new THREE.Color(hex).convertSRGBToLinear(); };
+        const clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+
+        /* ---------- cup profile (r, y) — wide flared cup with a rolled lip, like the photo ---------- */
+        const OUTER = [[0,0],[.52,0],[.555,.025],[.565,.08],[.60,.4],[.68,1.0],[.76,1.6],[.82,2.1],[.855,2.42],[.90,2.47],[.935,2.50],[.92,2.525],[.885,2.505]];
+        const MILK  = [[0,.06],[.50,.06],[.53,.085],[.54,.14],[.575,.4],[.655,1.0],[.735,1.6],[.795,2.1],[.823,2.36]];
+        const TOP = 2.36, TILT = 0.26;
+        const toV2 = function (arr) { return arr.map(function (p) { return new THREE.Vector2(p[0], p[1]); }); };
+        function outerR(y) {
+            for (let i = 0; i < OUTER.length - 1; i++) {
+                const a = OUTER[i], b = OUTER[i + 1];
+                if (y >= a[1] && y <= b[1] && b[1] > a[1]) return a[0] + (b[0] - a[0]) * ((y - a[1]) / (b[1] - a[1]));
+            }
+            return .8;
+        }
+
+        /* ---------- shared uniforms ---------- */
+        const uPour = { value: 0 }, uFade = { value: 1 };
+
+        /* ---------- creamy milk (custom shader: soft edge falloff, mango pulp, coffee layer) ---------- */
+        const milkVert = `
+            uniform float uTop;
+            varying vec3 vN; varying vec2 vUv; varying float vH; varying vec3 vP;
+            void main() {
+                vUv = uv; vP = position; vH = position.y / uTop;
+                vN = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }`;
+        const milkFrag = `
+            uniform vec3 uMilk, uMilkEdge, uMilkLow, uCapColor, uPulp, uCoffeeLight, uCoffeeDark;
+            uniform float uPour, uFade, uCap;
+            varying vec3 vN; varying vec2 vUv; varying float vH; varying vec3 vP;
+            float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+            float noise(vec2 p) {
+                vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+                return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+            }
+            void main() {
+                vec3 N = normalize(vN);
+                if (!gl_FrontFacing) N = -N;
+                float ndv = clamp(N.z, 0.0, 1.0);
+                float h = vH;
+                vec3 col;
+                float w;
+                if (uCap > 0.5) {
+                    h = 1.0;
+                    col = uCapColor * (0.95 + 0.07 * noise(vP.xz * 9.0));
+                    float r = length(vP.xz) / 0.82;
+                    w = smoothstep(0.0, 1.0, clamp(uPour * 3.2 - r * 1.3 + (noise(vP.xz * 5.0) - 0.5) * 0.7, 0.0, 1.0));
+                } else {
+                    float edge = pow(1.0 - ndv, 1.5);
+                    col = mix(uMilk, uMilkEdge, edge * 0.85);
+                    col = mix(uMilkLow, col, smoothstep(0.0, 0.5, h));
+                    vec2 p = vec2(vUv.x * 18.0, h * 11.0);
+                    vec2 c = floor(p), f = fract(p);
+                    float rr = hash(c);
+                    float d = length(f - vec2(hash(c + 7.3), hash(c + 3.1)));
+                    float pulp = step(0.90 - 0.07 * (1.0 - h), rr) * smoothstep(0.30, 0.08, d);
+                    col = mix(col, uPulp, pulp * 0.55);
+                    col *= 1.0 + 0.10 * (-N.x);
+                    float lvl = mix(1.04, 0.40, uPour);
+                    float wob = (noise(vec2(vUv.x * 6.0 + uPour * 2.0, h * 5.0)) - 0.5) * 0.22 * sin(uPour * 3.14159);
+                    w = smoothstep(lvl - 0.10, lvl + 0.10, h + wob);
+                }
+                float depth = (uCap > 0.5) ? 1.0 : clamp((h - mix(1.04, 0.40, uPour)) / 0.66, 0.0, 1.0);
+                vec3 cof = mix(uCoffeeLight, uCoffeeDark, smoothstep(0.0, 0.7, depth));
+                w *= uFade;
+                col = mix(col, cof, w * 0.96);
+                vec3 L = normalize(vec3(-0.45, 0.65, 0.62));
+                float spec = pow(max(dot(N, normalize(L + vec3(0.0, 0.0, 1.0))), 0.0), 48.0) * 0.30;
+                col += spec * (1.0 - w * 0.5);
+                gl_FragColor = vec4(col, 1.0);
+                #include <encodings_fragment>
+            }`;
+        function milkMaterial(cap) {
+            return new THREE.ShaderMaterial({
+                vertexShader: milkVert, fragmentShader: milkFrag, side: THREE.DoubleSide,
+                uniforms: {
+                    uTop: { value: TOP }, uCap: { value: cap ? 1 : 0 }, uPour: uPour, uFade: uFade,
+                    uMilk:     { value: srgb('#f3e5a3') }, uMilkEdge: { value: srgb('#d6c06c') }, uMilkLow: { value: srgb('#dcc46a') },
+                    uCapColor: { value: srgb('#f7efc8') }, uPulp:     { value: srgb('#d99a1e') },
+                    uCoffeeLight: { value: srgb('#a47852') }, uCoffeeDark: { value: srgb('#25120a') }
+                }
+            });
+        }
+
+        /* ---------- thin clear plastic: only reflections show (edge glow + soft vertical streaks) ---------- */
+        const shellMat = new THREE.ShaderMaterial({
+            transparent: true, depthWrite: false, side: THREE.DoubleSide,
+            vertexShader: `varying vec3 vN; varying float vY;
+                void main() { vN = normalize(normalMatrix * normal); vY = position.y;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+            fragmentShader: `varying vec3 vN; varying float vY;
+                void main() {
+                    vec3 N = normalize(vN); if (!gl_FrontFacing) N = -N;
+                    float ndv = clamp(N.z, 0.0, 1.0);
+                    float fres = pow(1.0 - ndv, 2.6);
+                    float sx = -N.x;
+                    float s1 = smoothstep(0.50, 0.70, sx) * (1.0 - smoothstep(0.72, 0.90, sx));
+                    float s2 = smoothstep(0.45, 0.62, N.x) * (1.0 - smoothstep(0.66, 0.85, N.x));
+                    float a = 0.035 + fres * 0.55 + s1 * 0.55 + s2 * 0.22;
+                    a *= mix(0.6, 1.0, smoothstep(0.0, 2.5, vY));
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, clamp(a, 0.0, 0.9));
+                }`
+        });
+
+        /* ---------- scene graph ---------- */
+        const ROOT_Y = -2.5;
+        const root  = new THREE.Group(); root.position.set(0.32, ROOT_Y, 0); scene.add(root);
+        const intro = new THREE.Group(); root.add(intro);
+        const par   = new THREE.Group(); intro.add(par);
+        const tilt  = new THREE.Group(); tilt.rotation.x = TILT; par.add(tilt);
+        const spin  = new THREE.Group(); tilt.add(spin);
+
+        const shell = new THREE.Mesh(new THREE.LatheGeometry(toV2(OUTER), 96), shellMat); shell.renderOrder = 5; spin.add(shell);
+        const milk  = new THREE.Mesh(new THREE.LatheGeometry(toV2(MILK), 96), milkMaterial(false)); spin.add(milk);
+        const capGeo = new THREE.CircleGeometry(0.823, 64); capGeo.rotateX(-Math.PI / 2);
+        const cap = new THREE.Mesh(capGeo, milkMaterial(true)); cap.position.y = TOP; spin.add(cap);
+
+        /* printed logo (front + back), drawn on a canvas, wrapped on the cup wall */
+        const logoCanvas = document.createElement('canvas'); logoCanvas.width = 1024; logoCanvas.height = 808;
+        const logoTex = new THREE.CanvasTexture(logoCanvas);
+        logoTex.encoding = THREE.sRGBEncoding; logoTex.anisotropy = 8;
+        function drawLogo() {
+            const g = logoCanvas.getContext('2d');
+            g.clearRect(0, 0, logoCanvas.width, logoCanvas.height);
+            g.fillStyle = '#14110d'; g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+            const fam = "'Plus Jakarta Sans', 'Helvetica Neue', Arial, sans-serif";
+            let fs = 260; g.font = '800 ' + fs + 'px ' + fam;
+            fs *= (logoCanvas.width * 0.70) / g.measureText('every').width;
+            g.font = '800 ' + fs + 'px ' + fam;
+            const x = logoCanvas.width * 0.15, y = logoCanvas.height * 0.46;
+            g.fillText('every', x, y); g.fillText('cup', x, y + fs * 0.9);
+            logoTex.needsUpdate = true;
+        }
+        drawLogo();
+        if (document.fonts && document.fonts.load) document.fonts.load('800 100px "Plus Jakarta Sans"').then(drawLogo).catch(function () {});
+
+        const ARC = 1.9, decalPts = [];
+        for (let k = 0; k <= 10; k++) { const y = 0.55 + k * 0.105; decalPts.push(new THREE.Vector2(outerR(y) + 0.012, y)); }
+        const decalGeo = new THREE.LatheGeometry(decalPts, 48, -ARC / 2, ARC);
+        const decalMat = new THREE.MeshBasicMaterial({ map: logoTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+        const decalF = new THREE.Mesh(decalGeo, decalMat); decalF.renderOrder = 3; spin.add(decalF);
+        const decalB = new THREE.Mesh(decalGeo, decalMat); decalB.rotation.y = Math.PI; decalB.renderOrder = 3; spin.add(decalB);
+
+        /* ice cubes floating at the top */
+        function roundedCube(s, rad) {
+            const g = new THREE.BoxGeometry(1, 1, 1, 8, 8, 8), p = g.attributes.position, lim = 0.5 - rad;
+            const v = new THREE.Vector3(), inner = new THREE.Vector3(), d = new THREE.Vector3();
+            for (let i = 0; i < p.count; i++) {
+                v.fromBufferAttribute(p, i);
+                inner.set(clamp(v.x, -lim, lim), clamp(v.y, -lim, lim), clamp(v.z, -lim, lim));
+                d.copy(v).sub(inner);
+                if (d.lengthSq() > 0) { d.normalize().multiplyScalar(rad); v.copy(inner).add(d); }
+                p.setXYZ(i, v.x * s, v.y * s, v.z * s);
+            }
+            g.computeVertexNormals();
+            return g;
+        }
+        const iceMat = new THREE.MeshPhysicalMaterial({ color: 0xeaf6fb, roughness: 0.12, metalness: 0, transparent: true, opacity: 0.58, clearcoat: 1, clearcoatRoughness: 0.1 });
+        const ICE = [[-0.28, 2.34, 0.02, 0.52, 0.4, 0.6, 0.2], [0.30, 2.37, -0.08, 0.56, -0.3, 0.2, 0.5], [0.02, 2.32, 0.30, 0.50, 0.2, -0.5, 0.1], [-0.10, 2.34, -0.34, 0.46, 0.5, 0.3, -0.3]];
+        const cubes = ICE.map(function (c) {
+            const m = new THREE.Mesh(roundedCube(c[3], 0.16), iceMat);
+            m.position.set(c[0], c[1], c[2]); m.rotation.set(c[4], c[5], c[6]); m.renderOrder = 4; spin.add(m);
+            return m;
+        });
+
+        /* pour pieces: stream (world, straight down), ripples + droplets on the surface */
+        const STREAM_H = 3.2;
+        const streamGeo = new THREE.CylinderGeometry(0.03, 0.026, STREAM_H, 14, 1, true); streamGeo.translate(0, -STREAM_H / 2, 0);
+        const stream = new THREE.Mesh(streamGeo, new THREE.MeshStandardMaterial({ color: 0x2b1409, roughness: 0.18, metalness: 0 }));
+        stream.visible = false; stream.renderOrder = 6; root.add(stream);
+
+        const topAnchor = new THREE.Object3D(); topAnchor.position.set(0, TOP, 0); spin.add(topAnchor);
+        const SURF_Y = TOP * Math.cos(TILT), HI = SURF_Y + 3.0;
+        const fx = { top: HI, bot: HI };
+        const tmp = new THREE.Vector3();
+        function updateStream() {
+            const len = fx.top - fx.bot;
+            stream.visible = len > 0.002;
+            stream.scale.y = Math.max(len, 0.0001) / STREAM_H;
+            stream.position.y = fx.top;
+        }
+        function syncStream() {
+            root.updateMatrixWorld(true);
+            topAnchor.getWorldPosition(tmp); root.worldToLocal(tmp);
+            stream.position.x = tmp.x; stream.position.z = tmp.z;
+        }
+
+        const ripples = [0x3a1c0d, 0xffffff].map(function (col) {
+            const g = new THREE.RingGeometry(0.1, 0.125, 48); g.rotateX(-Math.PI / 2);
+            const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
+            m.position.y = TOP + 0.006; m.renderOrder = 7; spin.add(m); return m;
+        });
+        const DROPS = [[-16, 20], [14, 24], [-8, 30], [21, 17], [4, 34]];
+        const drops = DROPS.map(function () {
+            const m = new THREE.Mesh(new THREE.SphereGeometry(0.028, 10, 8), new THREE.MeshStandardMaterial({ color: 0x3a1c0d, roughness: 0.25 }));
+            m.position.set(0, TOP + 0.02, 0); m.visible = false; m.renderOrder = 7; spin.add(m); return m;
+        });
+
+        /* ---------- render loop (only while the hero is on screen) ---------- */
+        let running = false;
+        function frame() {
+            if (!running) return;
+            syncStream();
+            renderer.render(scene, camera);
+            requestAnimationFrame(frame);
+        }
+        function start() { if (!running) { running = true; frame(); } }
+        if (window.IntersectionObserver) {
+            new IntersectionObserver(function (es) { if (es[0].isIntersecting) start(); else running = false; }, { rootMargin: '120px' }).observe(stage);
+        }
+        updateStream(); start();
+        stage.classList.add('rc-3d');
+
+        if (!hasGSAP) return;
+        if (window.ScrollTrigger) gsap.registerPlugin(window.ScrollTrigger);
+
+        /* ---------- intro ---------- */
+        if (!reduce) {
+            gsap.from(intro.rotation, { y: -1.3, duration: 1.5, ease: 'power3.out' });
+            gsap.from(canvas, { opacity: 0, duration: 0.9, ease: 'power1.out' });
+        }
+
+        /* ---------- scroll: the cup turns and drifts as the hero leaves ---------- */
+        if (window.ScrollTrigger && !reduce) {
+            gsap.timeline({ scrollTrigger: { trigger: document.querySelector('.hero-section') || stage, start: 'top top', end: 'bottom top', scrub: 0.8 } })
+                .to(spin.rotation, { y: -Math.PI * 1.1, ease: 'none' }, 0)
+                .to(root.position, { y: ROOT_Y - 0.35, ease: 'none' }, 0)
+                .to(root.scale, { x: 0.92, y: 0.92, z: 0.92, ease: 'none' }, 0);
+        }
+
+        /* ---------- cursor: the cup follows the pointer a little ---------- */
+        if (window.matchMedia('(hover: hover)').matches && !reduce) {
+            const area = document.querySelector('.hero-visual') || stage;
+            const ry = gsap.quickTo(par.rotation, 'y', { duration: 0.7, ease: 'power3' });
+            const rx = gsap.quickTo(par.rotation, 'x', { duration: 0.7, ease: 'power3' });
+            area.addEventListener('pointermove', function (e) {
+                const b = stage.getBoundingClientRect();
+                ry(clamp(((e.clientX - b.left) / b.width - 0.5) * 2, -1.5, 1.5) * 0.22);
+                rx(clamp(((e.clientY - b.top) / b.height - 0.5) * 2, -1.5, 1.5) * 0.05);
+            });
+            area.addEventListener('pointerleave', function () { ry(0); rx(0); });
+        }
+
+        /* ---------- hover: coffee pours in and layers through the milk ---------- */
+        const iceBrown = srgb('#c99a6c'), iceClear = new THREE.Color(0xeaf6fb);
+        const pour = gsap.timeline({ paused: true });
+        pour.set(fx, { top: HI, bot: HI }, 0)
+            .set(uFade, { value: 1 }, 0)
+            .set(uPour, { value: 0 }, 0)
+            .to(fx, { bot: SURF_Y, duration: 0.6, ease: 'power2.in', onUpdate: updateStream }, 0)       // head falls
+            .to(uPour, { value: 1, duration: 4.6, ease: 'power2.inOut' }, 0.7)                           // coffee blooms down
+            .to(iceMat.color, { r: iceBrown.r, g: iceBrown.g, b: iceBrown.b, duration: 3.2, ease: 'power1.inOut' }, 1)
+            .to(fx, { top: SURF_Y, duration: 0.75, ease: 'power2.in', onUpdate: updateStream }, 2.35);   // tail leaves
+
+        cubes.forEach(function (c, i) {
+            pour.fromTo(c.position, { y: ICE[i][1] }, { y: ICE[i][1] - 0.03 - i * 0.01, duration: 1.1, repeat: 1, yoyo: true, ease: 'sine.inOut' }, 0.7 + i * 0.1);
+        });
+        ripples.forEach(function (r, i) {
+            pour.fromTo(r.scale, { x: 0.3, z: 0.3 }, { x: 2.6, z: 2.6, duration: 1.05, ease: 'power2.out', repeat: 2 }, 0.65 + i * 0.17)
+                .fromTo(r.material, { opacity: 0.85 }, { opacity: 0, duration: 1.05, ease: 'power2.out', repeat: 2 }, 0.65 + i * 0.17);
+        });
+        drops.forEach(function (d, i) {
+            const dx = DROPS[i][0] / 100, h = DROPS[i][1] / 100;
+            pour.add(
+                gsap.timeline({ repeat: 3 })
+                    .set(d, { visible: true })
+                    .set(d.position, { x: 0, y: TOP + 0.02 })
+                    .to(d.position, { x: dx * 1.1, duration: 0.64, ease: 'none' }, 0)
+                    .to(d.position, { y: TOP + 0.02 + h, duration: 0.31, ease: 'power2.out' }, 0)
+                    .to(d.position, { y: TOP + 0.02, duration: 0.33, ease: 'power2.in' }, 0.31)
+                    .set(d, { visible: false }, 0.62),
+                0.65 + i * 0.12);
+        });
+
+        let hovering = false, busy = false, back;
+        const settle = function () {
+            back = gsap.timeline({ onComplete: function () { uPour.value = 0; uFade.value = 1; busy = false; } })
+                .to(uFade, { value: 0, duration: 1.6, ease: 'power2.inOut' }, 0)
+                .to(iceMat.color, { r: iceClear.r, g: iceClear.g, b: iceClear.b, duration: 1.6, ease: 'power2.inOut' }, 0);
+        };
+        pour.eventCallback('onComplete', function () { if (!hovering) settle(); });
+        stage.addEventListener('pointerenter', function () {
+            hovering = true;
+            if (busy && pour.isActive()) return;
+            if (back) back.kill();
+            busy = true; pour.restart();
+        });
+        stage.addEventListener('pointerleave', function () {
+            hovering = false;
+            if (busy && !pour.isActive()) settle();
+        });
+    }
+})();
+</script>
+
+
+<!-- ===================================================== -->
+<!-- FEATURED MENU ORBIT SCROLL CONTROLLER -->
+<!-- ===================================================== -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const section = document.querySelector('.flavor-orbit-section');
+    if (!section) return;
+
+    const flavors = JSON.parse(section.querySelector('[data-orbit-flavors]').textContent);
+    const wheel = section.querySelector('[data-orbit-wheel]');
+    const nodes = Array.from(section.querySelectorAll('.flavor-orbit-node'));
+    const copies = Array.from(section.querySelectorAll('[data-flavor-copy]'));
+    const slides = Array.from(section.querySelectorAll('[data-flavor-slide]'));
+    const ingredientImages = Array.from(section.querySelectorAll('[data-ingredient-image]'));
+    const counter = section.querySelector('[data-flavor-counter]');
+    const prevBtn = section.querySelector('[data-flavor-prev]');
+    const nextBtn = section.querySelector('[data-flavor-next]');
+    const count = flavors.length;
+    const stepDeg = 360 / count;
+    let activeIndex = 0;
+    let currentRotation = 0;
+    let rafId = 0;
+
+    section.addEventListener('pointermove', event => {
+        const bounds = section.getBoundingClientRect();
+        const shiftX = Math.max(-18, Math.min(18, ((event.clientX - bounds.left) / bounds.width - 0.5) * 36));
+        const shiftY = Math.max(-14, Math.min(14, ((event.clientY - bounds.top) / bounds.height - 0.5) * 28));
+        section.style.setProperty('--art-shift-x', shiftX + 'px');
+        section.style.setProperty('--art-shift-y', shiftY + 'px');
+    }, { passive: true });
+    section.addEventListener('pointerleave', () => {
+        section.style.setProperty('--art-shift-x', '0px');
+        section.style.setProperty('--art-shift-y', '0px');
+    });
+
+    function goToFlavor(targetIndex, smoothScrollToStep) {
+        const normalized = ((targetIndex % count) + count) % count;
+
+        if (normalized !== activeIndex) {
+            const prevIndex = activeIndex;
+
+            // Shortest angular delta so the orbit wheel never spins wildly backward
+            let deltaSteps = normalized - prevIndex;
+            if (deltaSteps > count / 2) deltaSteps -= count;
+            if (deltaSteps < -count / 2) deltaSteps += count;
+
+            currentRotation -= deltaSteps * stepDeg;
+            wheel.style.setProperty('--wheel-rotation', currentRotation + 'deg');
+
+            nodes.forEach((node, idx) => {
+                const isNow = idx === normalized;
+                node.classList.toggle('is-active', isNow);
+                node.setAttribute('aria-pressed', isNow ? 'true' : 'false');
+            });
+
+            copies.forEach((copy, idx) => {
+                const isNow = idx === normalized;
+                copy.classList.toggle('is-active', isNow);
+                copy.setAttribute('aria-hidden', isNow ? 'false' : 'true');
+            });
+
+            slides.forEach((slide, idx) => {
+                slide.classList.remove('is-active', 'is-prev');
+                if (idx === normalized) {
+                    slide.classList.add('is-active');
+                } else if (idx === prevIndex) {
+                    slide.classList.add('is-prev');
+                }
+            });
+
+            ingredientImages.forEach((image, idx) => image.classList.toggle('is-active', idx === normalized));
+
+            const item = flavors[normalized];
+            section.style.setProperty('--orbit-accent', item.color);
+            section.style.setProperty('--orbit-bg', item.bg);
+            if (counter) {
+                counter.textContent = (normalized + 1) + ' / ' + count;
+            }
+
+            activeIndex = normalized;
+        }
+
+        if (smoothScrollToStep) {
+            const sectionTop = window.scrollY + section.getBoundingClientRect().top;
+            const scrollable = Math.max(1, section.offsetHeight - window.innerHeight);
+            const targetScrollY = sectionTop + ((normalized + 0.35) / count) * scrollable;
+            window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+        }
+    }
+
+    nodes.forEach(node => {
+        node.addEventListener('click', function () {
+            goToFlavor(Number(this.dataset.flavorIndex), true);
+        });
+    });
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+            goToFlavor(activeIndex - 1, true);
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            goToFlavor(activeIndex + 1, true);
+        });
+    }
+
+    function onScrollFrame() {
+        rafId = 0;
+        const rect = section.getBoundingClientRect();
+        const inView = rect.top < window.innerHeight * 0.65 && rect.bottom > window.innerHeight * 0.35;
+        section.classList.toggle('is-in-view', inView);
+
+        const scrollable = Math.max(1, rect.height - window.innerHeight);
+        const progress = Math.max(0, Math.min(0.9999, -rect.top / scrollable));
+        const scrollIndex = Math.floor(progress * count);
+        goToFlavor(scrollIndex, false);
+    }
+
+    window.addEventListener('scroll', function () {
+        if (!rafId) {
+            rafId = window.requestAnimationFrame(onScrollFrame);
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', onScrollFrame, { passive: true });
+
+    // Initialize first flavor palette
+    section.style.setProperty('--orbit-accent', flavors[0].color);
+    section.style.setProperty('--orbit-bg', flavors[0].bg);
+    onScrollFrame();
+});
+</script>
 
 {% endblock %}

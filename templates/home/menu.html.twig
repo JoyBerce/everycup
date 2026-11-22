@@ -1,15 +1,367 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}Menu | every cup.{% endblock %}
+
 {% block body %}
-<section class="page-hero menu-page-hero"><div class="container-xxl px-4"><span class="section-eyebrow">THE EVERY CUP MENU</span><h1>Find your <em>favorite.</em></h1><p>Thoughtful drinks for slow mornings, quick catch-ups, and everything in between.</p></div></section>
-<main class="menu-catalog section-padding"><div class="container-xxl px-4">
-<div class="menu-toolbar"><div class="filter-tabs"><button class="filter-tab active" data-filter="All">All</button><button class="filter-tab" data-filter="Espresso-Based">Espresso-Based</button><button class="filter-tab" data-filter="Cold Brew">Cold Brew</button><button class="filter-tab" data-filter="Non-Coffee">Non-Coffee</button><button class="filter-tab" data-filter="Seasonal Specials">Seasonal Specials</button></div><input class="menu-search" id="menuSearch" type="search" placeholder="Search drinks or flavor notes…"></div>
-<div class="menu-grid" id="menuGrid">{% for item in menuItems %}<article class="catalog-card" data-category="{{ item.category }}" data-search="{{ (item.name ~ ' ' ~ item.notes)|lower }}"><div class="catalog-image"><img src="{{ asset(item.image) }}" alt="{{ item.name }}"><span>{{ item.category }}</span></div><div class="catalog-body"><div class="catalog-title"><h2>{{ item.name }}</h2><strong>₱{{ item.price }}</strong></div><p>{{ item.notes }}</p><div class="catalog-controls"><select><option>Regular</option><option>Large +₱20</option></select><select><option>Normal ice</option><option>Less ice</option><option>No ice</option></select></div><button class="catalog-add" type="button" data-name="{{ item.name }}" data-price="{{ item.price }}">ADD TO ORDER <span>+</span></button></div></article>{% endfor %}</div>
-</div></main>
-<aside class="catalog-cart" id="catalogCart"><div class="cart-heading"><div><span class="section-eyebrow">YOUR ORDER</span><h2>Ready when you are.</h2></div><button class="cart-close" type="button">×</button></div><div id="catalogCartItems"><p class="empty-order">Your cart is waiting for its first cup.</p></div><div class="cart-total"><span>Subtotal</span><strong id="catalogCartTotal">₱0</strong></div><form id="catalogCheckout"><input required placeholder="Your name"><button class="btn-primary-custom" type="submit">CHECK OUT <span>→</span></button><p class="form-status" id="checkoutStatus"></p></form></aside>
+<section class="page-hero menu-page-hero">
+    <div class="container-xxl px-4">
+        <span class="section-eyebrow">THE EVERY CUP MENU</span>
+        <h1>Find your <em>favorite.</em></h1>
+        <p>Thoughtful drinks for slow mornings, quick catch-ups, and everything in between.</p>
+    </div>
+</section>
+
+<main class="menu-catalog section-padding">
+    <div class="container-xxl px-4">
+        <div class="menu-toolbar">
+            <div class="filter-tabs">
+                <button class="filter-tab active" type="button" data-filter="All">All</button>
+                <button class="filter-tab" type="button" data-filter="Espresso-Based">Espresso-Based</button>
+                <button class="filter-tab" type="button" data-filter="Cold Brew">Cold Brew</button>
+                <button class="filter-tab" type="button" data-filter="Non-Coffee">Non-Coffee</button>
+                <button class="filter-tab" type="button" data-filter="Seasonal Specials">Seasonal Specials</button>
+            </div>
+            <input class="menu-search" id="menuSearch" type="search" placeholder="Search drinks or flavor notes…" aria-label="Search the menu">
+        </div>
+
+        <div class="menu-grid" id="menuGrid">
+            {% for item in menuItems %}
+                <article class="catalog-card" data-category="{{ item.category }}" data-search="{{ (item.name ~ ' ' ~ item.notes)|lower }}">
+                    <div class="catalog-image">
+                        <img src="{{ asset(item.image) }}" alt="{{ item.name }}" loading="lazy">
+                    </div>
+                    <div class="catalog-body">
+                        <div class="catalog-title">
+                            <h2>{{ item.name }}</h2>
+                            <strong>₱{{ item.price }}</strong>
+                        </div>
+                        <p>{{ item.notes }}</p>
+                        <div class="catalog-foot-row">
+                            <div class="catalog-meta">
+                                <span class="catalog-category-badge">{{ item.category }}</span>
+                                <span class="catalog-tag-badge">{{ item.tag }}</span>
+                            </div>
+                            <button class="catalog-add" type="button" data-name="{{ item.name }}" data-price="{{ item.price }}" aria-label="Add {{ item.name }} to order"><span aria-hidden="true">+</span> ADD</button>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        <div class="menu-order-cta">
+            <div class="menu-order-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 1.9-1.4L22 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="18" cy="20" r="1.5" fill="currentColor"/></svg>
+                <span id="orderCount" class="order-count" aria-live="polite">0</span>
+            </div>
+            <div class="menu-order-copy">
+                <strong>Your order</strong>
+                <span id="orderSummary">Your next favorite is one tap away.</span>
+            </div>
+            <button class="view-order-btn" id="viewOrderBtn" type="button">VIEW ORDER <span aria-hidden="true">→</span></button>
+        </div>
+    </div>
+</main>
+
+<aside class="catalog-cart" id="catalogCart" aria-labelledby="orderPanelTitle" aria-hidden="true">
+    <div class="cart-heading">
+        <div>
+            <span class="section-eyebrow">YOUR ORDER</span>
+            <h2 id="orderPanelTitle">Ready when you are.</h2>
+        </div>
+        <button class="cart-close" type="button" aria-label="Minimize order panel">−</button>
+    </div>
+
+    <section class="order-view" id="manageOrderView" aria-label="Manage your order">
+        <div class="catalog-cart-items" id="catalogCartItems">
+            <p class="empty-order">Your cart is waiting for its first cup.</p>
+        </div>
+        <div class="cart-total"><span>Subtotal</span><strong id="catalogCartTotal">₱0</strong></div>
+        <button class="btn-primary-custom proceed-checkout-btn" id="proceedToCheckout" type="button" disabled>
+            PROCEED TO CHECKOUT <span aria-hidden="true">→</span>
+        </button>
+    </section>
+
+    <section class="order-view checkout-view" id="checkoutView" aria-label="Checkout" hidden>
+        <button class="order-back-btn" id="backToManage" type="button">
+            <span aria-hidden="true">←</span> Back to managing order
+        </button>
+        <h3>Review your order</h3>
+        <p class="checkout-intro">Check your drinks and total before sending your payment proof.</p>
+        <div class="checkout-order-list" id="checkoutOrderList"></div>
+        <div class="cart-total checkout-total"><span>Total to pay</span><strong id="checkoutTotal">₱0</strong></div>
+
+        <div class="payment-card">
+            <div>
+                <span class="payment-step">PAYMENT</span>
+                <h3>Sample payment QR</h3>
+                <p>This demo QR is a visual sample only. Replace it with your store’s payment QR before accepting payments.</p>
+            </div>
+            <img src="{{ asset('images/sample-payment-qr.svg') }}" alt="Sample QR code placeholder for payment">
+        </div>
+
+        <form id="catalogCheckout" class="checkout-form">
+            <label for="customerName">Name</label>
+            <input id="customerName" name="customerName" type="text" placeholder="Enter your name" autocomplete="name" required>
+
+            <label for="paymentProof">Upload proof of payment</label>
+            <input id="paymentProof" name="paymentProof" type="file" accept="image/*" required>
+            <div class="proof-preview" id="proofPreview" hidden>
+                <img id="proofPreviewImage" alt="Preview of uploaded payment proof">
+                <span id="proofFileName"></span>
+                <button id="removeProof" type="button" aria-label="Remove uploaded proof">Remove</button>
+            </div>
+
+            <button class="btn-primary-custom checkout-submit-btn" id="submitCheckout" type="submit" disabled>
+                CHECKOUT <span aria-hidden="true">→</span>
+            </button>
+            <p class="form-status" id="checkoutStatus" role="status" aria-live="polite"></p>
+        </form>
+    </section>
+</aside>
+
+<button class="floating-order-btn" id="floatingOrderBtn" type="button" aria-label="View order, 0 drinks">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 1.9-1.4L22 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="18" cy="20" r="1.5" fill="currentColor"/></svg>
+    <span class="floating-order-count" id="floatingOrderCount" aria-live="polite">0</span>
+</button>
 {% endblock %}
+
 {% block javascripts %}
 <script>
-document.addEventListener('DOMContentLoaded',()=>{const cards=[...document.querySelectorAll('.catalog-card')],tabs=[...document.querySelectorAll('.filter-tab')],search=document.getElementById('menuSearch');let filter='All';const apply=()=>{const q=search.value.toLowerCase();cards.forEach(c=>c.hidden=!((filter==='All'||c.dataset.category===filter)&&c.dataset.search.includes(q)))};tabs.forEach(t=>t.onclick=()=>{tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');filter=t.dataset.filter;apply()});search.oninput=apply;const cart=document.getElementById('catalogCart'),items={},list=document.getElementById('catalogCartItems'),total=document.getElementById('catalogCartTotal');function render(){let sum=0;list.innerHTML=Object.values(items).length?Object.values(items).map(i=>{sum+=i.p*i.q;return `<div class="cart-line"><span>${i.n} × ${i.q}</span><strong>₱${i.p*i.q}</strong></div>`}).join(''):'<p class="empty-order">Your cart is waiting for its first cup.</p>';total.textContent='₱'+sum}document.querySelectorAll('.catalog-add').forEach(b=>b.onclick=()=>{items[b.dataset.name]=items[b.dataset.name]||{n:b.dataset.name,p:+b.dataset.price,q:0};items[b.dataset.name].q++;render();cart.classList.add('open')});document.querySelector('.cart-close').onclick=()=>cart.classList.remove('open');document.getElementById('catalogCheckout').onsubmit=e=>{e.preventDefault();document.getElementById('checkoutStatus').textContent='Thanks — your order is being prepared.'}});
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = [...document.querySelectorAll('.catalog-card')];
+    const tabs = [...document.querySelectorAll('.filter-tab')];
+    const search = document.getElementById('menuSearch');
+    const cart = document.getElementById('catalogCart');
+    const list = document.getElementById('catalogCartItems');
+    const total = document.getElementById('catalogCartTotal');
+    const countDisplay = document.getElementById('orderCount');
+    const floatingCountDisplay = document.getElementById('floatingOrderCount');
+    const summaryDisplay = document.getElementById('orderSummary');
+    const proceedButton = document.getElementById('proceedToCheckout');
+    const managerView = document.getElementById('manageOrderView');
+    const checkoutView = document.getElementById('checkoutView');
+    const checkoutList = document.getElementById('checkoutOrderList');
+    const checkoutTotal = document.getElementById('checkoutTotal');
+    const checkoutForm = document.getElementById('catalogCheckout');
+    const customerName = document.getElementById('customerName');
+    const proofInput = document.getElementById('paymentProof');
+    const submitButton = document.getElementById('submitCheckout');
+    const proofPreview = document.getElementById('proofPreview');
+    const proofPreviewImage = document.getElementById('proofPreviewImage');
+    const proofFileName = document.getElementById('proofFileName');
+    const checkoutStatus = document.getElementById('checkoutStatus');
+    const items = new Map();
+    let filter = 'All';
+    let proofUrl = '';
+
+    const formatPrice = value => '₱' + Number(value).toLocaleString('en-PH');
+
+    function applyFilters() {
+        const query = search.value.trim().toLowerCase();
+        cards.forEach(card => {
+            card.hidden = !((filter === 'All' || card.dataset.category === filter) && card.dataset.search.includes(query));
+        });
+    }
+
+    function updateCheckoutButton() {
+        const file = proofInput.files && proofInput.files[0];
+        submitButton.disabled = !(customerName.value.trim() && file && file.type.startsWith('image/'));
+    }
+
+    function renderOrder() {
+        const orderItems = [...items.values()];
+        const drinkCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
+        const orderTotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        countDisplay.textContent = drinkCount;
+        floatingCountDisplay.textContent = drinkCount;
+        summaryDisplay.textContent = drinkCount === 0 ? 'Your next favorite is one tap away.' : `${drinkCount} drink${drinkCount === 1 ? '' : 's'} in your order`;
+        total.textContent = formatPrice(orderTotal);
+        checkoutTotal.textContent = formatPrice(orderTotal);
+        proceedButton.disabled = orderItems.length === 0;
+        document.getElementById('viewOrderBtn').setAttribute('aria-label', `View order, ${drinkCount} drinks`);
+        document.getElementById('floatingOrderBtn').setAttribute('aria-label', `View order, ${drinkCount} drinks`);
+
+        list.replaceChildren();
+        checkoutList.replaceChildren();
+
+        if (orderItems.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'empty-order';
+            empty.textContent = 'Your cart is waiting for its first cup.';
+            list.append(empty);
+        }
+
+        orderItems.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'cart-line';
+            const details = document.createElement('div');
+            details.className = 'cart-line-details';
+            const name = document.createElement('strong');
+            name.textContent = item.name;
+            const unit = document.createElement('span');
+            unit.textContent = formatPrice(item.price) + ' each';
+            details.append(name, unit);
+
+            const controls = document.createElement('div');
+            controls.className = 'quantity-control';
+            const minus = document.createElement('button');
+            minus.type = 'button';
+            minus.textContent = '−';
+            minus.setAttribute('aria-label', `Remove one ${item.name}`);
+            minus.dataset.quantityChange = '-1';
+            minus.dataset.itemName = item.name;
+            const quantity = document.createElement('span');
+            quantity.textContent = item.quantity;
+            quantity.setAttribute('aria-label', 'Quantity');
+            const plus = document.createElement('button');
+            plus.type = 'button';
+            plus.textContent = '+';
+            plus.setAttribute('aria-label', `Add one ${item.name}`);
+            plus.dataset.quantityChange = '1';
+            plus.dataset.itemName = item.name;
+            controls.append(minus, quantity, plus);
+
+            const linePrice = document.createElement('strong');
+            linePrice.className = 'cart-line-price';
+            linePrice.textContent = formatPrice(item.price * item.quantity);
+            row.append(details, controls, linePrice);
+            list.append(row);
+
+            const reviewRow = document.createElement('div');
+            reviewRow.className = 'checkout-order-row';
+            const reviewName = document.createElement('span');
+            reviewName.textContent = `${item.name}  −  ${item.quantity}`;
+            const reviewPrice = document.createElement('strong');
+            reviewPrice.textContent = formatPrice(item.price * item.quantity);
+            reviewRow.append(reviewName, reviewPrice);
+            checkoutList.append(reviewRow);
+        });
+    }
+
+    function animateAddToCart(button) {
+        const source = button.closest('.catalog-card')?.querySelector('.catalog-image img');
+        const target = document.getElementById('floatingOrderBtn');
+        if (!source || !target || window.matchMedia('(prefers-reduced-motion: reduce)').matches || typeof source.animate !== 'function') return;
+
+        const from = source.getBoundingClientRect();
+        const to = target.getBoundingClientRect();
+        const flyingImage = source.cloneNode();
+        const deltaX = to.left + to.width / 2 - (from.left + from.width / 2);
+        const deltaY = to.top + to.height / 2 - (from.top + from.height / 2);
+
+        Object.assign(flyingImage.style, {
+            position: 'fixed',
+            zIndex: '1200',
+            left: from.left + 'px',
+            top: from.top + 'px',
+            width: from.width + 'px',
+            height: from.height + 'px',
+            margin: '0',
+            objectFit: 'cover',
+            borderRadius: '14px',
+            boxShadow: '0 16px 35px rgba(28,25,23,.24)',
+            pointerEvents: 'none'
+        });
+        flyingImage.setAttribute('aria-hidden', 'true');
+        document.body.append(flyingImage);
+
+        const flight = flyingImage.animate([
+            { transform: 'translate(0, 0) scale(1) rotate(0)', opacity: 1, borderRadius: '14px' },
+            { transform: `translate(${deltaX * 0.58}px, ${deltaY * 0.58 - 36}px) scale(.55) rotate(8deg)`, opacity: .95, offset: .62, borderRadius: '50%' },
+            { transform: `translate(${deltaX}px, ${deltaY}px) scale(.12) rotate(16deg)`, opacity: 0, borderRadius: '50%' }
+        ], { duration: 720, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
+
+        flight.onfinish = () => {
+            flyingImage.remove();
+            target.classList.add('is-receiving');
+            floatingCountDisplay.classList.add('is-bumping');
+            window.setTimeout(() => {
+                target.classList.remove('is-receiving');
+                floatingCountDisplay.classList.remove('is-bumping');
+            }, 550);
+        };
+        flight.oncancel = () => flyingImage.remove();
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+        tabs.forEach(button => button.classList.toggle('active', button === tab));
+        filter = tab.dataset.filter;
+        applyFilters();
+    }));
+    search.addEventListener('input', applyFilters);
+
+    document.querySelectorAll('.catalog-add').forEach(button => button.addEventListener('click', () => {
+        animateAddToCart(button);
+        const name = button.dataset.name;
+        const existing = items.get(name);
+        if (existing) existing.quantity += 1;
+        else items.set(name, { name, price: Number(button.dataset.price), quantity: 1 });
+        renderOrder();
+    }));
+
+    list.addEventListener('click', event => {
+        const control = event.target.closest('[data-quantity-change]');
+        if (!control) return;
+        const item = items.get(control.dataset.itemName);
+        if (!item) return;
+        item.quantity += Number(control.dataset.quantityChange);
+        if (item.quantity <= 0) items.delete(item.name);
+        renderOrder();
+    });
+
+    const openOrderPanel = () => {
+        cart.classList.add('open');
+        cart.setAttribute('aria-hidden', 'false');
+        managerView.hidden = false;
+        checkoutView.hidden = true;
+    };
+    document.getElementById('viewOrderBtn').addEventListener('click', openOrderPanel);
+    document.getElementById('floatingOrderBtn').addEventListener('click', openOrderPanel);
+    document.querySelector('.cart-close').addEventListener('click', () => {
+        cart.classList.remove('open');
+        cart.setAttribute('aria-hidden', 'true');
+    });
+    proceedButton.addEventListener('click', () => {
+        managerView.hidden = true;
+        checkoutView.hidden = false;
+        checkoutStatus.textContent = '';
+    });
+    document.getElementById('backToManage').addEventListener('click', () => {
+        checkoutView.hidden = true;
+        managerView.hidden = false;
+    });
+
+    proofInput.addEventListener('change', () => {
+        if (proofUrl) URL.revokeObjectURL(proofUrl);
+        let file = proofInput.files && proofInput.files[0];
+        if (file && !file.type.startsWith('image/')) {
+            proofInput.value = '';
+            file = null;
+            checkoutStatus.textContent = 'Please choose an image file for your payment proof.';
+        }
+        proofUrl = file ? URL.createObjectURL(file) : '';
+        proofPreview.hidden = !file;
+        if (file) {
+            proofPreviewImage.src = proofUrl;
+            proofFileName.textContent = file.name;
+        } else {
+            proofPreviewImage.removeAttribute('src');
+            proofFileName.textContent = '';
+        }
+        updateCheckoutButton();
+    });
+    customerName.addEventListener('input', updateCheckoutButton);
+    document.getElementById('removeProof').addEventListener('click', () => {
+        proofInput.value = '';
+        proofInput.dispatchEvent(new Event('change'));
+    });
+    checkoutForm.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!checkoutForm.reportValidity() || !proofInput.files.length || !proofInput.files[0].type.startsWith('image/')) return;
+        checkoutStatus.textContent = 'Order submitted. Your payment proof is ready for review.';
+    });
+
+    renderOrder();
+});
 </script>
 {% endblock %}
