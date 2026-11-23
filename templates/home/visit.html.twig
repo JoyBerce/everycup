@@ -165,7 +165,7 @@
         .signoff { max-width: 1280px; margin: clamp(48px, 7vw, 96px) auto 0; font-size: clamp(26px, 4vw, 56px); font-weight: 700; letter-spacing: -.035em; line-height: 1.05; }
         .signoff small { display: block; margin-top: .5em; font-size: 17px; font-weight: 400; letter-spacing: 0; color: #d9c4a3; }
 
-        .scene-sleeve { position: absolute; z-index: 7; left: auto; right: clamp(16px, 5vw, 80px); top: 50%; transform: none; width: min(380px, calc(100% - 24px)); visibility: hidden; opacity: 0; }
+        .scene-sleeve { position: absolute; z-index: 7; left: auto; right: clamp(16px, 5vw, 80px); top: 50%; transform: translateY(-50%); width: min(380px, calc(100% - 24px)); max-height: min(78svh, 700px); overflow: auto; visibility: hidden; opacity: 0; }
         .cap-4 { bottom: auto; top: clamp(96px, 20vh, 220px); }
         @media (max-width: 860px) {
             .scene-sleeve { top: auto; left: 12px; right: 12px; bottom: 12px; width: auto; max-height: 72vh; overflow: auto; margin: 0; }
@@ -184,7 +184,7 @@
             .cap { left: 18px; right: 18px; bottom: 28px; max-width: 12ch; font-size: clamp(28px, 9vw, 48px); }
             .cap small { max-width: 27ch; font-size: 14px; }
             .toast { top: 14px; font-size: 14px; }
-            .scene-sleeve { left: 50%; right: auto; top: 50%; bottom: auto; width: min(84vw, 310px); max-height: min(64svh, 430px); overflow: auto; transform: translate(-50%, -50%) !important; }
+            .scene-sleeve { left: 50%; right: auto; top: 50%; bottom: auto; width: min(90vw, 380px); max-height: min(78svh, 600px); overflow: auto; transform: translate(-50%, -50%) !important; }
             .scene-sleeve .sleeve { width: 100%; margin: 0; padding: 24px 14px 14px; border-radius: 14px 14px 18px 18px; }
             .scene-sleeve .sleeve::before { height: 12px; border-radius: 16px 16px 0 0; }
             .scene-sleeve .sleeve h3 { font-size: 20px; }
@@ -245,6 +245,9 @@
         .ec.is-static .cap, .ec.is-static .hint, .ec.is-static .rail { display: none; }
         .ec.is-static .map-live { opacity: 1; pointer-events: auto; }
         .ec.is-static .map-art, .ec.is-static .pin { display: none; }
+        @media (max-width: 575px) {
+            .ec.is-static .scene-sleeve { display: block; position: relative; left: auto; right: auto; top: auto; bottom: auto; width: auto; max-height: none; margin: 16px 10px 0; transform: none; visibility: visible; opacity: 1; }
+        }
         @media (prefers-reduced-motion: reduce) {
             .ec *, .ec *::before, .ec *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
         }
@@ -589,7 +592,6 @@
 
         <p class="cap cap-1">Walk up to the yellow front.<small>{{ cafe.address_line1 }}, {{ cafe.address_line2 }}. Scroll to get closer.</small></p>
         <p class="cap cap-2">Pull the door.<small>Or tap it.</small></p>
-        <p class="cap cap-3">Pick a seat.<small>Tap the menu screens, the pastry case and the cup.</small></p>
         <p class="cap cap-4">Now come find us.<small>Address, hours and directions are just below.</small></p>
         <aside class="sleeve scene-sleeve" aria-label="Visit details">
             <h3>{{ cafe.name }}</h3>
@@ -748,7 +750,12 @@
         function goInside() {
             if (!tl || !tl.scrollTrigger) { scrollToEl($('#visit')); return; }
             var st = tl.scrollTrigger;
-            if (st.progress > .5) { say('You are already inside. Pick a seat.'); return; }
+            if (window.innerWidth <= 860) {
+                var infoY = st.start + (st.end - st.start) * .97;
+                window.scrollTo({ top: infoY, behavior: reduce ? 'auto' : 'smooth' });
+                return;
+            }
+            if (st.progress > .5) { say('You are already inside.'); return; }
             var y = st.start + (st.end - st.start) * (4.9 / tl.duration());
             window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
         }
@@ -854,11 +861,8 @@
           .fromTo(camInt, { scale: 1.5 }, { scale: 1, duration: 2.6, ease: 'power2.out' }, 4.6)
           .to('#ext', { autoAlpha: 0, duration: 1.2, ease: 'power1.in' }, 5.1)
           .to('.flash', { opacity: 0, duration: 1.2 }, 4.9)
-          .fromTo('.cap-3', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .8, ease: 'power1.out' }, 6.2)
-          .to('.cap-3', { autoAlpha: 0, y: -24, duration: .6 }, 8.2)
-          .fromTo(camInt, { scale: 1 }, { scale: 1.06, duration: 3, immediateRender: false }, 7.0)
-          .fromTo('.cap-4', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .8, ease: 'power1.out' }, 8.7)
-          .fromTo('.scene-sleeve', { autoAlpha: 0, y: 40, yPercent: narrow() ? 0 : -50 }, { autoAlpha: 1, y: 0, yPercent: narrow() ? 0 : -50, duration: .9, ease: 'power2.out' }, 8.6)
+          .fromTo('.cap-4', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .8, ease: 'power1.out' }, 6.2)
+          .fromTo('.scene-sleeve', { autoAlpha: 0, y: 40, yPercent: narrow() ? 0 : -50 }, { autoAlpha: 1, y: 0, yPercent: narrow() ? 0 : -50, duration: .9, ease: 'power2.out' }, 6.1)
           .to({}, { duration: .001 }, 10);
 
         /* ---------- mouse parallax ---------- */

@@ -37,15 +37,36 @@
 
 .flavor-ingredient-art {
     position: absolute;
-    z-index: 0;
     top: 50%;
-    left: 62%;
-    width: clamp(280px, 38vw, 560px);
-    height: clamp(280px, 38vw, 560px);
-    transform: translate(calc(-50% + var(--art-shift-x, 0px)), calc(-50% + var(--art-shift-y, 0px)));
+    left: 50%;
+    --node-radius: calc(var(--orbit-size) * 0.44);
+    width: clamp(58px, 11vw, 112px);
+    height: clamp(58px, 11vw, 112px);
+    transform: translate(-50%, -50%) rotate(45deg) translateY(calc(-1 * var(--node-radius))) rotate(-45deg);
     pointer-events: none;
-    opacity: 0.78;
-    transition: transform 0.35s ease-out;
+}
+
+.flavor-ingredient-orbit {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: ingredient-orbit 16s linear infinite;
+}
+
+@keyframes ingredient-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes ingredient-counter-rotate {
+    from { rotate: 0deg; }
+    to { rotate: -360deg; }
+}
+
+.flavor-orbit-wheel {
+    z-index: 4;
 }
 
 .flavor-ingredient-image {
@@ -58,22 +79,20 @@
     transform: scale(0.88) rotate(-7deg);
     filter: drop-shadow(0 22px 30px rgba(42, 26, 15, 0.2));
     transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    animation: ingredient-float 7s ease-in-out infinite;
+    animation: ingredient-counter-rotate 16s linear infinite;
 }
 
 .flavor-ingredient-image.is-active {
     opacity: 0.86;
-    transform: scale(1) rotate(0);
-}
-
-@keyframes ingredient-float {
-    0%, 100% { translate: 0 0; }
-    50% { translate: 0 -12px; }
+    transform: scale(1) rotate(0deg);
+    rotate: 0deg;
 }
 
 .flavor-orbit-section.is-in-view::before {
     opacity: 1;
 }
+
+.flavor-orbit-section:not(.is-in-view) .flavor-ingredient-orbit { animation-play-state: paused; }
 
 .flavor-orbit-sticky {
     position: sticky;
@@ -103,7 +122,7 @@
 /* LEFT COLUMN: EDITORIAL TITLE + STACKED FLAVOR COPY */
 .flavor-orbit-left {
     position: relative;
-    z-index: 3;
+    z-index: 4;
     display: flex;
     flex-direction: column;
     gap: clamp(1.25rem, 2.5vh, 2rem);
@@ -371,6 +390,7 @@
 .flavor-orbit-wheel {
     position: absolute;
     inset: 0;
+    z-index: 4;
     border-radius: 50%;
     transform: rotate(var(--wheel-rotation, 0deg));
     transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
@@ -485,14 +505,6 @@
         order: -1;
     }
 
-    .flavor-ingredient-art {
-        top: 29%;
-        left: 50%;
-        width: min(62vw, 320px);
-        height: min(62vw, 320px);
-        opacity: 0.38;
-    }
-
     .flavor-copy-stack {
         min-height: 185px;
     }
@@ -537,13 +549,7 @@
         flex: 0 0 auto;
     }
 
-    .flavor-ingredient-art {
-        top: 16%;
-        left: 50%;
-        width: min(44vw, 180px);
-        height: min(44vw, 180px);
-        opacity: 0.2;
-    }
+    .flavor-ingredient-art { --node-radius: calc(var(--orbit-size) * 0.37); width: clamp(48px, 20vw, 72px); height: clamp(48px, 20vw, 72px); }
 
     .flavor-orbit-left {
         width: 100%;
@@ -652,6 +658,8 @@
         transition: none;
     }
     .flavor-ingredient-image { animation: none; }
+    .flavor-ingredient-orbit { animation: none; }
+    .flavor-ingredient-image { rotate: 0deg; }
 }
 </style>
 
@@ -1240,12 +1248,6 @@
 
     </div>
 
-    <!-- SCROLL INDICATOR -->
-    <a href="#menu" class="hero-scroll-indicator">
-        <span>SCROLL TO EXPLORE</span>
-        <div class="scroll-line"></div>
-    </a>
-
 </section>
 
 
@@ -1482,13 +1484,6 @@
     ] %}
 
     <div class="flavor-orbit-sticky">
-        <div class="flavor-ingredient-art" aria-hidden="true">
-            {% for flavor in orbitFlavors %}
-                <img class="flavor-ingredient-image{% if loop.first %} is-active{% endif %}"
-                     src="{{ asset(flavor.art) }}" alt="" draggable="false"
-                     data-ingredient-image="{{ loop.index0 }}">
-            {% endfor %}
-        </div>
         <div class="flavor-orbit-inner" role="group" aria-label="Four signature drinks in orbit">
 
             <!-- LEFT: EDITORIAL HEADING + STACKED FLAVOR DETAILS -->
@@ -1519,6 +1514,15 @@
             <div class="flavor-orbit-stage" data-flavor-orbit>
                 <div class="flavor-orbit-glow" aria-hidden="true"></div>
                 <div class="flavor-orbit-ring" aria-hidden="true"></div>
+                <div class="flavor-ingredient-orbit" aria-hidden="true">
+                    <div class="flavor-ingredient-art">
+                        {% for flavor in orbitFlavors %}
+                            <img class="flavor-ingredient-image{% if loop.first %} is-active{% endif %}"
+                                 src="{{ asset(flavor.art) }}" alt="" draggable="false"
+                                 data-ingredient-image="{{ loop.index0 }}">
+                        {% endfor %}
+                    </div>
+                </div>
                 <div class="flavor-orbit-wheel" data-orbit-wheel>
                     {% for flavor in orbitFlavors %}
                         {% set angle = loop.index0 * (360 / orbitFlavors|length) %}
@@ -2599,18 +2603,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let activeIndex = 0;
     let currentRotation = 0;
     let rafId = 0;
-
-    section.addEventListener('pointermove', event => {
-        const bounds = section.getBoundingClientRect();
-        const shiftX = Math.max(-18, Math.min(18, ((event.clientX - bounds.left) / bounds.width - 0.5) * 36));
-        const shiftY = Math.max(-14, Math.min(14, ((event.clientY - bounds.top) / bounds.height - 0.5) * 28));
-        section.style.setProperty('--art-shift-x', shiftX + 'px');
-        section.style.setProperty('--art-shift-y', shiftY + 'px');
-    }, { passive: true });
-    section.addEventListener('pointerleave', () => {
-        section.style.setProperty('--art-shift-x', '0px');
-        section.style.setProperty('--art-shift-y', '0px');
-    });
 
     function goToFlavor(targetIndex, smoothScrollToStep) {
         const normalized = ((targetIndex % count) + count) % count;
