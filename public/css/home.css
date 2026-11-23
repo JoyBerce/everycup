@@ -2601,6 +2601,70 @@ a {
     body:has(.menu-section) .main-footer { display: none !important; }
 }
 
+/* Latest mobile-only home refinements. */
+@media (max-width: 767.98px) {
+    /* Cup taps keep the original story headline and CTA in place. */
+    .hero-copy-default { opacity: 1 !important; transform: none !important; filter: none !important; pointer-events: auto !important; }
+    .hero-copy-hovered { display: none !important; }
+    .hero-copy-default .hero-buttons .btn-primary-custom { font-size: 0; }
+    .hero-copy-default .hero-buttons .btn-primary-custom::before {
+        content: "START ORDERING";
+        font-size: 7px;
+    }
+
+    /* Show only the larger featured cup; flavor details remain below it. */
+    .flavor-orbit-section {
+        height: 190svh !important;
+        min-height: 0 !important;
+        --orbit-size: min(80vw, 42svh, 380px) !important;
+    }
+    .flavor-orbit-sticky {
+        height: 100svh !important;
+        min-height: 0 !important;
+        padding: calc(72px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) !important;
+    }
+    .flavor-orbit-inner { gap: clamp(2rem, 6svh, 3.25rem) !important; }
+    .flavor-orbit-stage {
+        width: var(--orbit-size) !important;
+        height: var(--orbit-size) !important;
+    }
+    .flavor-cup-stack { width: 100% !important; height: 100% !important; }
+    .flavor-orbit-node { display: none !important; }
+    .flavor-ingredient-art { opacity: .3; }
+
+    .flavor-orbit-footer-bar {
+        display: flex !important;
+        justify-content: center !important;
+        padding-top: 1rem !important;
+        border-top: 0 !important;
+    }
+    .flavor-nav-cluster { justify-content: center !important; width: 100% !important; }
+    .flavor-full-menu-link {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        min-width: 190px;
+        min-height: 48px;
+        margin: 0 !important;
+        padding: .8rem 1.4rem !important;
+        border: 0 !important;
+        border-radius: 999px !important;
+        background: #facc15 !important;
+        color: #1c1917 !important;
+        box-shadow: 0 8px 22px rgba(28, 25, 23, .18);
+        font-size: 0 !important;
+        letter-spacing: .08em !important;
+    }
+    .flavor-full-menu-link::before {
+        content: "START ORDERING  ↗";
+        font-size: .78rem;
+    }
+
+    /* Reduce the trailing scroll space after the menu showcase. */
+    .menu-section ~ aside,
+    .menu-section ~ section { display: none !important; }
+}
+
 
 /* =========================================================
    REALISTIC HERO CUPS (SVG scene) — replaces the CSS-drawn cups
