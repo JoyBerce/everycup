@@ -2130,6 +2130,119 @@ a {
     }
 }
 
+/* =========================================================
+   HOME PAGE MOBILE COMPOSITION
+========================================================= */
+@media (max-width: 767.98px) {
+    /* Keep the loader message in the viewport and readable even while GSAP runs. */
+    #coffeeLoader .loader-caption {
+        position: fixed;
+        left: 50%;
+        bottom: calc(22px + env(safe-area-inset-bottom));
+        width: calc(100% - 32px);
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(255, 250, 238, .92);
+        color: #241a12;
+        font-size: 10px;
+        line-height: 1.4;
+        letter-spacing: 1.7px;
+        opacity: 1 !important;
+        transform: translateX(-50%) !important;
+        z-index: 1000000;
+        animation: none !important;
+    }
+
+    /* Match the desktop editorial split: copy on the left, cup art on the right. */
+    .hero-section {
+        min-height: 0;
+        padding: 34px 0 58px;
+        align-items: center;
+    }
+
+    .hero-section > .container-fluid {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .hero-row {
+        flex-wrap: nowrap;
+        align-items: center !important;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .hero-text-column,
+    .hero-visual-column {
+        flex: 0 0 50%;
+        width: 50%;
+        max-width: 50%;
+    }
+
+    .hero-text-column { padding: 8px 5px 8px 0; }
+    .hero-visual-column { padding: 0; }
+    .hero-copy-wrapper { min-height: 0; }
+
+    .hero-eyebrow {
+        gap: 5px;
+        margin-bottom: 12px;
+        font-size: 6px;
+        letter-spacing: .8px;
+        line-height: 1.4;
+    }
+
+    .eyebrow-line { width: 10px; flex: 0 0 10px; }
+
+    .hero-title {
+        margin-bottom: 15px;
+        font-size: clamp(29px, 9.2vw, 43px);
+        line-height: .98;
+        letter-spacing: -2.3px;
+    }
+
+    .hero-description,
+    .hero-bottom-note,
+    .hero-copy-default .btn-outline-custom { display: none; }
+
+    .hero-buttons { gap: 0; }
+    .hero-buttons .btn-primary-custom {
+        min-height: 39px;
+        gap: 8px;
+        padding: 0 12px;
+        font-size: 7px;
+        letter-spacing: .65px;
+        white-space: nowrap;
+    }
+
+    .hero-visual {
+        height: clamp(190px, 61vw, 300px);
+        min-height: 0;
+        margin: 0;
+        transform: scale(1.05);
+        transform-origin: center;
+    }
+
+    .hero-logo-background { width: 78%; top: 2%; }
+    .hero-cup-stage {
+        width: 118%;
+        max-width: none;
+        height: 100%;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .drink-price-badge { right: 0; top: 18%; padding: 5px 7px; font-size: 7px; }
+    .hero-stamp { display: none; }
+    .hero-scroll-indicator { bottom: 12px; }
+    .hero-scroll-indicator span { font-size: 7px; }
+
+    /* The mobile homepage ends with the featured menu. */
+    .menu-section ~ aside,
+    .menu-section ~ section,
+    body:has(.menu-section) .main-footer { display: none !important; }
+}
+
 
 /* =========================================================
    SMALL MOBILE
@@ -2477,6 +2590,16 @@ a {
 .flavor-cup-wrap{z-index:2}
 .flavor-cup-image{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .75s cubic-bezier(.22,.61,.36,1),transform .75s cubic-bezier(.22,.61,.36,1);transform:translateY(12px) scale(.985)}
 .flavor-cup-image.is-current{opacity:1;transform:translateY(0) scale(1)}
+
+/* Keep the compact home composition in force after legacy small-screen rules. */
+@media (max-width: 767.98px) {
+    .hero-title { font-size: clamp(29px, 9.2vw, 43px); letter-spacing: -2.3px; }
+    .hero-visual { height: clamp(190px, 61vw, 300px); min-height: 0; margin: 0; }
+    .hero-cup-stage { height: 100%; bottom: 0; }
+    .menu-section ~ aside,
+    .menu-section ~ section,
+    body:has(.menu-section) .main-footer { display: none !important; }
+}
 
 
 /* =========================================================
