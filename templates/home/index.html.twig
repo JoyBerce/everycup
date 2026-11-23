@@ -344,6 +344,10 @@
     transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+.flavor-full-menu-link .flavor-link-mobile {
+    display: none;
+}
+
 .flavor-full-menu-link:hover {
     background: var(--orbit-ink);
     color: #fffaf3;
@@ -532,7 +536,17 @@
         gap: 1.5rem;
     }
 
+    /* Mobile reading order: flavor text, orbit, then the order CTA. */
+    .flavor-orbit-left {
+        display: contents;
+    }
+
+    .flavor-copy-stack {
+        order: 1;
+    }
+
     .flavor-orbit-stage {
+        order: 2;
         position: relative;
         inset: auto;
         left: auto;
@@ -547,6 +561,21 @@
 
     .flavor-orbit-left {
         flex: 0 0 auto;
+    }
+
+    .flavor-orbit-footer-bar {
+        order: 3;
+        justify-content: center;
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    .flavor-full-menu-link .flavor-link-desktop {
+        display: none;
+    }
+
+    .flavor-full-menu-link .flavor-link-mobile {
+        display: inline;
     }
 
     .flavor-ingredient-art { --node-radius: calc(var(--orbit-size) * 0.37); width: clamp(48px, 20vw, 72px); height: clamp(48px, 20vw, 72px); }
@@ -1505,7 +1534,7 @@
 
                 <div class="flavor-orbit-footer-bar">
                     <div class="flavor-nav-cluster">
-                        <a href="{{ path('app_menu') }}" class="flavor-full-menu-link">See every drink ↗</a>
+                        <a href="{{ path('app_menu') }}" class="flavor-full-menu-link"><span class="flavor-link-desktop">See every drink ↗</span><span class="flavor-link-mobile">Order now</span></a>
                     </div>
                 </div>
             </div>
