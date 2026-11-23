@@ -571,6 +571,97 @@
         transform: translateY(0) scale(1);
     }
 
+    /* Bring Visit Us back into the mobile journey with a strong, compact
+       landing-card treatment instead of the desktop two-column layout. */
+    .menu-section ~ .visit-section {
+        display: block !important;
+        margin-top: 1.5rem;
+        padding: 4.5rem 0 3.5rem !important;
+        border-radius: 28px 28px 0 0;
+        background: linear-gradient(145deg, #2a1a12 0%, #654025 100%) !important;
+    }
+
+    .visit-section::before {
+        top: -180px;
+        right: -180px;
+        background: radial-gradient(circle, rgba(255, 209, 57, 0.3), transparent 68%);
+    }
+
+    .visit-overview-heading {
+        margin-bottom: 1.5rem;
+    }
+
+    .visit-overview-heading .section-eyebrow {
+        color: #ffd139;
+        font-size: 0.62rem;
+        letter-spacing: 0.18em;
+    }
+
+    .visit-overview-title {
+        color: #fff8ef;
+        font-size: clamp(2.65rem, 13vw, 4.1rem);
+        line-height: 0.9;
+    }
+
+    .visit-overview-title span {
+        color: #ffd139;
+    }
+
+    .visit-overview-heading p {
+        max-width: 28ch;
+        color: rgba(255, 248, 239, 0.72);
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .home-visit-grid {
+        gap: 1.5rem;
+    }
+
+    .visit-preview-frame {
+        padding: 7px;
+        border: 1px solid rgba(255, 209, 57, 0.35);
+        border-radius: 20px;
+        box-shadow: 0 20px 45px rgba(15, 8, 4, 0.38);
+    }
+
+    .visit-preview-screen {
+        aspect-ratio: 0.94;
+    }
+
+    .visit-info-stack {
+        gap: 0.7rem;
+    }
+
+    .visit-info-card {
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 15px;
+        background: rgba(255, 250, 243, 0.96);
+        box-shadow: 0 10px 24px rgba(15, 8, 4, 0.14);
+    }
+
+    .visit-info-actions {
+        gap: 0.75rem;
+        padding: 0.25rem 0;
+    }
+
+    .visit-directions-link {
+        flex: 1;
+        justify-content: center;
+        min-height: 44px;
+        background: #ffd139;
+        color: #201711;
+    }
+
+    .visit-page-link {
+        color: #fff8ef;
+    }
+
+    .visit-page-link span {
+        color: #ffd139;
+    }
+
     /* Keep the first mobile viewport focused on the hero; the menu starts
        immediately below it and appears naturally on scroll. */
     .hero-section {
