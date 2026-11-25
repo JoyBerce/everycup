@@ -1084,12 +1084,12 @@
 
                         <div class="hero-buttons reveal">
                             <a href="#menu" class="btn-primary-custom">
-                                FIND YOUR CUP
+                                START ORDERING
                                 <span>→</span>
                             </a>
 
                             <a href="#experience" class="btn-outline-custom">
-                                EXPLORE OUR STORY
+                                VIEW MENU
                             </a>
                         </div>
                     </div>
@@ -1113,12 +1113,12 @@
 
                         <div class="hero-buttons">
                             <a href="#menu" class="btn-primary-custom">
-                                EXPLORE THE MENU
+                                START ORDERING
                                 <span>→</span>
                             </a>
 
                             <a href="#visit" class="btn-outline-custom">
-                                PRE-ORDER A CUP
+                                VIEW MENU
                             </a>
                         </div>
                     </div>
@@ -1483,6 +1483,14 @@
 
     </div>
 
+    <!-- REFERENCE-STYLE BENEFITS STRIP -->
+    <section class="reference-benefits" aria-label="Why choose every cup">
+        <div class="reference-benefit"><span aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M8 13h16v11a3 3 0 0 1-3 3H11a3 3 0 0 1-3-3V13Z" stroke="currentColor" stroke-width="2"/><path d="M8 16H5a4 4 0 0 0 0 8h3M24 16h3a4 4 0 0 1 0 8h-3M12 9c0-2 2-3 2-5M18 9c0-2 2-3 2-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><strong>Premium<br>Beans</strong></div>
+        <div class="reference-benefit"><span aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M25 5C14 6 8 12 8 22c5-2 10-6 13-12M8 22l-4 5M8 22c4 0 8 2 10 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>Freshly<br>Made</strong></div>
+        <div class="reference-benefit"><span aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 14h22v13H5zM3 14l3-7h20l3 7M10 20h4v7h-4M19 18h4v4h-4" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><strong>Cozy<br>Space</strong></div>
+        <div class="reference-benefit"><span aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 27S5 20 5 12a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><strong>Community</strong></div>
+    </section>
+
 </section>
 
 
@@ -1753,6 +1761,16 @@
             <div class="flavor-orbit-stage" data-flavor-orbit>
                 <div class="flavor-orbit-glow" aria-hidden="true"></div>
                 <div class="flavor-orbit-ring" aria-hidden="true"></div>
+                <div class="reference-planet-system" aria-hidden="true">
+                    <span class="reference-planet-track reference-planet-track-inner"></span>
+                    <span class="reference-planet-track reference-planet-track-outer"></span>
+                    <img class="reference-planet reference-planet-one" src="{{ asset('images/home/mango.png') }}" alt="">
+                    <img class="reference-planet reference-planet-two" src="{{ asset('images/home/matcha_leaf.png') }}" alt="">
+                    <img class="reference-planet reference-planet-three" src="{{ asset('images/home/strawberry.png') }}" alt="">
+                    <img class="reference-planet reference-planet-four" src="{{ asset('images/home/chocolate.png') }}" alt="">
+                    <img class="reference-planet reference-planet-five" src="{{ asset('images/home/coffee-bean.png') }}" alt="">
+                    <img class="reference-planet reference-planet-six" src="{{ asset('images/home/mango.png') }}" alt="">
+                </div>
                 <div class="flavor-ingredient-orbit" aria-hidden="true">
                     <div class="flavor-ingredient-art">
                         {% for flavor in orbitFlavors %}
@@ -1790,6 +1808,39 @@
     </div>
 
     <script type="application/json" data-orbit-flavors>{{ orbitFlavors|json_encode|raw }}</script>
+</section>
+
+<!-- BEST SELLERS: THE SAME FOUR DRINKS AS THE ORBIT -->
+<section class="reference-best-sellers" aria-labelledby="best-sellers-title">
+    <div class="reference-section-heading">
+        <div>
+            <span class="reference-eyebrow">OUR FAVORITES</span>
+            <h2 id="best-sellers-title">Best Sellers</h2>
+        </div>
+        <a class="reference-outline-link" href="{{ path('app_menu') }}">Explore Menu <span>→</span></a>
+    </div>
+    <div class="reference-seller-grid">
+        <article class="reference-seller-card">
+            <span class="reference-seller-badge">BEST SELLER</span>
+            <img src="{{ asset('images/home/1 (1).png') }}" alt="Mango Cream">
+            <div class="reference-seller-copy"><h3>Mango Cream</h3><p>★ 4.9</p></div><a href="{{ path('app_menu') }}" aria-label="View Mango Cream">↗</a>
+        </article>
+        <article class="reference-seller-card">
+            <span class="reference-seller-badge">CLASSIC</span>
+            <img src="{{ asset('images/home/1 (4).png') }}" alt="Iced Americano">
+            <div class="reference-seller-copy"><h3>Iced Americano</h3><p>★ 4.8</p></div><a href="{{ path('app_menu') }}" aria-label="View Iced Americano">↗</a>
+        </article>
+        <article class="reference-seller-card">
+            <span class="reference-seller-badge">MATCHA</span>
+            <img src="{{ asset('images/home/1 (2).png') }}" alt="Matcha Latte">
+            <div class="reference-seller-copy"><h3>Matcha Latte</h3><p>★ 4.8</p></div><a href="{{ path('app_menu') }}" aria-label="View Matcha Latte">↗</a>
+        </article>
+        <article class="reference-seller-card">
+            <span class="reference-seller-badge">FAN FAVORITE</span>
+            <img src="{{ asset('images/home/1 (3).png') }}" alt="Strawberry Milk">
+            <div class="reference-seller-copy"><h3>Strawberry Milk</h3><p>★ 4.7</p></div><a href="{{ path('app_menu') }}" aria-label="View Strawberry Milk">↗</a>
+        </article>
+    </div>
 </section>
 
 <!-- ===================================================== -->

@@ -842,7 +842,15 @@
         tl = gsap.timeline({
             defaults: { ease: 'none' },
             scrollTrigger: {
-                trigger: stage, start: 'top top', end: '+=520%', pin: true, scrub: .8, anticipatePin: 1, invalidateOnRefresh: true,
+                trigger: stage,
+                start: 'top top',
+                // Mobile keeps the scene in normal document flow. This
+                // avoids pinned-layer overlap when a user flicks quickly.
+                end: narrow() ? '+=100%' : '+=520%',
+                pin: !narrow(),
+                scrub: narrow() ? 1.15 : .8,
+                anticipatePin: narrow() ? 0 : 1,
+                invalidateOnRefresh: true,
                 onUpdate: function (self) {
                     rail.style.transform = 'scaleY(' + self.progress.toFixed(3) + ')';
                     stage.classList.toggle('is-inside', self.progress > .6);
